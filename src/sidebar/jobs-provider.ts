@@ -3,7 +3,7 @@ import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
-import { runJobAll } from '../ui/manage';
+import { getFolderAsModel, getJobsAsModel, runJobAll } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
@@ -180,6 +180,58 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     this.buildsProvider.jobs = undefined;
                     this.refresh();
                 }, 3300);
+            }),
+            vscode.commands.registerCommand('utocode.copyJob', async (job: JobsModel) => {
+                const name = await vscode.window.showInputBox({
+                    prompt: 'Enter Job Name',
+                    value: job.name + '-copy'
+                });
+
+                if (!name) {
+                    return;
+                } else if (name === job.name) {
+                    showInfoMessageWithTimeout('Job name is equals');
+                    return;
+                }
+
+                const mesg = await this.executor?.copyJob(job, name);
+                this.refresh();
+            }),
+            vscode.commands.registerCommand('utocode.moveJob', async (job: JobsModel) => {
+                const jobs = await this.getJobsWithView();
+                if (!jobs || jobs.length === 0) {
+                    showInfoMessageWithTimeout(vscode.l10n.t('Jobs is not exists'));
+                    return;
+                }
+
+                const items = getFolderAsModel(jobs);
+                let newJob: JobsModel | undefined;
+                await vscode.window.showQuickPick(items, {
+                    placeHolder: vscode.l10n.t("Select the job you want to build"),
+                    canPickMany: false
+                }).then(async (selectedItem) => {
+                    if (selectedItem) {
+                        newJob = selectedItem.model!;
+                    }
+                });
+
+                if (newJob) {
+                    const mesg = await this.executor?.moveJob(job, newJob);
+                    this.refresh();
+                }
+            }),
+            vscode.commands.registerCommand('utocode.renameJob', async (job: JobsModel) => {
+                const name = await vscode.window.showInputBox({
+                    prompt: 'Enter Job Name',
+                    value: job.name
+                });
+                if (!name || name === job.name) {
+                    showInfoMessageWithTimeout('Job name is equals');
+                    return;
+                }
+
+                const mesg = await this.executor?.renameJob(job, name);
+                this.refresh();
             }),
             vscode.commands.registerCommand('utocode.enabledJob', async (job: JobsModel) => {
                 const mesg = await this.executor?.enabledJob(job);

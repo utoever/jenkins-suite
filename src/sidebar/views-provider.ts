@@ -27,6 +27,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                     showInfoMessageWithTimeout(vscode.l10n.t('View is not exists'));
                     return;
                 }
+
                 const items: ModelQuickPick<ViewsModel>[] = [];
                 views.forEach(view => {
                     let icon = this.getViewIcon(view._class);
@@ -44,6 +45,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                     placeHolder: vscode.l10n.t("Select to switch view")
                 }).then(async (selectedItem) => {
                     if (selectedItem) {
+                        this.view = selectedItem.model!;
                         jobsProvider.view = selectedItem.model!;
                     }
                 });
@@ -137,6 +139,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         const text = new vscode.MarkdownString();
 
         text.appendMarkdown(`## ${viewModel.name}\n`);
+        text.appendMarkdown(`* Type: _${viewModel._class.split('.').pop()}_\n`);
         text.appendMarkdown('\n---\n');
         if (viewModel.description) {
             text.appendMarkdown(`**Description:** ${viewModel.description}\n`);

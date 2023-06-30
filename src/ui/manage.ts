@@ -30,15 +30,28 @@ export async function switchConnection(context: vscode.ExtensionContext, connect
     });
 }
 
-export async function runJobAll(jobsProvider: JobsProvider, jobAll: boolean = true) {
+export async function runJobAll(jobsProvider: JobsProvider, includeJob: boolean = true) {
     const jobs = await jobsProvider.getJobsWithView();
     if (!jobs || jobs.length === 0) {
         showInfoMessageWithTimeout(vscode.l10n.t('Jobs is not exists'));
         return;
     }
 
+    // get job and folder
+    const items = getJobsAsModel(jobsProvider, jobs, includeJob);
+    await vscode.window.showQuickPick(items, {
+        placeHolder: vscode.l10n.t("Select the job you want to build"),
+        canPickMany: false
+    }).then(async (selectedItem) => {
+        if (selectedItem) {
+            vscode.commands.executeCommand('utocode.buildJob', selectedItem.model);
+        }
+    });
+}
+
+export async function getJobsAsModel(jobsProvider: JobsProvider, jobs: JobsModel[], includeJob: boolean = true): Promise<ModelQuickPick<JobsModel>[]> {
     const items: ModelQuickPick<JobsModel>[] = [];
-    if (jobAll) {
+    if (includeJob) {
         const jobTypes = [JobModelType.freeStyleProject.toString(), JobModelType.workflowJob.toString(), JobModelType.workflowMultiBranchProject.toString()];
         let idx = 0;
         for (const job of jobs) {
@@ -86,12 +99,29 @@ export async function runJobAll(jobsProvider: JobsProvider, jobAll: boolean = tr
         });
     }
 
-    await vscode.window.showQuickPick(items, {
-        placeHolder: vscode.l10n.t("Select the job you want to build"),
-        canPickMany: false
-    }).then(async (selectedItem) => {
-        if (selectedItem) {
-            vscode.commands.executeCommand('utocode.buildJob', selectedItem.model);
+    return items;
+}
+
+export async function getFolderAsModel(jobs: JobsModel[]): Promise<ModelQuickPick<JobsModel>[]> {
+    const items: ModelQuickPick<JobsModel>[] = [];
+    const jobTypes = [JobModelType.folder.toString()];
+    let idx = 0;
+    for (const job of jobs) {
+        if (!jobTypes.includes(job._class)) {
+            continue;
         }
-    });
+        if (idx % 5 === 0) {
+            items.push({
+                label: '',
+                kind: vscode.QuickPickItemKind.Separator
+            });
+        }
+        items.push({
+            label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
+            description: job.jobDetail?.description ? job.jobDetail?.description : job.jobDetail?.displayName,
+            model: job
+        });
+        idx++;
+    }
+    return items;
 }

@@ -288,6 +288,29 @@ export class Executor {
         );
     }
 
+    async copyJob(job: JobsModel, name: string): Promise<string> {
+        const uri = this.extractUrl(job.url);
+        const mode = 'copy';
+        return await this._jenkins._post<string>(
+            `createItem?name=${name}&mode=${mode}&from=${job.name}`
+        );
+    }
+
+    async moveJob(job: JobsModel, newJob: JobsModel): Promise<string> {
+        const uri = this.extractUrl(job.url);
+        const name = this.extractUrl(newJob.url);
+        return await this._jenkins._post<string>(
+            `${uri}/move/move?destination=/${newJob.name}`
+        );
+    }
+
+    async renameJob(job: JobsModel, newName: string): Promise<string> {
+        const uri = this.extractUrl(job.url);
+        return await this._jenkins._post<string>(
+            `${uri}/doRename?newName=${newName}`
+        );
+    }
+
     async enabledJob(job: JobsModel, flag: boolean = true): Promise<string> {
         const uri = this.extractUrl(job.url) + '/' + (flag ? 'enable' : 'disable');
         return await this._jenkins._post<string>(
