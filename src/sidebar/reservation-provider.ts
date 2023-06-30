@@ -3,7 +3,8 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { ReservationJobModel, ReservationScheduler } from '../svc/reservation';
-import { JobsModel } from '../types/model';
+import { JobParameter, JobsModel } from '../types/model';
+import { getParameterAction } from '../types/model-util';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { getLocalDate } from '../utils/datetime';
 import { getParameterDefinition } from '../utils/util';
@@ -39,7 +40,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
     async getTreeItem(element: ReservationJobModel): Promise<vscode.TreeItem> {
         // console.log(`reservation::treeItem <${element}>`);
         let treeItem: vscode.TreeItem = {
-            label: `(${getLocalDate(element.runTime)}) ${element.jobModel.name}`,
+            label: `[${getLocalDate(element.runTime)}] ${element.jobModel.name}`,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: 'reservation',
             iconPath: new vscode.ThemeIcon('watch'),
@@ -52,6 +53,28 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
         const text = new vscode.MarkdownString();
         text.appendMarkdown(`### Job:\n`);
         text.appendMarkdown(`* name: ${element.jobModel.jobDetail?.fullDisplayName ?? element.jobModel.name}\n`);
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown(`### Parameters: \n`);
+        // const jobParams = getParameterDefinition(element.jobModel.jobDetail ?? undefined);
+        // if (jobParams && jobParams.length > 0) {
+        //     for (let param of jobParams[0].parameterDefinitions) {
+        //         text.appendMarkdown(`* ${param.name}\n`);
+        //     }
+        // } else {
+        //     text.appendMarkdown('* **None**\n');
+        // }
+        const formParams: Map<string, string> = element.formParams;
+        if (formParams.size > 0) {
+            for (const [key, val] of formParams.entries()) {
+                text.appendMarkdown(`* ${key}: **${val}**\n`);
+            }
+        } else {
+            text.appendMarkdown('* **None**\n');
+        }
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown(`**${getLocalDate(element.runTime)}**\n`);
         return text;
     }
 
@@ -80,6 +103,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
         const delayInMinutes = Number.parseInt(delayInMinutesStr);
         const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
         const formData = new FormData();
+        const formParams = new Map<string, string>();
         let flag: boolean = true;
         if (jobParams && jobParams.length > 0) {
             for (let param of jobParams[0].parameterDefinitions) {
@@ -89,6 +113,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
                 }).then((val) => {
                     if (val) {
                         formData.append(param.name, val);
+                        formParams.set(param.name, val);
                     } else {
                         flag = false;
                     }
@@ -99,7 +124,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
             showInfoMessageWithTimeout('Cancelled by user');
         }
 
-        this.reservationScheduler.scheduleAction(job, delayInMinutes, formData);
+        this.reservationScheduler.scheduleAction(job, delayInMinutes, formData, formParams);
         this.refresh();
     }
 

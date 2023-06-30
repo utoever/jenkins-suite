@@ -14,7 +14,7 @@ export class ReservationScheduler {
     constructor(private readonly reservationProvider: ReservationProvider) {
     }
 
-    public scheduleAction(job: JobsModel, delayInMinutes: number, formData: FormData) {
+    public scheduleAction(job: JobsModel, delayInMinutes: number, formData: FormData, formParam: Map<string, string>) {
         if (this._reservationModel.length >= this._max) {
             console.log('Maximum number of reservations reached.');
             return;
@@ -26,7 +26,8 @@ export class ReservationScheduler {
             jobModel: job,
             delayInMinutes: delayInMinutes,
             runTime: new Date().getTime() + delayInMilliseconds,
-            formData: formData
+            formData: formData,
+            formParams: formParam
         };
         const id = reservationJobModel.id;
 
@@ -91,5 +92,6 @@ export interface ReservationJobModel {
     delayInMinutes: number;
     runTime: number;
     formData: FormData;
+    formParams: Map<string, string>;
     timer?: NodeJS.Timeout;
 }

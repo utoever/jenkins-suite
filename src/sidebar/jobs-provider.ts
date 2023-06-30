@@ -250,12 +250,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             vscode.commands.registerCommand('utocode.withJobLog', async (build: BuildStatus) => {
                 openLinkBrowser(build.url + 'console');
             }),
-            vscode.commands.registerCommand('utocode.getJobHistory', async (message: WsTalkMessage) => {
+            vscode.commands.registerCommand('utocode.viewJobConsole', async (message: WsTalkMessage) => {
                 const text = await this.executor?.getJobLog(message.url, message.number);
                 console.log(`text <${text}>`);
-                printEditorWithNew(text);
+                printEditorWithNew(text, 'shellscript');
             }),
-            vscode.commands.registerCommand('utocode.withJobHistory', async (message: WsTalkMessage) => {
+            vscode.commands.registerCommand('utocode.openLinkNotifyJob', async (message: WsTalkMessage) => {
                 openLinkBrowser(`${message.url}${message.number}/console`);
             }),
             vscode.commands.registerCommand('utocode.updateConfigView', async () => {

@@ -159,8 +159,8 @@
         "command": "utocode.openLinkView",
         "title": "%openLinkView.title%",
         "icon": {
-          "dark": "resources/dark/console.svg",
-          "light": "resources/light/console.svg"
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
         },
         "category": "jenkinssuite"
       },
@@ -168,8 +168,8 @@
         "command": "utocode.openLinkJob",
         "title": "%openLinkJob.title%",
         "icon": {
-          "dark": "resources/dark/console.svg",
-          "light": "resources/light/console.svg"
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
         },
         "category": "jenkinssuite"
       },
@@ -273,16 +273,28 @@
       {
         "command": "utocode.withJobLog",
         "title": "%withJobLog.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.getJobHistory",
-        "title": "%getJobHistory.title%",
+        "command": "utocode.viewJobConsole",
+        "title": "%viewJobConsole.title%",
+        "icon": {
+          "dark": "resources/dark/console.svg",
+          "light": "resources/light/console.svg"
+        },
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.withJobHistory",
-        "title": "%withJobHistory.title%",
+        "command": "utocode.openLinkNotifyJob",
+        "title": "%openLinkNotifyJob.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
         "category": "jenkinssuite"
       },
       {
@@ -471,29 +483,19 @@
           "group": "inline"
         },
         {
-          "when": "viewItem =~ /^jobs.*/",
-          "command": "utocode.copyJob",
-          "group": "2_configure@1"
+          "when": "viewItem == 'jobs'",
+          "command": "utocode.buildJob",
+          "group": "1_jenkinssuite_actions@1"
         },
         {
           "when": "viewItem =~ /^jobs.*/",
-          "command": "utocode.moveJob",
-          "group": "2_configure@1"
+          "command": "utocode.getConfigJob",
+          "group": "1_jenkinssuite_actions@3"
         },
         {
           "when": "viewItem =~ /^jobs.*/",
-          "command": "utocode.renameJob",
-          "group": "2_configure@1"
-        },
-        {
-          "when": "viewItem == 'jobs_disabled'",
-          "command": "utocode.enabledJob",
-          "group": "2_configure@1"
-        },
-        {
-          "when": "viewItem == 'jobs' && viewItem != 'jobs_disabled'",
-          "command": "utocode.disabledJob",
-          "group": "2_configure@1"
+          "command": "utocode.openExternalBrowser",
+          "group": "1_jenkinssuite_actions@5"
         },
         {
           "when": "viewItem == 'jobs' && viewItem != 'jobs_disabled'",
@@ -502,23 +504,33 @@
         },
         {
           "when": "viewItem =~ /^jobs.*/",
-          "command": "utocode.getConfigJob",
-          "group": "1_jenkinssuite_actions@3"
+          "command": "utocode.renameJob",
+          "group": "2_configure@1"
         },
         {
-          "when": "viewItem == 'jobs'",
-          "command": "utocode.buildJob",
-          "group": "1_jenkinssuite_actions@3"
+          "when": "viewItem =~ /^jobs.*/",
+          "command": "utocode.copyJob",
+          "group": "2_configure@3"
+        },
+        {
+          "when": "viewItem =~ /^jobs.*/",
+          "command": "utocode.moveJob",
+          "group": "2_configure@5"
         },
         {
           "when": "viewItem =~ /^jobs.*/",
           "command": "utocode.deleteJob",
-          "group": "1_jenkinssuite_actions@3"
+          "group": "2_configure@7"
         },
         {
-          "when": "viewItem =~ /^jobs.*/",
-          "command": "utocode.openExternalBrowser",
-          "group": "1_jenkinssuite_actions@3"
+          "when": "viewItem == 'jobs_disabled'",
+          "command": "utocode.enabledJob",
+          "group": "3_manage@1"
+        },
+        {
+          "when": "viewItem == 'jobs' && viewItem != 'jobs_disabled'",
+          "command": "utocode.disabledJob",
+          "group": "3_manage@1"
         },
         {
           "when": "viewItem == 'builds'",
@@ -528,7 +540,7 @@
         {
           "when": "viewItem == 'builds'",
           "command": "utocode.withJobLog",
-          "group": "1_jenkinssuite_actions@4"
+          "group": "inline"
         },
         {
           "when": "viewItem == 'reservation'",
@@ -537,13 +549,13 @@
         },
         {
           "when": "viewItem == 'notify'",
-          "command": "utocode.getJobHistory",
-          "group": "1_jenkinssuite_actions@5"
+          "command": "utocode.viewJobConsole",
+          "group": "inline"
         },
         {
           "when": "viewItem == 'notify'",
-          "command": "utocode.withJobHistory",
-          "group": "1_jenkinssuite_actions@5"
+          "command": "utocode.openLinkNotifyJob",
+          "group": "inline"
         },
         {
           "when": "viewItem == 'snippet'",

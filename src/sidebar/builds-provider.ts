@@ -79,13 +79,11 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
     getToolTip(buildDetails: BuildDetailStatus) {
         const text = new vscode.MarkdownString();
-        text.appendMarkdown(`### Job:\n`);
+        text.appendMarkdown(`### Job: __${buildDetails.fullDisplayName}__\n`);
         if (buildDetails.description) {
             text.appendMarkdown(`* ${buildDetails.description}\n`);
         }
-        text.appendMarkdown(`* name: ${buildDetails.fullDisplayName}\n`);
-        text.appendMarkdown(`* duration: ${buildDetails.duration}\n`);
-
+        text.appendMarkdown(`* duration: ${formatDurationTime(buildDetails.duration)}\n`);
         text.appendMarkdown('\n---\n');
 
         const actions = buildDetails.actions;
@@ -93,10 +91,10 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
         text.appendMarkdown(`### Parameters: \n`);
         if (paramAction && paramAction.length > 0) {
             for (let param of paramAction) {
-                text.appendMarkdown(`  * ${param.name} (${param.value}) \n`);
+                text.appendMarkdown(`* ${param.name} (${param.value}) \n`);
             }
         } else {
-            text.appendMarkdown(' * **None**\n');
+            text.appendMarkdown('* **None**\n');
         }
         text.appendMarkdown('\n---\n');
 
@@ -104,7 +102,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
         if (causeAction) {
             text.appendMarkdown(`### Causes: \n`);
             for (let param of causeAction) {
-                text.appendMarkdown(`  * ${param.shortDescription}\n`);
+                text.appendMarkdown(`* ${param.shortDescription}\n`);
             }
         }
         text.appendMarkdown('\n---\n');

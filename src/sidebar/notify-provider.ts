@@ -33,32 +33,40 @@ export class NotifyProvider implements vscode.TreeDataProvider<WsTalkMessage> {
     }
 
     getToolTip(element: WsTalkMessage) {
-        const results: string[] = [];
         // const paramAction: JobParameter[] | undefined = element.parameterAction?.parameters;
         // if (paramAction) {
         //     results.push('Parameters: ');
         //     paramAction.map(param => results.push(`  ${param.name}: [${param.value}]`));
         // }
         const builds: any | undefined = element.builds;
-        results.push('Parameters: ');
+        const text = new vscode.MarkdownString();
+        text.appendMarkdown(`### Job: __${element.job}__\n`);
+        text.appendMarkdown(`* number: _#${element.number}_\n`);
+        text.appendMarkdown(`* duration: ${element.duration}\n`);
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown(`### Parameter: \n`);
         if (builds) {
             const entries = Object.entries(builds);
             for (let [key, val] of entries) {
-                results.push(`  ${key}: [${val}]`);
+                text.appendMarkdown(`* ${key}: [__${val}__]`);
             }
         } else {
-            results.push('  - None');
+            text.appendMarkdown('* **None**\n');
         }
+        text.appendMarkdown('\n---\n');
+
         const causeAction: CauseParameter[] | undefined = element.causeAction.causes;
         if (causeAction) {
-            if (results.length > 0) {
-                results.push('');
+            text.appendMarkdown(`### Causes: \n`);
+            for (let param of causeAction) {
+                text.appendMarkdown(`* ${param.shortDescription}\n`);
             }
-            causeAction.forEach(param => results.push(param.shortDescription));
         }
-        results.push(`duration: ${element.duration}`);
-        results.push(`date: ${element.timestamp}`);
-        return results.join('\n');
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown(`**${getLocalDate(element.timestamp)}**\n`);
+        return text;
     }
 
     async getChildren(element?: WsTalkMessage): Promise<WsTalkMessage[]> {

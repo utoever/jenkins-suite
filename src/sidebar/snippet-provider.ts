@@ -24,7 +24,6 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     readonly onDidChangeTreeData: vscode.Event<SnippetItem | SnippetItem[] | undefined> = this._onDidChangeTreeData.event;
 
     async getTreeItem(element: SnippetItem): Promise<vscode.TreeItem> {
-        console.log(`snippet::treeItem <${element}>`);
         let treeItem; vscode.TreeItem;
         treeItem = {
             label: element.prefix.toUpperCase(),
@@ -42,7 +41,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     }
 
     async getChildren(element?: SnippetItem): Promise<SnippetItem[]> {
-        console.log(`snippet::children <${element}>`);
+        // console.log(`snippet::children <${element}>`);
         if (!this.jenkinsSnippet) {
             return [];
         }
@@ -55,16 +54,11 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     }
 
     generateCode(snippetItem: SnippetItem) {
-        let text: string;
         if (snippetItem) {
-            text = snippetItem.body.join('\n');
+            const text = snippetItem.body.join('\n');
             printEditorWithNew(text);
         }
     }
-
-    // toggleVisibility(): void {
-    //     vscode.commands.executeCommand('workbench.view.extension.utocode.views.snippets.collapse');
-    // }
 
     refresh(): void {
         this.jenkinsSnippet.initialized = false;
