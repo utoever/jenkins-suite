@@ -51,7 +51,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
     getToolTip(element: ReservationJobModel): string | vscode.MarkdownString | undefined {
         const text = new vscode.MarkdownString();
         text.appendMarkdown(`### Job:\n`);
-        text.appendMarkdown(`* name: ${element.jobModel.fullDisplayName}\n`);
+        text.appendMarkdown(`* name: ${element.jobModel.jobDetail?.fullDisplayName ?? element.jobModel.name}\n`);
         return text;
     }
 
