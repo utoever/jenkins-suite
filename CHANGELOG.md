@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.0] - 2023-07-03
+- Add Reservation Feature
+- Copy / Move Job
+- Update UI
+- A few bug fixes
+
 ## [0.0.7] - 2023-06-29
 - Add Enabled/Disabled Job
 - Update UI

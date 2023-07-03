@@ -289,6 +289,11 @@ export class Executor {
     }
 
     async copyJob(job: JobsModel, name: string): Promise<string> {
+        const existed = await this.checkJobName(name);
+        if (!existed) {
+            throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
+        }
+
         const uri = this.extractUrl(job.url);
         const mode = 'copy';
         return await this._jenkins._post<string>(
@@ -297,14 +302,25 @@ export class Executor {
     }
 
     async moveJob(job: JobsModel, newJob: JobsModel): Promise<string> {
-        const uri = this.extractUrl(job.url);
         const name = this.extractUrl(newJob.url);
+        const existed = await this.checkJobName(name);
+        if (!existed) {
+            throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
+        }
+
+        const uri = this.extractUrl(job.url);
         return await this._jenkins._post<string>(
             `${uri}/move/move?destination=/${newJob.name}`
         );
     }
 
     async renameJob(job: JobsModel, newName: string): Promise<string> {
+        const name = this.extractUrl(newName);
+        const existed = await this.checkJobName(name);
+        if (!existed) {
+            throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
+        }
+
         const uri = this.extractUrl(job.url);
         return await this._jenkins._post<string>(
             `${uri}/doRename?newName=${newName}`

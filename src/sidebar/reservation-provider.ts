@@ -4,7 +4,6 @@ import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { ReservationJobModel, ReservationScheduler } from '../svc/reservation';
 import { JobParameter, JobsModel } from '../types/model';
-import { getParameterAction } from '../types/model-util';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { getLocalDate } from '../utils/datetime';
 import { getParameterDefinition } from '../utils/util';
@@ -31,6 +30,10 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
             }),
             vscode.commands.registerCommand('utocode.reservation.sort', () => {
                 this.order = !this.order;
+                this.refresh();
+            }),
+            vscode.commands.registerCommand('utocode.reservation.info', () => {
+                showInfoMessageWithTimeout(vscode.l10n.t('This feature is not guaranteed to run because it runs in VS Code, not on the server'));
                 this.refresh();
             }),
         );
@@ -146,6 +149,9 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
         this.refresh();
     }
 
+    public reservationJobModel(): ReservationJobModel[] {
+        return this.reservationScheduler.reservationModel;
+    }
 
     public get order(): boolean {
         return this._order;

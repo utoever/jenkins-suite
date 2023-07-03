@@ -33,6 +33,10 @@ export function showMessageWithTimeout(message: string, timeout: number = 2200) 
     }, timeout);
 }
 
+export function openSettings(kind?: string) {
+    vscode.commands.executeCommand("workbench.action.openSettings", kind ? `jenkinssuite.${kind} ` : "jenkinssuite");
+}
+
 export function getExtensionSetting() {
     return getUserSetting(EXTENSION_NAME);
 }

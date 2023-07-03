@@ -193,9 +193,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     showInfoMessageWithTimeout('Job name is equals');
                     return;
                 }
-
-                const mesg = await this.executor?.copyJob(job, name);
-                this.refresh();
+                try {
+                    const mesg = await this.executor?.copyJob(job, name);
+                    this.refresh();
+                } catch (error: any) {
+                    showInfoMessageWithTimeout(error.message);
+                }
             }),
             vscode.commands.registerCommand('utocode.moveJob', async (job: JobsModel) => {
                 const jobs = await this.getJobsWithView();
@@ -215,9 +218,13 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     }
                 });
 
-                if (newJob) {
-                    const mesg = await this.executor?.moveJob(job, newJob);
-                    this.refresh();
+                try {
+                    if (newJob) {
+                        const mesg = await this.executor?.moveJob(job, newJob);
+                        this.refresh();
+                    }
+                } catch (error: any) {
+                    showInfoMessageWithTimeout(error.message);
                 }
             }),
             vscode.commands.registerCommand('utocode.renameJob', async (job: JobsModel) => {

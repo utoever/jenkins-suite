@@ -18,5 +18,6 @@
   "Jenkinsfile successfully validated": "Jenkinsfile successfully validated",
   "Select the job you want to build": "Select the job you want to build",
   "Select the command you want to execute": "Select the command you want to execute",
-  "If you want to modify the xml data and apply it to the server, run \"Create Job\"or \"Update Config Job\" (Shift + Alt + Enter)": "If you want to modify the xml data and apply it to the server, run \"Create Job\" or \"Update Config Job\" (Shift + Alt + Enter)"
+  "If you want to modify the xml data and apply it to the server, run \"Create Job\"or \"Update Config Job\" (Shift + Alt + Enter)": "If you want to modify the xml data and apply it to the server, run \"Create Job\" or \"Update Config Job\" (Shift + Alt + Enter)",
+  "This feature is not guaranteed to run because it runs in VS Code, not on the server": "This feature is not guaranteed to run because it runs in VS Code, not on the server"
 }

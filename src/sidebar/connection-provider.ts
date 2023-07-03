@@ -7,6 +7,7 @@ import { JobsModel, ViewsModel } from '../types/model';
 import { switchConnection } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import logger from '../utils/logger';
+import { openSettings } from '../utils/vsc';
 import { BuildsProvider } from './builds-provider';
 import { JobsProvider } from './jobs-provider';
 import { NotifyProvider } from './notify-provider';
@@ -31,6 +32,9 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         context.subscriptions.push(
             vscode.commands.registerCommand('utocode.switchConnection', async () => {
                 switchConnection(context, this);
+            }),
+            vscode.commands.registerCommand('utocode.connections.settings', () => {
+                openSettings('server');
             }),
             vscode.commands.registerCommand('utocode.connections.refresh', () => {
                 this.refresh();
@@ -177,10 +181,11 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             if (server === undefined) {
                 return;
             }
+
             this._executor = new Executor(this.context, server);
             await this._executor.initialized();
             this._currentServer = server;
-            console.log(`  * jenkins <${this._currentServer.name}> url <${server.url}> `);
+            console.log(`  * jenkins <${this._currentServer.name}> url <${server.url}>`);
         } catch (error: any) {
             logger.error(error.message);
             vscode.window.showErrorMessage(error.message);
@@ -232,8 +237,20 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         this.refresh();
     }
 
-    public disconnect(server: JenkinsServer): void {
-        if (server.name === this._currentServer?.name) {
+    public async disconnect(server: JenkinsServer): Promise<void> {
+        let disconnected = false;
+        const reservations = this.reservationProvider.reservationJobModel();
+        if (reservations && reservations.length > 0) {
+            await vscode.window.showInformationMessage(vscode.l10n.t(`There are {0} scheduled schedules. Do you still want to quit?`, reservations.length), 'Yes', 'No').then(answer => {
+                if (answer === 'Yes') {
+                    disconnected = true;
+                }
+            });
+        } else {
+            disconnected = true;
+        }
+
+        if (disconnected && server.name === this._currentServer?.name) {
             this._executor?.disconnect();
             this._executor = undefined;
             this.updateUI(false);
