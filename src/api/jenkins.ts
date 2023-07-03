@@ -112,7 +112,31 @@ export class Jenkins {
         }
     };
 
-    _postJson = async <T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> => {
+    _postFormEncoded = async <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+        console.log(`url <${url}>`);
+        if (!config) {
+            config = {
+            };
+        }
+
+        const headers = new AxiosHeaders();
+        headers.set('jenkins-crumb', this._crumb);
+        headers.set('Content-Type', 'application/x-www-form-urlencoded');
+        config.headers = headers;
+        config.method = 'POST';
+
+        try {
+            const response = await this.client.postForm<Response<T>>(url, data, config);
+
+            console.log(`response <${response.data}>`);
+            return response.data;
+        } catch (error: any) {
+            console.log(`  >> Error <${error.message}>`);
+            return error.message;
+        }
+    };
+
+    _postJson = async <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
         console.log(`url <${url}>`);
         if (!config) {
             config = {
@@ -126,7 +150,7 @@ export class Jenkins {
         config.method = 'POST';
 
         try {
-            const response = await this.client.postForm<Response<T>>(url, formData, config);
+            const response = await this.client.post<Response<T>>(url, data, config);
 
             console.log(`response <${response.data}>`);
             return response.data;

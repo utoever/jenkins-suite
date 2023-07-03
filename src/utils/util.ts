@@ -23,6 +23,22 @@ export async function invokeSnippet(context: vscode.ExtensionContext, snippetNam
     });
 }
 
+export async function invokeSnippetJenkins(context: vscode.ExtensionContext, snippetName: string): Promise<SnippetItem> {
+    return await invokeSnippetFromPath(context, snippetName, 'jenkins.json');
+}
+
+export async function invokeSnippetFromPath(context: vscode.ExtensionContext, snippetName: string, snippetPath: string): Promise<SnippetItem> {
+    const extensionPath = context.extensionPath;
+    const snippetFilePath = path.join(extensionPath, 'snippets', snippetPath);
+    const snippetContent = await vscode.workspace.fs.readFile(vscode.Uri.file(snippetFilePath));
+    const snippetText = snippetContent.toString();
+    const snippets = JSON.parse(snippetText);
+
+    return new Promise<SnippetItem>((resolve, reject) => {
+        resolve(snippets[snippetName]);
+    });
+}
+
 export function toArray<T>(obj: T | T[]): T[] {
     if (obj instanceof Array) {
         return obj;

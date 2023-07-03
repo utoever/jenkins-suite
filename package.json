@@ -103,6 +103,31 @@
     },
     "commands": [
       {
+        "command": "utocode.restart",
+        "title": "%restart.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.createUser",
+        "title": "%createUser.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.changeExecutor",
+        "title": "%changeExecutor.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.createCredential#SecretText",
+        "title": "%createSecretText.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.createCredential#CredentialUser",
+        "title": "%createCreditalUser.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.switchConnection",
         "title": "%switchConnection.title%",
         "category": "jenkinssuite"
@@ -436,6 +461,11 @@
         }
       },
       {
+        "command": "utocode.executeScript",
+        "title": "Execute Groovy Script",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.translateMessage",
         "title": "Translate Message",
         "category": "jenkinssuite"
@@ -483,6 +513,26 @@
           "when": "view == 'utocode.views.connection'",
           "command": "utocode.connectSSHExternal",
           "group": "1_run@1"
+        },
+        {
+          "when": "view == 'utocode.views.connection'",
+          "command": "utocode.createUser",
+          "group": "2_configure@1"
+        },
+        {
+          "when": "view == 'utocode.views.connection'",
+          "command": "utocode.changeExecutor",
+          "group": "2_configure@2"
+        },
+        {
+          "when": "view == 'utocode.views.connection'",
+          "command": "utocode.createCredential#SecretText",
+          "group": "2_configure@2"
+        },
+        {
+          "when": "view == 'utocode.views.connection'",
+          "command": "utocode.createCredential#CredentialUser",
+          "group": "2_configure@2"
         },
         {
           "when": "view == 'utocode.views.connection' && viewItem != 'connection_on'",

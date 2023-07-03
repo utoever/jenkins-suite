@@ -35,7 +35,8 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
             //     arguments: [element]
             // },
             contextValue: 'snippet',
-            iconPath: new vscode.ThemeIcon('symbol-enum'),
+            // iconPath: new vscode.ThemeIcon('symbol-enum'),
+            iconPath: this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`),
             tooltip: element.description
         };
         return treeItem;

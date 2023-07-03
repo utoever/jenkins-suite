@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JobModelType, JobProperty, JobsModel } from "../types/model";
 import logger from '../utils/logger';
-import { getParameterDefinition, invokeSnippet } from '../utils/util';
+import { getParameterDefinition, invokeSnippet, invokeSnippetJenkins } from '../utils/util';
 import { Jenkins } from "./jenkins";
 
 export class Executor {
@@ -103,6 +103,42 @@ export class Executor {
         return await this._jenkins._create<string>(
             `view/${name}/config.xml`, content
         );
+    }
+
+    async createUser(username: string, password: string, role: string = 'USER') {
+        const snippetItem = await invokeSnippetJenkins(this.context, 'create_user');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__ROLE__', role)
+                .replace('__USERNAME__', username)
+                .replace('__PASSWORD__', password);
+        }
+
+        console.log(`createUser:: username <${username}> role <${role}>`);
+        return data && await this.executeScript(data);
+    }
+
+    async createCredential(username: string, password: string, kind: string) {
+        const snippetItem = await invokeSnippetJenkins(this.context, 'createCredential');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__KIND__', kind)
+                .replace('__USERNAME__', username)
+                .replace('__PASSWORD__', password);
+        }
+
+        console.log(`createCredential:: username <${username}> kind <${kind}>`);
+        return data && await this.executeScript(data);
+    }
+
+    async getExecutor() {
+        const data = 'Jenkins jenkins = Jenkins.getInstance();jenkins.getNumExecutors()';
+        return await this.executeScript(data);
+    }
+
+    async changeExecutor(numExecutors: string) {
+        const data = `Jenkins jenkins = Jenkins.getInstance();jenkins.setNumExecutors(${numExecutors});jenkins.save();jenkins.getNumExecutors()`;
+        return await this.executeScript(data);
     }
 
     //
@@ -224,6 +260,19 @@ export class Executor {
                 `${uri}/build?delay=${delay}sec`
             );
         }
+    }
+
+    async executeScript(text: string): Promise<string> {
+        return await this._jenkins._postFormEncoded<string>(
+            'scriptText', {
+            script: text
+        });
+    }
+
+    async restart(): Promise<string> {
+        return await this._jenkins._post<string>(
+            'safeRestart'
+        );
     }
 
     async getJobLog(url: string, buildNumber: number): Promise<string> {

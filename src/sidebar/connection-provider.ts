@@ -6,6 +6,7 @@ import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { JobsModel, ViewsModel } from '../types/model';
 import { switchConnection } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
+import { getSelectionText } from '../utils/editor';
 import logger from '../utils/logger';
 import { openSettings } from '../utils/vsc';
 import { BuildsProvider } from './builds-provider';
@@ -30,6 +31,12 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
 
     constructor(protected context: vscode.ExtensionContext, private readonly viewsProvider: ViewsProvider, private readonly jobsProvider: JobsProvider, private readonly buildsProvider: BuildsProvider, private readonly reservationProvider: ReservationProvider, private readonly notifyProvider: NotifyProvider) {
         context.subscriptions.push(
+            vscode.commands.registerCommand('utocode.restart', async () => {
+                if (this._executor) {
+                    this._executor.restart();
+                    showInfoMessageWithTimeout('Restart', 20000);
+                }
+            }),
             vscode.commands.registerCommand('utocode.switchConnection', async () => {
                 switchConnection(context, this);
             }),
@@ -47,6 +54,84 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             }),
             vscode.commands.registerCommand('utocode.disconnectServer', (server: JenkinsServer) => {
                 this.disconnect(server);
+            }),
+            vscode.commands.registerCommand('utocode.createUser', async () => {
+                if (this._executor) {
+                    const items: vscode.QuickPickItem[] = [
+                        { label: 'USER', description: 'Create Dev User' },
+                        { label: 'ADMIN', description: 'Create admin user' },
+                        { label: 'GUEST', description: 'Create guest user' },
+                    ];
+                    const role = await vscode.window.showQuickPick(items, {
+                        placeHolder: vscode.l10n.t("Select user type")
+                    }).then(async (selectedItem) => {
+                        return selectedItem && selectedItem.label;
+                    });
+                    const username = await vscode.window.showInputBox({ prompt: 'Enter username' }).then((val) => {
+                        return val;
+                    });
+                    const password = await vscode.window.showInputBox({ prompt: 'Enter password' }).then((val) => {
+                        return val;
+                    });
+
+                    if (role && username && password) {
+                        const result = await this._executor.createUser(username, password, role);
+                        showInfoMessageWithTimeout(vscode.l10n.t('Create User {0}', result === '' ? `<${username}>` : 'Failed'));
+                    } else {
+                        showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
+                    }
+                }
+            }),
+            vscode.commands.registerCommand('utocode.changeExecutor', async (server: JenkinsServer) => {
+                if (this._executor) {
+                    const numExecutors = await this._executor.getExecutor();
+                    const setNumExecutor = await vscode.window.showInputBox({
+                        prompt: 'Enter number of Executor',
+                        placeHolder: numExecutors
+                    }).then((val) => {
+                        return val;
+                    });
+                    if (setNumExecutor) {
+                        const result = await this._executor.changeExecutor(setNumExecutor);
+                        showInfoMessageWithTimeout(vscode.l10n.t('Number of Executor <{0}>', result));
+                    } else {
+                        showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
+                    }
+                }
+            }),
+            vscode.commands.registerCommand('utocode.createCredential#SecretText', async (server: JenkinsServer) => {
+                if (this._executor) {
+                    const username = await vscode.window.showInputBox({ prompt: 'Enter username' }).then((val) => {
+                        return val;
+                    });
+                    const password = await vscode.window.showInputBox({ prompt: 'Enter password' }).then((val) => {
+                        return val;
+                    });
+
+                    if (username && password) {
+                        const result = await this._executor.createCredential(username, password, 'SecretText');
+                        showInfoMessageWithTimeout(vscode.l10n.t('Create Credential {0}', result === '' ? `<${username}>` : 'Failed'));
+                    } else {
+                        showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
+                    }
+                }
+            }),
+            vscode.commands.registerCommand('utocode.createCredential#CredentialUser', async (server: JenkinsServer) => {
+                if (this._executor) {
+                    const username = await vscode.window.showInputBox({ prompt: 'Enter username' }).then((val) => {
+                        return val;
+                    });
+                    const password = await vscode.window.showInputBox({ prompt: 'Enter password' }).then((val) => {
+                        return val;
+                    });
+
+                    if (username && password) {
+                        const result = await this._executor.createCredential(username, password, 'CredentialUser');
+                        showInfoMessageWithTimeout(vscode.l10n.t('Create Credential {0}', result === '' ? `<${username}>` : 'Failed'));
+                    } else {
+                        showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
+                    }
+                }
             }),
             vscode.commands.registerCommand('utocode.setPrimaryServer', (server: JenkinsServer) => {
                 if (JenkinsConfiguration.primary !== server.name) {
@@ -101,6 +186,23 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             }),
             vscode.commands.registerCommand('utocode.openExternalBrowser', (job: JobsModel) => {
                 openLinkBrowser(job.url);
+            }),
+            vscode.commands.registerCommand('utocode.executeScript', async () => {
+                const text = getSelectionText();
+                if (!text) {
+                    showInfoMessageWithTimeout(vscode.l10n.t('Script is empty'));
+                    return;
+                }
+
+                const result = await this._executor?.executeScript(text);
+                if (result) {
+                    if (result === '') {
+                        showInfoMessageWithTimeout('Execute successfully', 5000);
+                    } else {
+                        showInfoMessageWithTimeout(result);
+                    }
+                    console.log(result);
+                }
             }),
         );
 
