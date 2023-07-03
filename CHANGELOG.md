@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.0] - 2023-07-04
+- Add Global Credentials (SecretText/Username with password)
+- A few bug fixes
+
 ## [0.1.0] - 2023-07-03
 - Add Reservation Feature
 - Copy / Move Job

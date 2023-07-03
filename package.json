@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "Manage your Jenkins Job inside Visual Studio Code",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
