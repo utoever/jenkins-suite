@@ -70,6 +70,7 @@ export interface SnippetItem {
     prefix: string
     body: string[]
     description: string
+    language?: string
     hidden?: boolean
     when?: string
 }

@@ -433,6 +433,7 @@
       "  <disabled>false</disabled>",
       "</flow-definition>"
     ],
+    "language": "jenkins",
     "description": "C_JOB_PIPELINE",
     "hidden": true
   },
@@ -519,6 +520,7 @@
       "}",
       ""
     ],
+    "language": "jenkins",
     "description": "Pipeline Job 을 생성합니다."
   }
 }

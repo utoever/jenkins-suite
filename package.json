@@ -429,7 +429,11 @@
       {
         "command": "utocode.generateCode",
         "title": "%generateCode.title%",
-        "category": "jenkinssuite"
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/task.svg",
+          "dark": "resources/dark/task.svg"
+        }
       },
       {
         "command": "utocode.translateMessage",
@@ -578,7 +582,7 @@
         {
           "when": "viewItem == 'snippet'",
           "command": "utocode.generateCode",
-          "group": "1_jenkinssuite_actions@6"
+          "group": "inline"
         }
       ],
       "view/title": [
@@ -959,7 +963,6 @@
         "command": "utocode.generateJobCode",
         "key": "ctrl+alt+insert",
         "mac": "cmd+options+f12",
-        "when": "editorTextFocus",
         "category": "jenkinssuite"
       },
       {

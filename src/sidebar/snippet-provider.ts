@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import JenkinsConfiguration from '../config/settings';
 import JenkinsSnippet, { SnippetItem } from '../snippet/snippet';
+import { showInfoMessageWithTimeout } from '../ui/ui';
 import { printEditorWithNew } from '../utils/editor';
 
 export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
@@ -56,7 +57,10 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     generateCode(snippetItem: SnippetItem) {
         if (snippetItem) {
             const text = snippetItem.body.join('\n');
-            printEditorWithNew(text);
+            printEditorWithNew(text, snippetItem.language);
+            if (snippetItem.language === 'jenkins') {
+                showInfoMessageWithTimeout(vscode.l10n.t('To test the pipeline, run validateJenkins (Ctrl+Alt+t)'));
+            }
         }
     }
 

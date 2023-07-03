@@ -117,7 +117,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     printEditorWithNew(snippetItem.body.join('\n'));
 
                     setTimeout(() => {
-                        showInfoMessageWithTimeout(vscode.l10n.t('If you want to modify the xml data and apply it to the server, run "Create Job"or "Update Config Job" (Shift + Alt + Enter)'), 12000);
+                        showInfoMessageWithTimeout(vscode.l10n.t('If you want to modify the xml data and apply it to the server, run "Create Job"or "Update Config Job" (Shift + Alt + Enter)'), 10000);
                     }, 1000);
                 });
             }),
