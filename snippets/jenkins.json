@@ -136,5 +136,31 @@
       "}"
     ],
     "description": "getGlobalEnvironment"
+  },
+  "is_admin": {
+    "prefix": "is_admin",
+    "body": [
+      "import jenkins.model.*",
+      "import hudson.security.*",
+      "",
+      "def instance = jenkins.model.Jenkins.instance",
+      "def authorizationStrategy = instance.getAuthorizationStrategy()",
+      "def username = '__USERNAME__'",
+      "def user = instance.getUser(username)",
+      "",
+      "def permissions = [:]",
+      "if (user != null) {",
+      "    authorizationStrategy.getGrantedPermissionEntries().each { entry ->",
+      "    entry.value.each { permissionEntry ->",
+      "        if (permissionEntry.sid == username && entry.key == Jenkins.ADMINISTER) {",
+      "        permissions.put(entry.key, permissionEntry)",
+      "        }",
+      "    }",
+      "    }",
+      "}",
+      "",
+      "return permissions.isEmpty() ? false : true"
+    ],
+    "description": "is_admin"
   }
 }

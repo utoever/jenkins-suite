@@ -33,6 +33,7 @@ export interface WsTalk {
 
 export interface JenkinsServer extends JenkinsProperty {
     name: string;
+    admin?: boolean;
 }
 
 export default class JenkinsConfiguration {

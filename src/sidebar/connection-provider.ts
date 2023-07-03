@@ -224,12 +224,13 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             }
         }
 
+        let authority = this._currentServer?.admin ? '_admin' : '';
         let treeItem; vscode.TreeItem;
         treeItem = {
             label: element.name,
             description: element.description,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
-            contextValue: 'connection' + (this._primary && this._primary === element.name ? '_on' : ''),
+            contextValue: 'connection' + (this._primary && this._primary === element.name ? '' : '_not') + authority,
             iconPath: this.context.asAbsolutePath(`resources/job/${status}.png`),
             tooltip: this.viewServer(element)
         };
@@ -310,11 +311,16 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         this.updateUI(true);
     }
 
-    public updateViewsProvider() {
+    public async updateViewsProvider() {
         if (this._executor) {
-            this._executor.getInfo().then(info => {
-                this.viewsProvider.info = info;
-            });
+            this.viewsProvider.info = await this._executor.getInfo();
+            if (this._currentServer) {
+                const isAdmin = await this._executor.isAdmin(this._currentServer.username);
+                if (isAdmin) {
+                    this._currentServer.admin = "Result: true" === isAdmin;
+                    this.refresh();
+                }
+            }
         } else {
             this.viewsProvider.info = undefined;
         }

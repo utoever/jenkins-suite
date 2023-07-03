@@ -140,6 +140,17 @@ export class Executor {
         return result ? result.split(':').pop()!.trim() : result;
     }
 
+    async isAdmin(username: string) {
+        const snippetItem = await invokeSnippetJenkins(this.context, 'is_admin');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__USERNAME__', username);
+        }
+
+        console.log(`isAdmin:: username <${username}>`);
+        return data && await this.executeScript(data);
+    }
+
     //
     // Job
     //
