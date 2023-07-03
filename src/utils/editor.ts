@@ -12,8 +12,6 @@ export function getSelectionText() {
         } else {
             content = editor.document.getText(selection);
         }
-    // } else {
-    //     vscode.window.showErrorMessage('Editor is not open');
     }
     return content;
 }
@@ -26,7 +24,7 @@ export async function openEditorWithNew(languageId: string = 'xml') {
 }
 
 export async function openEditorWithNewOld(filename: string = 'untitled:Untitled', languageId: string = 'xml') {
-    const baseUri = vscode.Uri.parse(filename +'-1');
+    const baseUri = vscode.Uri.parse(filename + '-1');
     let uri = baseUri;
     let count = 1;
     let document: vscode.TextDocument;
@@ -70,7 +68,7 @@ export async function printEditorWithNew(output: string | undefined, languageId:
             editBuilder.insert(editor.selection.start, output);
         });
     } else {
-        vscode.window.showErrorMessage("Editor 창이 없습니다. 파일을 생성하거나 열어주세요.");
+        vscode.window.showErrorMessage("There is no Editor window. Create or open a file");
     }
 }
 
@@ -86,6 +84,6 @@ export async function printEditor(output: string) {
             editBuilder.insert(currentPosition, output);
         });
     } else {
-        vscode.window.showErrorMessage("Editor 창이 없습니다. 파일을 생성하거나 열어주세요.");
+        vscode.window.showErrorMessage("There is no Editor window. Create or open a file");
     }
 }

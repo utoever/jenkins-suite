@@ -60,15 +60,15 @@
       "def domain = Domain.global()",
       "def kind = '__KIND__'",
       "def username = \"__USERNAME__\";",
-      "def passwd = \"__PASSWORD__\";",
+      "def password = \"__PASSWORD__\";",
       "",
       "if (kind == 'CredentialUser') {",
       "    def id = username + '_user'",
-      "    def credUser = makeCredentialUser(id, username, passwd, username + \" User\")",
+      "    def credUser = makeCredentialUser(id, username, password, username + \" User\")",
       "    store.addCredentials(domain, credUser)",
       "} else if (kind == 'SecretText') {",
       "    def id = username + '_secret'",
-      "    def secretText = makeSecret(id, name, passwd)",
+      "    def secretText = makeSecretText(id, username, password)",
       "    store.addCredentials(domain, secretText)",
       "} else if (kind == 'KubeConfig') {",
       "    def pId = userame",
@@ -78,7 +78,7 @@
       "        def secretBytes = SecretBytes.fromBytes(Files.readAllBytes(fileLocation))",
       "        def secretFile = new FileCredentialsImpl(",
       "            CredentialsScope.GLOBAL,",
-      "            pId + '-k8s',",
+      "            pId + '_k8s',",
       "            'kubeconfig file',",
       "            'kubeconfig',",
       "            secretBytes)",
@@ -118,5 +118,23 @@
       "}"
     ],
     "description": "createCredential"
+  },
+  "getGlobalEnvironment": {
+    "prefix": "getGlobalEnvironment",
+    "body": [
+      "import hudson.slaves.EnvironmentVariablesNodeProperty;",
+      "",
+      "import hudson.slaves.NodeProperty;",
+      "import hudson.slaves.NodePropertyDescriptor;",
+      "import hudson.util.DescribableList;",
+      "  ",
+      "Jenkins instance = Jenkins.getInstance();",
+      "DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = instance.getGlobalNodeProperties();",
+      "List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class);",
+      "for (EnvironmentVariablesNodeProperty property : envVarsNodePropertyList) {",
+      "  println(property.getEnvVars())",
+      "}"
+    ],
+    "description": "getGlobalEnvironment"
   }
 }

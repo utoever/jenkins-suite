@@ -73,11 +73,8 @@ export class Executor {
     };
 
     async createView() {
-        let name = '';
-        await vscode.window.showInputBox({ prompt: 'Enter view name' }).then((val) => {
-            if (val) {
-                name = val;
-            }
+        const name = await vscode.window.showInputBox({ prompt: 'Enter view name' }).then((val) => {
+            return val;
         });
         if (name) {
             const categorizedEnabled = JenkinsConfiguration.categorizedEnabled;
@@ -133,12 +130,14 @@ export class Executor {
 
     async getExecutor() {
         const data = 'Jenkins jenkins = Jenkins.getInstance();jenkins.getNumExecutors()';
-        return await this.executeScript(data);
+        const result = await this.executeScript(data);
+        return result ? result.split(':').pop()?.trim() : result;
     }
 
     async changeExecutor(numExecutors: string) {
         const data = `Jenkins jenkins = Jenkins.getInstance();jenkins.setNumExecutors(${numExecutors});jenkins.save();jenkins.getNumExecutors()`;
-        return await this.executeScript(data);
+        const result = await this.executeScript(data);
+        return result ? result.split(':').pop()!.trim() : result;
     }
 
     //
@@ -263,10 +262,11 @@ export class Executor {
     }
 
     async executeScript(text: string): Promise<string> {
-        return await this._jenkins._postFormEncoded<string>(
+        const result = await this._jenkins._postFormEncoded<string>(
             'scriptText', {
             script: text
         });
+        return result ? result.trim() : result;
     }
 
     async restart(): Promise<string> {
@@ -283,11 +283,8 @@ export class Executor {
     }
 
     async createJob(data: any, viewName: string = 'all') {
-        let name = '';
-        await vscode.window.showInputBox({ prompt: 'Enter job name' }).then((val) => {
-            if (val) {
-                name = val;
-            }
+        const name = await vscode.window.showInputBox({ prompt: 'Enter job name' }).then((val) => {
+            return val;
         });
         if (name) {
             console.log(`createJob:: name <${name}>`);
@@ -300,11 +297,8 @@ export class Executor {
     }
 
     async createFolder(viewName: string = 'all') {
-        let name = '';
-        await vscode.window.showInputBox({ prompt: 'Enter folder name' }).then((val) => {
-            if (val) {
-                name = val;
-            }
+        const name = await vscode.window.showInputBox({ prompt: 'Enter folder name' }).then((val) => {
+            return val;
         });
         if (name) {
             let createFolder = JenkinsConfiguration.createSnippetFolder;
@@ -351,11 +345,11 @@ export class Executor {
     }
 
     async moveJob(job: JobsModel, newJob: JobsModel): Promise<string> {
-        const name = this.extractUrl(newJob.url);
-        const existed = await this.checkJobName(name);
-        if (!existed) {
-            throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
-        }
+        // const name = this.extractUrl(newJob.url);
+        // const existed = await this.checkJobName(name);
+        // if (!existed) {
+        //     throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
+        // }
 
         const uri = this.extractUrl(job.url);
         return await this._jenkins._post<string>(

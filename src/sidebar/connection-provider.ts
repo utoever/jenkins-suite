@@ -283,6 +283,10 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             if (server === undefined) {
                 return;
             }
+            if (server.name === this._currentServer?.name) {
+                showInfoMessageWithTimeout('You are already connected');
+                return;
+            }
 
             this._executor = new Executor(this.context, server);
             await this._executor.initialized();

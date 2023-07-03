@@ -1,8 +1,10 @@
+import { partial } from 'lodash';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from "../config/settings";
 import { ConnectionProvider } from '../sidebar/connection-provider';
 import { JobsProvider } from '../sidebar/jobs-provider';
-import { JobModelType, JobsModel, ModelQuickPick } from '../types/model';
+import { BallColor } from '../types/jenkins-types';
+import { HealthReport, JobModelType, JobsModel, ModelQuickPick } from '../types/model';
 import { showInfoMessageWithTimeout } from "./ui";
 
 export async function switchConnection(context: vscode.ExtensionContext, connectionProvider: ConnectionProvider) {
@@ -102,12 +104,32 @@ export async function getJobsAsModel(jobsProvider: JobsProvider, jobs: JobsModel
     return items;
 }
 
-export async function getFolderAsModel(jobs: JobsModel[]): Promise<ModelQuickPick<JobsModel>[]> {
+export async function getFolderAsModel(jobs: JobsModel[], selectedJob: JobsModel): Promise<ModelQuickPick<JobsModel>[]> {
     const items: ModelQuickPick<JobsModel>[] = [];
     const jobTypes = [JobModelType.folder.toString()];
-    let idx = 0;
+    const rootJob: JobsModel = {
+        name: '',
+        url: '',
+        healthReport: [],
+        color: BallColor.notbuilt,
+        buildable: false,
+        fullName: 'Jenkins',
+        fullDisplayName: 'Jenkins',
+        _class: ''
+    };
+
+    items.push({
+        label: `$(tasklist) Jenkins`,
+        description: `${rootJob.fullName}`,
+        model: rootJob
+    });
+
+    let idx = 1;
     for (const job of jobs) {
         if (!jobTypes.includes(job._class)) {
+            continue;
+        }
+        if (selectedJob.name === job.name) {
             continue;
         }
         if (idx % 5 === 0) {

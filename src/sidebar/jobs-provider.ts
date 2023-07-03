@@ -144,7 +144,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.getConfigJob', async (job: JobsModel) => {
                 const text = await this.executor?.getConfigJob(job);
-                console.log(`text <${text}>`);
                 printEditorWithNew(text);
             }),
             vscode.commands.registerCommand('utocode.addReservation', async (job: JobsModel) => {
@@ -207,15 +206,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     return;
                 }
 
-                const items = getFolderAsModel(jobs);
-                let newJob: JobsModel | undefined;
-                await vscode.window.showQuickPick(items, {
+                const items = getFolderAsModel(jobs, job);
+                let newJob = await vscode.window.showQuickPick(items, {
                     placeHolder: vscode.l10n.t("Select the job you want to build"),
                     canPickMany: false
                 }).then(async (selectedItem) => {
-                    if (selectedItem) {
-                        newJob = selectedItem.model!;
-                    }
+                    return selectedItem ? selectedItem.model : undefined;
                 });
 
                 try {
