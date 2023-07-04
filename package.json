@@ -874,6 +874,14 @@
                 "wstalk.description": {
                   "description": "Wstalk to Jenkins Wstalk description",
                   "type": "string"
+                },
+                "git": {
+                  "description": "Git URL",
+                  "type": "string"
+                },
+                "sonarqube": {
+                  "description": "Sonarqube URL",
+                  "type": "string"
                 }
               }
             }
