@@ -543,22 +543,22 @@
           "group": "1_run@1"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin/",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.createUser",
           "group": "2_configure@1"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin/",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.changeExecutor",
           "group": "2_configure@2"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin/",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.createCredential#SecretText",
           "group": "2_configure@2"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin/",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.createCredential#CredentialUser",
           "group": "2_configure@2"
         },

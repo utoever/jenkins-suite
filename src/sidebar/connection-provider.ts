@@ -226,18 +226,21 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
     async getTreeItem(element: JenkinsServer): Promise<vscode.TreeItem> {
         console.log(`connection::treeItem <${element}>`);
         let status = 'grey';
+        let authority = '';
         if (this._currentServer && this._currentServer.name === element.name) {
             if (this.isConnected()) {
                 status = 'blue';
             } else {
                 status = 'red';
             }
+            if (this._currentServer?.admin) {
+                authority = '_admin';
+            }
         }
 
-        let authority = element.admin ? '_admin' : '';
         let git = element.git ? '_git' : '';
         let sqube = element.sonarqube ? '_sqube' : '';
-        let treeItem; vscode.TreeItem;
+        let treeItem: vscode.TreeItem;
         treeItem = {
             label: element.name,
             description: element.description,
