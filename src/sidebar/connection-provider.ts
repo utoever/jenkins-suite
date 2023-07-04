@@ -46,8 +46,18 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             vscode.commands.registerCommand('utocode.connections.refresh', () => {
                 this.refresh();
             }),
-            vscode.commands.registerCommand('utocode.goHome', (server: JenkinsServer) => {
+            vscode.commands.registerCommand('utocode.linkJenkinsHome', (server: JenkinsServer) => {
                 openLinkBrowser(server.url);
+            }),
+            vscode.commands.registerCommand('utocode.linkGitHome', (server: JenkinsServer) => {
+                if (server.git) {
+                    openLinkBrowser(server.git);
+                }
+            }),
+            vscode.commands.registerCommand('utocode.linkSqubeHome', (server: JenkinsServer) => {
+                if (server.sonarqube) {
+                    openLinkBrowser(server.sonarqube);
+                }
             }),
             vscode.commands.registerCommand('utocode.connectServer', (server: JenkinsServer) => {
                 this.connect(server);
@@ -224,13 +234,15 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             }
         }
 
-        let authority = this._currentServer?.admin ? '_admin' : '';
+        let authority = element.admin ? '_admin' : '';
+        let git = element.git ? '_git' : '';
+        let sqube = element.sonarqube ? '_sqube' : '';
         let treeItem; vscode.TreeItem;
         treeItem = {
             label: element.name,
             description: element.description,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
-            contextValue: 'connection' + (this._primary && this._primary === element.name ? '' : '_not') + authority,
+            contextValue: 'connection' + (this._primary && this._primary === element.name ? '' : '_not') + authority + git + sqube,
             iconPath: this.context.asAbsolutePath(`resources/job/${status}.png`),
             tooltip: this.viewServer(element)
         };

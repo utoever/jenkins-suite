@@ -333,11 +333,29 @@
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.goHome",
-        "title": "%goHome.title%",
+        "command": "utocode.linkJenkinsHome",
+        "title": "%linkJenkinsHome.title%",
         "icon": {
           "dark": "resources/dark/home.png",
-          "light": "resources/light/home.svg"
+          "light": "resources/light/home.png"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.linkGitHome",
+        "title": "%linkGitHome.title%",
+        "icon": {
+          "dark": "resources/dark/git.svg",
+          "light": "resources/light/git.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.linkSqubeHome",
+        "title": "%linkSqubeHome.title%",
+        "icon": {
+          "dark": "resources/dark/sonarqube.svg",
+          "light": "resources/light/sonarqube.svg"
         },
         "category": "jenkinssuite"
       },
@@ -490,9 +508,19 @@
       ],
       "view/item/context": [
         {
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_sqube.*/",
+          "command": "utocode.linkSqubeHome",
+          "group": "inline@1"
+        },
+        {
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_git.*/",
+          "command": "utocode.linkGitHome",
+          "group": "inline@3"
+        },
+        {
           "when": "view == 'utocode.views.connection'",
-          "command": "utocode.goHome",
-          "group": "inline"
+          "command": "utocode.linkJenkinsHome",
+          "group": "inline@5"
         },
         {
           "when": "view == 'utocode.views.connection'",

@@ -34,6 +34,8 @@ export interface WsTalk {
 export interface JenkinsServer extends JenkinsProperty {
     name: string;
     admin?: boolean;
+    git?: string;
+    sonarqube?: string;
 }
 
 export default class JenkinsConfiguration {
