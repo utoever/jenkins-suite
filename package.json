@@ -336,8 +336,8 @@
         "command": "utocode.linkJenkinsHome",
         "title": "%linkJenkinsHome.title%",
         "icon": {
-          "dark": "resources/dark/home.png",
-          "light": "resources/light/home.png"
+          "dark": "resources/icons/jenkins.svg",
+          "light": "resources/icons/jenkins.svg"
         },
         "category": "jenkinssuite"
       },

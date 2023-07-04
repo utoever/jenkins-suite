@@ -329,7 +329,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
     }
 
     async getTreeItem(element: JobsModel): Promise<vscode.TreeItem> {
-        console.log(`jobs::treeItem <${element?.fullName ?? element?.name}>`);
+        // console.log(`jobs::treeItem <${element?.fullName ?? element?.name}>`);
         let jobDetail: BuildsModel | undefined = element.jobDetail;
         let treeItem: vscode.TreeItem;
         if (element && element.jobParam && element.level === 100) {
@@ -341,7 +341,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 tooltip: this.getToolTip(element)
             };
         } else {
-            if (element._class === JobModelType.freeStyleProject || element._class === JobModelType.workflowJob) {
+            if (element._class === JobModelType.freeStyleProject || element._class === JobModelType.workflowJob || element._class === JobModelType.mavenModuleSet) {
                 let icon = 'grey';
                 if (jobDetail?.buildable) {
                     icon = element._class === JobModelType.workflowJob ? 'green' : 'blue';
@@ -384,6 +384,14 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     contextValue: 'jobs',
                     iconPath: new vscode.ThemeIcon('symbol-enum'),
                     tooltip: element.jobDetail?.description ?? element.name
+                };
+            } else if (element._class === JobModelType.shortcutJob) {
+                treeItem = {
+                    label: element.name,
+                    collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+                    contextValue: 'jobs_no',
+                    iconPath: new vscode.ThemeIcon('link'),
+                    tooltip: element.jobDetail?.description ?? 'Open with ' + element.name
                 };
             } else {
                 treeItem = {

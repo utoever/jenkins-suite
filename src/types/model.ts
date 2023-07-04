@@ -106,7 +106,9 @@ export enum JobModelType {
     freeStyleProject = 'hudson.model.FreeStyleProject',
     workflowJob = 'org.jenkinsci.plugins.workflow.job.WorkflowJob',
     folder = 'com.cloudbees.hudson.plugins.folder.Folder',
-    workflowMultiBranchProject = 'org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject'
+    workflowMultiBranchProject = 'org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject',
+    shortcutJob = 'com.legrig.jenkins.shortcut.ShortcutJob',
+    mavenModuleSet = 'hudson.maven.MavenModuleSet'
 
 }
 
