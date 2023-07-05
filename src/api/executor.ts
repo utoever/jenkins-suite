@@ -4,6 +4,7 @@ import { initial } from 'lodash';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JobModelType, JobProperty, JobsModel } from "../types/model";
+import { mapToUrlParams } from '../utils/html';
 import logger from '../utils/logger';
 import { getParameterDefinition, invokeSnippet, invokeSnippetJenkins } from '../utils/util';
 import { Jenkins } from "./jenkins";
@@ -100,6 +101,14 @@ export class Executor {
         return await this._jenkins._create<string>(
             `view/${name}/config.xml`, content
         );
+    }
+
+    async renameView(name: string, newViewName: string): Promise<string> {
+        console.log(`renameView:: name <${name}>`);
+
+        const data = `def jenkins = Jenkins.getInstanceOrNull(); def view = jenkins.getView('${name}');view.rename('${newViewName}')`;
+        const result = await this.executeScript(data);
+        return result;
     }
 
     async createUser(username: string, password: string, role: string = 'USER') {
@@ -210,7 +219,7 @@ export class Executor {
         );
     }
 
-    async buildJobWithForm(job: JobsModel, formData: FormData, delay: number = 3): Promise<string> {
+    async buildJobWithForm(job: JobsModel, formData: Map<string, string>, delay: number = 3): Promise<string> {
         let flag: boolean = true;
         const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
         const uri = this.extractUrl(job.url);
@@ -222,8 +231,8 @@ export class Executor {
 
         if (jobParams && jobParams.length > 0) {
             console.log(formData);
-            return await this._jenkins._postForm<string>(
-                `${uri}/buildWithParameters?delay=${delay}sec`, formData
+            return await this._jenkins._postFormEncoded<string>(
+                `${uri}/buildWithParameters?delay=${delay}sec&${mapToUrlParams(formData)}`
             );
         } else {
             return await this._jenkins._post<string>(
@@ -242,7 +251,7 @@ export class Executor {
             delay = 99;
         }
 
-        const formData = new FormData();
+        const formData = new Map<string, any>();
         if (jobParams && jobParams.length > 0) {
             for (let param of jobParams[0].parameterDefinitions) {
                 await vscode.window.showInputBox({
@@ -250,7 +259,7 @@ export class Executor {
                     value: param.defaultParameterValue.value
                 }).then((val) => {
                     if (val) {
-                        formData.append(param.name, val);
+                        formData.set(param.name, val);
                     } else {
                         flag = false;
                     }
@@ -261,9 +270,8 @@ export class Executor {
                 return 'Cancelled by user';
             }
 
-            console.log(formData);
-            return await this._jenkins._postForm<string>(
-                `${uri}/buildWithParameters?delay=${delay}sec`, formData
+            return await this._jenkins._postFormEncoded<string>(
+                `${uri}/buildWithParameters?delay=${delay}sec&${mapToUrlParams(formData)}`
             );
         } else {
             return await this._jenkins._post<string>(

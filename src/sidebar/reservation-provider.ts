@@ -105,7 +105,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
 
         const delayInMinutes = Number.parseInt(delayInMinutesStr);
         const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
-        const formData = new FormData();
+        // const formData = new FormData();
         const formParams = new Map<string, string>();
         let flag: boolean = true;
         if (jobParams && jobParams.length > 0) {
@@ -115,7 +115,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
                     value: param.defaultParameterValue.value
                 }).then((val) => {
                     if (val) {
-                        formData.append(param.name, val);
+                        // formData.append(param.name, val);
                         formParams.set(param.name, val);
                     } else {
                         flag = false;
@@ -127,7 +127,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
             showInfoMessageWithTimeout('Cancelled by user');
         }
 
-        this.reservationScheduler.scheduleAction(job, delayInMinutes, formData, formParams);
+        this.reservationScheduler.scheduleAction(job, delayInMinutes, formParams);
         this.refresh();
     }
 

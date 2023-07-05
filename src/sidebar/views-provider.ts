@@ -67,9 +67,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                     return;
                 }
 
-                const text = await this._executor?.getConfigView(view.name);
-                const updateTxt = text.replace(/<name>.*<\/name>/, `<name>${newViewname}</name>`);
-                this.updateView(view.name, updateTxt);
+                this.renameView(view.name, newViewname);
             }),
             vscode.commands.registerCommand('utocode.withView', async () => {
                 if (!this._executor || !this._executor?.isConnected()) {
@@ -108,6 +106,17 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         }, 2300);
     }
 
+    async renameView(viewname: string, newViewName: string) {
+        const result = await this.executor?.renameView(viewname, newViewName);
+        console.log(`result <${result}>`);
+        setTimeout(() => {
+            this.refresh();
+            if (viewname === this.jobsProvider.view.name) {
+                this.jobsProvider.view.name = newViewName;
+                this.jobsProvider.refresh();
+            }
+        }, 2300);
+    }
 
     async switchView() {
         const views = this.info?.views;
@@ -173,7 +182,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                 title: 'Show Jobs',
                 arguments: [element]
             },
-            contextValue: 'views',
+            contextValue: 'views' + (this._info?.primaryView.name === element.name ? '' : '_enabled'),
             iconPath: new vscode.ThemeIcon(icon),
             tooltip: this.makeToolTip(element)
         };

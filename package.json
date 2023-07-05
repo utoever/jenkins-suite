@@ -587,17 +587,17 @@
           "group": "2_configure@1"
         },
         {
-          "when": "viewItem == 'views'",
+          "when": "view == 'utocode.views.views'",
           "command": "utocode.getConfigView",
           "group": "1_jenkinssuite_actions@2"
         },
         {
-          "when": "viewItem == 'views' && viewItem == 'false'",
+          "when": "view == 'utocode.views.views' && viewItem =~ /^.*_enabled.*/",
           "command": "utocode.renameView",
           "group": "1_jenkinssuite_actions@2"
         },
         {
-          "when": "viewItem == 'views'",
+          "when": "view == 'utocode.views.views'",
           "command": "utocode.openLinkView",
           "group": "inline"
         },
