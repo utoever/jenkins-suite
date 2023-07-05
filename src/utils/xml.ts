@@ -36,3 +36,37 @@ export interface CpsFlowDefinition {
     }
     sandbox: boolean
 }
+
+export interface ShortcutJob {
+    _declaration: {
+        _attributes: {
+            version: string;
+            encoding: string;
+        }
+    }
+    'com.legrig.jenkins.shortcut.ShortcutJob': {
+        _attributes: {
+            plugin: string;
+        }
+        targetUrl: {
+            _text: string
+        }
+        enabled: {
+            _text: string
+        }
+    }
+}
+
+export function extractViewnameFromText(xmlContent: string) {
+    const xmlData = parseXml(xmlContent);
+
+    let viewModel;
+    if (xmlData['org.jenkinsci.plugins.categorizedview.CategorizedJobsView']) {
+        viewModel = xmlData['org.jenkinsci.plugins.categorizedview.CategorizedJobsView'];
+    } else if (xmlData['hudson.model.ListView']) {
+        viewModel = xmlData['hudson.model.ListView'];
+    } else {
+        viewModel = xmlData['hudson.model.AllView'];
+    }
+    return viewModel.name._text;
+}

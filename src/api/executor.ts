@@ -157,7 +157,7 @@ export class Executor {
 
     async getConfigJob(job: JobsModel): Promise<any> {
         const uri = this.extractUrl(job.url);
-        console.log(`job name <${uri}>`);
+        console.log(`uri <${uri}>`);
         return await this._jenkins._get<any>(
             `${uri}/config.xml`
         );
@@ -165,7 +165,7 @@ export class Executor {
 
     async getJobAsView(job: BaseJobModel): Promise<AllViewModel> {
         const uri = this.extractUrl(job.url);
-        console.log(`getJobAsView: job name <${uri}>`);
+        console.log(`getJobAsView: uri <${uri}>`);
         return await this._jenkins._get<AllViewModel>(
             `${uri}/api/json`
         );
@@ -185,7 +185,7 @@ export class Executor {
 
     async getJob(job: JobsModel): Promise<BuildsModel> {
         const uri = this.extractUrl(job.url);
-        console.log(`job url <${job.url}>`);
+        console.log(`uri <${uri}>`);
         return await this._jenkins._get<BuildsModel>(
             `${uri}/api/json`
         );
@@ -193,7 +193,7 @@ export class Executor {
 
     async getBuild(job: JobsModel, buildNumber: number): Promise<BuildDetailStatus> {
         const uri = this.extractUrl(job.url);
-        console.log(`build name <${uri}>`);
+        console.log(`uri <${uri}>`);
         return await this._jenkins._get<BuildDetailStatus>(
             `${uri}/${buildNumber}/api/json`
         );

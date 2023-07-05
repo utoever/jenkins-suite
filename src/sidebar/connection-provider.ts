@@ -46,17 +46,22 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             vscode.commands.registerCommand('utocode.connections.refresh', () => {
                 this.refresh();
             }),
-            vscode.commands.registerCommand('utocode.linkJenkinsHome', (server: JenkinsServer) => {
+            vscode.commands.registerCommand('utocode.openLink#Home', (server: JenkinsServer) => {
                 openLinkBrowser(server.url);
             }),
-            vscode.commands.registerCommand('utocode.linkGitHome', (server: JenkinsServer) => {
+            vscode.commands.registerCommand('utocode.openLink#git', (server: JenkinsServer) => {
                 if (server.git) {
                     openLinkBrowser(server.git);
                 }
             }),
-            vscode.commands.registerCommand('utocode.linkSqubeHome', (server: JenkinsServer) => {
+            vscode.commands.registerCommand('utocode.openLink#sqube', (server: JenkinsServer) => {
                 if (server.sonarqube) {
                     openLinkBrowser(server.sonarqube);
+                }
+            }),
+            vscode.commands.registerCommand('utocode.openLink#sparrow', (server: JenkinsServer) => {
+                if (server.sparrow) {
+                    openLinkBrowser(server.sparrow);
                 }
             }),
             vscode.commands.registerCommand('utocode.connectServer', (server: JenkinsServer) => {

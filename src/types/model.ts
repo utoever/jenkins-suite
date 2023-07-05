@@ -105,12 +105,23 @@ export enum JobModelType {
 
     freeStyleProject = 'hudson.model.FreeStyleProject',
     workflowJob = 'org.jenkinsci.plugins.workflow.job.WorkflowJob',
+    externalJob = 'hudson.model.ExternalJob',
     folder = 'com.cloudbees.hudson.plugins.folder.Folder',
+    organizationFolder = 'jenkins.branch.OrganizationFolder',
     workflowMultiBranchProject = 'org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject',
-    shortcutJob = 'com.legrig.jenkins.shortcut.ShortcutJob',
-    mavenModuleSet = 'hudson.maven.MavenModuleSet'
+    mavenModuleSet = 'hudson.maven.MavenModuleSet',
+    matrixProject = 'hudson.matrix.MatrixProject',
+    shortcutJob = 'com.legrig.jenkins.shortcut.ShortcutJob'
 
 }
+
+const buildJobModelType = [
+    JobModelType.freeStyleProject.toString(),
+    JobModelType.workflowJob.toString(),
+    JobModelType.mavenModuleSet.toString(),
+    JobModelType.matrixProject.toString(),
+    JobModelType.workflowMultiBranchProject.toString()
+];
 
 export interface BaseAction {
     _class: string
@@ -186,13 +197,11 @@ export interface BuildDetailStatus {
     culprits: any[]
 }
 
-
 export interface CrumbIssuer {
     _class: string
     crumb: string
     crumbRequestField: string
 }
-
 
 export interface Computers {
     _class: string
@@ -247,3 +256,5 @@ export interface WsTalkMessage {
 export interface ModelQuickPick<T> extends vscode.QuickPickItem {
     model?: T
 }
+
+export default buildJobModelType;

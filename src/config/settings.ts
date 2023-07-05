@@ -36,6 +36,7 @@ export interface JenkinsServer extends JenkinsProperty {
     admin?: boolean;
     git?: string;
     sonarqube?: string;
+    sparrow?: string;
 }
 
 export default class JenkinsConfiguration {

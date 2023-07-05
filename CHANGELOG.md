@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.1.2] - 2023-07-05
+
+- A few bug fixes
+
+
+## [0.1.1] - 2023-07-04
+
+- A few bug fixes
+
 ## [0.1.0] - 2023-07-04
 - Add Global Credentials (SecretText/Username with password)
 - A few bug fixes

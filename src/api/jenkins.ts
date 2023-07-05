@@ -26,9 +26,11 @@ export class Jenkins {
     }
 
     public async initialized() {
-        const crumbIssuer = await this.getCrumbIssuer();
-        // logger.debug(`crumbIssuer <${crumbIssuer.crumb}>`);
-        this._crumb = crumbIssuer.crumb;
+        if (!this._crumb) {
+            const crumbIssuer = await this.getCrumbIssuer();
+            // logger.debug(`crumbIssuer <${crumbIssuer.crumb}>`);
+            this._crumb = crumbIssuer.crumb;
+        }
         return this._crumb ? true : false;
     }
 

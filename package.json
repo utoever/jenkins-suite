@@ -247,6 +247,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.renameView",
+        "title": "%renameView.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.updateConfigView",
         "title": "%updateConfigView.title%",
         "category": "jenkinssuite"
@@ -333,8 +338,8 @@
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.linkJenkinsHome",
-        "title": "%linkJenkinsHome.title%",
+        "command": "utocode.openLink#Home",
+        "title": "%openLinkHome.title%",
         "icon": {
           "dark": "resources/icons/jenkins.svg",
           "light": "resources/icons/jenkins.svg"
@@ -342,8 +347,8 @@
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.linkGitHome",
-        "title": "%linkGitHome.title%",
+        "command": "utocode.openLink#git",
+        "title": "%openLinkGit.title%",
         "icon": {
           "dark": "resources/dark/git.svg",
           "light": "resources/light/git.svg"
@@ -351,11 +356,20 @@
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.linkSqubeHome",
-        "title": "%linkSqubeHome.title%",
+        "command": "utocode.openLink#sqube",
+        "title": "%openLinkSqube.title%",
         "icon": {
           "dark": "resources/dark/sonarqube.svg",
           "light": "resources/light/sonarqube.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#sparrow",
+        "title": "%openLinkSparrow.title%",
+        "icon": {
+          "dark": "resources/dark/sparrow.svg",
+          "light": "resources/light/sparrow.svg"
         },
         "category": "jenkinssuite"
       },
@@ -508,19 +522,24 @@
       ],
       "view/item/context": [
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_sqube.*/",
-          "command": "utocode.linkSqubeHome",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*sparrow.*/",
+          "command": "utocode.openLink#sparrow",
           "group": "inline@1"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_git.*/",
-          "command": "utocode.linkGitHome",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_sqube.*/",
+          "command": "utocode.openLink#sqube",
           "group": "inline@3"
         },
         {
-          "when": "view == 'utocode.views.connection'",
-          "command": "utocode.linkJenkinsHome",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_git.*/",
+          "command": "utocode.openLink#git",
           "group": "inline@5"
+        },
+        {
+          "when": "view == 'utocode.views.connection'",
+          "command": "utocode.openLink#Home",
+          "group": "inline@7"
         },
         {
           "when": "view == 'utocode.views.connection'",
@@ -570,6 +589,11 @@
         {
           "when": "viewItem == 'views'",
           "command": "utocode.getConfigView",
+          "group": "1_jenkinssuite_actions@2"
+        },
+        {
+          "when": "viewItem == 'views' && viewItem == 'false'",
+          "command": "utocode.renameView",
           "group": "1_jenkinssuite_actions@2"
         },
         {
@@ -882,6 +906,10 @@
                 "sonarqube": {
                   "description": "Sonarqube URL",
                   "type": "string"
+                },
+                "sparrow": {
+                  "description": "Sparrow URL",
+                  "type": "string"
                 }
               }
             }
@@ -940,35 +968,59 @@
             "title": "%walkthroughs.step1.title%",
             "description": "%walkthroughs.step1.description%",
             "media": {
-              "image": "media/image1.png",
+              "image": "images/guide/guide1.png",
               "altText": "Empty image"
             },
             "completionEvents": [
-              "onCommand:utocode.jenkins"
+              "onCommand:utocode.switchConnection"
             ]
           },
           {
-            "id": "utocode.switchConnection",
+            "id": "utocode.runSwitchConnection",
             "title": "%walkthroughs.step2.title%",
             "description": "%walkthroughs.step2.description%",
             "media": {
-              "image": "media/image2.png",
+              "image": "images/guide/guide2.png",
               "altText": "Empty image"
             },
             "completionEvents": [
-              "onCommand:openSettings"
+              "onCommand:utocode.switchView"
             ]
           },
           {
-            "id": "utocode.runSwitchView",
+            "id": "utocode.runJobView",
             "title": "%walkthroughs.step3.title%",
             "description": "%walkthroughs.step3.description%",
             "media": {
-              "image": "media/image3.png",
+              "image": "images/guide/guide3.png",
               "altText": "Empty image"
             },
             "completionEvents": [
-              "onCommand:utocode.jenkins-explorer"
+              "onCommand:utocode.runJob"
+            ]
+          },
+          {
+            "id": "utocode.runGenerateJobCode",
+            "title": "%walkthroughs.step4.title%",
+            "description": "%walkthroughs.step4.description%",
+            "media": {
+              "image": "images/guide/guide5.png",
+              "altText": "Empty image"
+            },
+            "completionEvents": [
+              "onCommand:utocode.generateJobCode"
+            ]
+          },
+          {
+            "id": "utocode.runValidateJenkins",
+            "title": "%walkthroughs.step5.title%",
+            "description": "%walkthroughs.step5.description%",
+            "media": {
+              "image": "images/guide/guide7.png",
+              "altText": "Empty image"
+            },
+            "completionEvents": [
+              "onCommand:utocode.validateJenkins"
             ]
           }
         ]

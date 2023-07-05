@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { getResultColor } from '../types/jenkins-types';
-import { BuildDetailStatus, BuildStatus, CauseParameter, JobParameter, JobsModel } from '../types/model';
+import buildJobModelType, { BuildDetailStatus, BuildStatus, CauseParameter, JobModelType, JobParameter, JobsModel } from '../types/model';
 import { getCauseAction, getParameterAction } from '../types/model-util';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { formatDurationTime, getLocalDate } from '../utils/datetime';
@@ -126,6 +126,10 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
         if (Object.keys(this._jobs).length === 0) {
             showInfoMessageWithTimeout('Please select job first');
+            return [];
+        }
+
+        if (!(buildJobModelType.includes(this._jobs._class))) {
             return [];
         }
 
