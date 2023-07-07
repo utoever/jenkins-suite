@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "Manage your Jenkins Job inside Visual Studio Code",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -214,6 +214,11 @@
           "dark": "resources/dark/gen-code.svg",
           "light": "resources/light/gen-code.svg"
         },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.generateJobCodePick",
+        "title": "%generateJobCodePick.title%",
         "category": "jenkinssuite"
       },
       {
@@ -784,6 +789,11 @@
           "default": "false",
           "description": "%plugin.categorized.enabled.description%"
         },
+        "jenkinssuite.snippet.custom-file": {
+          "type": "string",
+          "default": "",
+          "description": "%snippet.custom-file.description%"
+        },
         "jenkinssuite.snippet.create-view": {
           "type": "string",
           "default": "c_view_cateview",
@@ -1100,13 +1110,19 @@
       {
         "command": "utocode.generateJobCode",
         "key": "ctrl+alt+insert",
-        "mac": "cmd+options+f12",
+        "mac": "cmd+option+f12",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.generateJobCodePick",
+        "key": "ctrl+alt+shift+insert",
+        "mac": "cmd+option+shift+f12",
         "category": "jenkinssuite"
       },
       {
         "command": "utocode.withJob",
         "key": "shift+alt+enter",
-        "mac": "shift+options+enter",
+        "mac": "shift+option+enter",
         "when": "editorTextFocus",
         "category": "jenkinssuite"
       }

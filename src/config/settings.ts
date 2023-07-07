@@ -139,6 +139,13 @@ export default class JenkinsConfiguration {
             'c_folder';
     }
 
+    public static get snippetCustomFilePath(): string {
+        const key = 'snippet.custom-file';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<string>(key)
+            ??
+            '';
+    }
+
     public static get buildDelay(): number {
         const key = 'build.delay';
         return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<number>(key)

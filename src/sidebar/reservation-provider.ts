@@ -96,7 +96,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
 
     public async addReservation(job: JobsModel) {
         let delayInMinutesStr = await vscode.window.showInputBox({
-            prompt: 'Enter number [3 ~ 99]',
+            prompt: 'Enter the time you want it to run [3 ~ 120]',
             value: '5'
         });
         if (!delayInMinutesStr) {
@@ -104,8 +104,11 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
         }
 
         const delayInMinutes = Number.parseInt(delayInMinutesStr);
+        if (delayInMinutes < 3 || delayInMinutes > 120) {
+            showInfoMessageWithTimeout(vscode.l10n.t('The input time is {0} ~ {1} minutes', 3, 120));
+            return;
+        }
         const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
-        // const formData = new FormData();
         const formParams = new Map<string, string>();
         let flag: boolean = true;
         if (jobParams && jobParams.length > 0) {

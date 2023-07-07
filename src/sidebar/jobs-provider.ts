@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
+import { SnippetItem } from '../snippet/snippet';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
 import { getFolderAsModel, getJobsAsModel, runJobAll } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
-import { getParameterDefinition, inferFileExtension, invokeSnippet } from '../utils/util';
+import { getParameterDefinition, inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
 import { notifyMessageWithTimeout, showErrorMessage } from '../utils/vsc';
 import { FlowDefinition, ShortcutJob, parseXml } from '../utils/xml';
 import { BuildsProvider } from './builds-provider';
@@ -121,6 +122,29 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     }, 1000);
                 });
             }),
+            vscode.commands.registerCommand('utocode.generateJobCodePick', async () => {
+                if (!this.executor?.initialized()) {
+                    return;
+                }
+
+                const snippets = await invokeSnippetAll(this.context);
+                const items: vscode.QuickPickItem[] = [];
+
+                Object.keys(snippets).forEach((key: string) => {
+                    const snippet = snippets[key];
+                    items.push({
+                        label: key
+                    });
+                });
+
+                const item = await vscode.window.showQuickPick(items, {
+                    placeHolder: vscode.l10n.t("Select to generate Job Code")
+                }).then(async (selectedItem) => {
+                    return selectedItem;
+                });
+                console.log(item);
+
+            }),
             vscode.commands.registerCommand('utocode.createJob', async () => {
                 this.createJob();
             }),
@@ -128,7 +152,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 const mesg = await this.executor?.createFolder(this.view.name);
                 console.log(`result <${mesg}>`);
                 setTimeout(() => {
-                    vscode.commands.executeCommand('utocode.jobs.refresh');
+                    this.refresh();
                 }, 1500);
             }),
             vscode.commands.registerCommand('utocode.switchJob', async (job: JobsModel) => {
