@@ -52,7 +52,7 @@ export class NotifyProvider implements vscode.TreeDataProvider<WsTalkMessage> {
                 text.appendMarkdown(`* ${key}: [__${val}__]`);
             }
         } else {
-            text.appendMarkdown('* **None**\n');
+            text.appendMarkdown('* __None__\n');
         }
         text.appendMarkdown('\n---\n');
 

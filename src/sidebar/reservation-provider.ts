@@ -3,10 +3,11 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { ReservationJobModel, ReservationScheduler } from '../svc/reservation';
-import { JobParameter, JobsModel } from '../types/model';
+import { ParametersDefinitionProperty } from '../types/jenkins-types';
+import { JobsModel } from '../types/model';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { getLocalDate } from '../utils/datetime';
-import { getParameterDefinition } from '../utils/util';
+import { getParameterDefinition } from '../utils/model-utils';
 
 export class ReservationProvider implements vscode.TreeDataProvider<ReservationJobModel> {
 
@@ -65,7 +66,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
         //         text.appendMarkdown(`* ${param.name}\n`);
         //     }
         // } else {
-        //     text.appendMarkdown('* **None**\n');
+        //     text.appendMarkdown('* __None__\n');
         // }
         const formParams: Map<string, string> = element.formParams;
         if (formParams.size > 0) {
@@ -73,7 +74,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
                 text.appendMarkdown(`* ${key}: **${val}**\n`);
             }
         } else {
-            text.appendMarkdown('* **None**\n');
+            text.appendMarkdown('* __None__\n');
         }
         text.appendMarkdown('\n---\n');
 
@@ -113,25 +114,32 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
         let flag: boolean = true;
         if (jobParams && jobParams.length > 0) {
             for (let param of jobParams[0].parameterDefinitions) {
-                await vscode.window.showInputBox({
+                if (param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString()) {
+                    continue;
+                }
+
+                const result = await vscode.window.showInputBox({
                     prompt: 'Enter "' + param.description ?? '' + '"',
                     value: param.defaultParameterValue.value
                 }).then((val) => {
-                    if (val) {
-                        // formData.append(param.name, val);
-                        formParams.set(param.name, val);
-                    } else {
-                        flag = false;
-                    }
+                    return val;
                 });
+
+                if (result) {
+                    // formData.append(param.name, result);
+                    formParams.set(param.name, result);
+                } else {
+                    flag = false;
+                    break;
+                }
             }
         }
-        if (!flag) {
+        if (flag) {
+            this.reservationScheduler.scheduleAction(job, delayInMinutes, formParams);
+            this.refresh();
+        } else {
             showInfoMessageWithTimeout('Cancelled by user');
         }
-
-        this.reservationScheduler.scheduleAction(job, delayInMinutes, formParams);
-        this.refresh();
     }
 
     public async cancelReservation(reservationModel: ReservationJobModel) {

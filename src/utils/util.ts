@@ -1,16 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import JenkinsConfiguration from '../config/settings';
-import { SnippetItem } from '../snippet/snippet';
-import { BuildsModel, JobProperty } from "../types/model";
-
-export function getParameterDefinition(build: BuildsModel | undefined): JobProperty[] {
-    if (build) {
-        return build.property.filter(val => val._class === 'hudson.model.ParametersDefinitionProperty');
-    } else {
-        return [];
-    }
-}
+import { SnippetItem, SnippetItems } from '../snippet/snippet';
 
 export async function invokeSnippet(context: vscode.ExtensionContext, snippetName: string): Promise<SnippetItem> {
     const snippetFilePath = path.join(context.extensionPath, 'snippets', 'snippet.json');
@@ -32,15 +23,15 @@ export async function invokeSnippetFromPath(context: vscode.ExtensionContext, sn
 
 export async function invokeSnippetAll(context: vscode.ExtensionContext, filtering: boolean = true): Promise<{ [key: string]: SnippetItem }> {
     const files = ['snippet.json', 'jenkins.json'];
-    let snippets: { [key: string]: SnippetItem } = {};
+    let snippets: SnippetItems = {};
     for (let snippetPath of files) {
         const snippetFilePath = path.join(context.extensionPath, 'snippets', snippetPath);
         const snippetContent = await vscode.workspace.fs.readFile(vscode.Uri.file(snippetFilePath));
-        const snippet = JSON.parse(snippetContent.toString());
+        const snippet = JSON.parse(snippetContent.toString()) as SnippetItems;
         snippets = { ...snippets, ...snippet };
     }
 
-    let filteredSnippets: { [key: string]: SnippetItem } = {};
+    let filteredSnippets: SnippetItems = {};
     if (filtering) {
         Object.keys(snippets).forEach((key: string) => {
             const item = snippets[key];
@@ -49,7 +40,7 @@ export async function invokeSnippetAll(context: vscode.ExtensionContext, filteri
             if (when && flag) {
                 filteredSnippets = {
                     ...filteredSnippets, ...{
-                        key: item
+                        [key]: item
                     }
                 };
             }

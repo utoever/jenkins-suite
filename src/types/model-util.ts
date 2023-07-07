@@ -15,7 +15,7 @@ export function getCauseAction(actions: BaseAction[]) {
 }
 
 export function getJobParamDefinitions(actions: JobProperty[]): JobParamDefinition[] | undefined {
-    const param = actions.filter(it => it._class === DefinitionPropertyType.parametersDefinitionProperty);
+    const param = actions.filter(it => it._class === DefinitionPropertyType.parametersDefinitionProperty.toString());
     return param && param.length > 0 ? param[0].parameterDefinitions : undefined;
     // return param;
 }

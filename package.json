@@ -301,6 +301,33 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.openLink#appHome",
+        "title": "%openLinkAppHome.title%",
+        "icon": {
+          "dark": "resources/dark/home.svg",
+          "light": "resources/light/home.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#swagger",
+        "title": "%openLinkSwagger.title%",
+        "icon": {
+          "dark": "resources/dark/swagger.svg",
+          "light": "resources/light/swagger.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#management",
+        "title": "%openLinkManagement.title%",
+        "icon": {
+          "dark": "resources/dark/info.svg",
+          "light": "resources/light/info.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.getJobLogPick",
         "title": "%getJobLogPick.title%",
         "category": "jenkinssuite"
@@ -609,6 +636,21 @@
         {
           "when": "viewItem =~ /^jobs.*/",
           "command": "utocode.openLinkJob",
+          "group": "inline"
+        },
+        {
+          "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*home.*/",
+          "command": "utocode.openLink#appHome",
+          "group": "inline"
+        },
+        {
+          "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*swagger.*/",
+          "command": "utocode.openLink#swagger",
+          "group": "inline"
+        },
+        {
+          "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*manage.*/",
+          "command": "utocode.openLink#management",
           "group": "inline"
         },
         {

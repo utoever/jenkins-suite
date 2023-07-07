@@ -1,6 +1,7 @@
 import path from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
+import { ViewType } from '../types/jenkins-types';
 import { JenkinsInfo, ModelQuickPick, ViewsModel } from '../types/model';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditorWithNew } from '../utils/editor';
@@ -158,9 +159,9 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
 
     getViewIcon(name: string) {
         let icon = 'root-folder';
-        if (name === 'org.jenkinsci.plugins.categorizedview.CategorizedJobsView') {
+        if (name === ViewType.categorizedJobsView.toString()) {
             icon = 'search';
-        } else if (name === 'hudson.model.MyView"') {
+        } else if (name === ViewType.myView.toString()) {
             icon = 'heart';
         }
         return icon;

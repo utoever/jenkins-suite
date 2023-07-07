@@ -39,7 +39,6 @@ export async function runJobAll(jobsProvider: JobsProvider, includeJob: boolean 
         return;
     }
 
-    // get job and folder
     const items = getJobsAsModel(jobsProvider, jobs, includeJob);
     await vscode.window.showQuickPick(items, {
         placeHolder: vscode.l10n.t("Select the job you want to build"),

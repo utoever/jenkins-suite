@@ -2,13 +2,15 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
+import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
 import { getFolderAsModel, getJobsAsModel, runJobAll } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
-import { getParameterDefinition, inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
+import { getParameterDefinition } from '../utils/model-utils';
+import { inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
 import { notifyMessageWithTimeout, showErrorMessage } from '../utils/vsc';
 import { FlowDefinition, ShortcutJob, parseXml } from '../utils/xml';
 import { BuildsProvider } from './builds-provider';
@@ -98,6 +100,24 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 const mesg = await this.executor?.updateJobConfig(jobs.name, text);
                 console.log(`result <${mesg}>`);
             }),
+            vscode.commands.registerCommand('utocode.openLink#appHome', (job: JobsModel) => {
+                if (job.jobDetail) {
+                    const paramAction: JobParamDefinition[] | undefined = getJobParamDefinitions(job.jobDetail?.property);
+                    const hiddenParams = paramAction?.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
+                    if (hiddenParams) {
+                        let url;
+                        for (let param of hiddenParams) {
+                            if (param.name === 'home.url') {
+                                url = param.defaultParameterValue.value;
+                                break;
+                            }
+                        }
+                        if (url) {
+                            openLinkBrowser(url);
+                        }
+                    }
+                }
+            }),
             vscode.commands.registerCommand('utocode.generateJobCode', async () => {
                 if (!this.executor?.initialized()) {
                     return;
@@ -127,23 +147,24 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     return;
                 }
 
-                const snippets = await invokeSnippetAll(this.context);
-                const items: vscode.QuickPickItem[] = [];
+                const snippets = await invokeSnippetAll(this.context, true);
+                const items: ModelQuickPick<SnippetItem>[] = [];
 
                 Object.keys(snippets).forEach((key: string) => {
                     const snippet = snippets[key];
                     items.push({
-                        label: key
+                        label: key,
+                        model: snippet
                     });
                 });
 
                 const item = await vscode.window.showQuickPick(items, {
                     placeHolder: vscode.l10n.t("Select to generate Job Code")
                 }).then(async (selectedItem) => {
-                    return selectedItem;
+                    if (selectedItem) {
+                        printEditorWithNew(selectedItem.model!.body.join('\n'));
+                    }
                 });
-                console.log(item);
-
             }),
             vscode.commands.registerCommand('utocode.createJob', async () => {
                 this.createJob();
@@ -347,8 +368,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             treeItem = {
                 label: `${jobParam.name} [${jobParam.defaultParameterValue.value}]`,
                 collapsibleState: vscode.TreeItemCollapsibleState.None,
-                iconPath: new vscode.ThemeIcon('file-code'),
-                tooltip: this.getToolTip(element)
+                iconPath: new vscode.ThemeIcon(jobParam._class === ParametersDefinitionProperty.wHideParameterDefinition ? 'eye-closed' : 'file-code'),
+                tooltip: this.getToolTipParams(element)
             };
         } else {
             if (element._class === JobModelType.workflowMultiBranchProject) {
@@ -361,13 +382,28 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 };
             } else if (buildJobModelType.includes(element._class)) {
                 let icon = 'grey';
-                if (jobDetail?.buildable) {
-                    icon = element._class === JobModelType.workflowJob ? 'green' : 'blue';
+                let paramAction;
+                if (jobDetail) {
+                    if (jobDetail.buildable) {
+                        icon = element._class === JobModelType.workflowJob ? 'green' : 'blue';
+                    }
+                    paramAction = getJobParamDefinitions(jobDetail.property);
                 }
+                let cntParam = paramAction ? paramAction.length : 0;
+                const hiddenParams = paramAction && paramAction.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
+                const ctx = [];
+                if (hiddenParams) {
+                    for (let param of hiddenParams) {
+                        if (param.name.endsWith('.url')) {
+                            ctx.push('_' + param.name.split('.url')[0]);
+                        }
+                    }
+                }
+
                 treeItem = {
                     label: element.name,
-                    collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-                    contextValue: jobDetail?.buildable ? 'jobs' : 'jobs_disabled',
+                    collapsibleState: cntParam === 0 ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
+                    contextValue: (jobDetail?.buildable ? 'jobs' : 'jobs_disabled') + ctx.join(''),
                     // iconPath: new vscode.ThemeIcon('output-view-icon'),
                     iconPath: this.context.asAbsolutePath(`resources/job/${icon}.png`),
                     tooltip: this.makeToolTipJob(element)
@@ -490,7 +526,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 text.appendMarkdown(`* ${folderJob.name}: ${folderJob.color}\n`);
             }
         } else {
-            text.appendMarkdown(' * **None**\n');
+            text.appendMarkdown('* __None__\n');
         }
         text.appendMarkdown('\n---\n');
 
@@ -505,15 +541,22 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         text.appendMarkdown(`### Job: \n`);
         text.appendMarkdown(`* name: ${jobModel.name}\n`);
         text.appendMarkdown(`* buildable: ${jobModel.jobDetail?.buildable}\n`);
+        const hiddenParams = paramAction?.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
+        if (hiddenParams) {
+            for (let param of hiddenParams) {
+                text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue.value}) \n`);
+            }
+        }
         text.appendMarkdown('\n---\n');
 
         text.appendMarkdown(`### Parameters: \n`);
-        if (paramAction && paramAction.length > 0) {
-            for (let param of paramAction) {
+        const usedParams = paramAction?.filter(param => param._class !== ParametersDefinitionProperty.wHideParameterDefinition.toString());
+        if (usedParams && usedParams.length > 0) {
+            for (let param of usedParams) {
                 text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue.value}) \n`);
             }
         } else {
-            text.appendMarkdown(' * **None**\n');
+            text.appendMarkdown('* __None__\n');
         }
 
         text.appendMarkdown('\n---\n');
@@ -525,7 +568,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         return text;
     }
 
-    getToolTip(jobModel: JobsModel) {
+    getToolTipParams(jobModel: JobsModel) {
         const jobParam = jobModel.jobParam!;
         const text = new vscode.MarkdownString();
         text.appendMarkdown(`### Job: \n`);

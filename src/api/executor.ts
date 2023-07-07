@@ -3,10 +3,12 @@ import { decode } from 'html-entities';
 import { initial } from 'lodash';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
+import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JobModelType, JobProperty, JobsModel } from "../types/model";
 import { mapToUrlParams } from '../utils/html';
 import logger from '../utils/logger';
-import { getParameterDefinition, invokeSnippet, invokeSnippetJenkins } from '../utils/util';
+import { getParameterDefinition } from '../utils/model-utils';
+import { invokeSnippet, invokeSnippetJenkins } from '../utils/util';
 import { Jenkins } from "./jenkins";
 
 export class Executor {
@@ -220,8 +222,7 @@ export class Executor {
     }
 
     async buildJobWithForm(job: JobsModel, formData: Map<string, string>, delay: number = 3): Promise<string> {
-        let flag: boolean = true;
-        const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
+        // let flag: boolean = true;
         const uri = this.extractUrl(job.url);
         if (delay < 1) {
             delay = 1;
@@ -229,6 +230,7 @@ export class Executor {
             delay = 99;
         }
 
+        const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
         if (jobParams && jobParams.length > 0) {
             console.log(formData);
             return await this._jenkins._postFormEncoded<string>(
@@ -242,7 +244,6 @@ export class Executor {
     }
 
     async buildJobWithParameter(job: JobsModel, delay: number = 3): Promise<string> {
-        let flag: boolean = true;
         const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
         const uri = this.extractUrl(job.url);
         if (delay < 1) {
@@ -251,20 +252,25 @@ export class Executor {
             delay = 99;
         }
 
+        let flag: boolean = true;
         const formData = new Map<string, any>();
         if (jobParams && jobParams.length > 0) {
             for (let param of jobParams[0].parameterDefinitions) {
-                await vscode.window.showInputBox({
+                if (param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString()) {
+                    continue;
+                }
+                const result = await vscode.window.showInputBox({
                     prompt: 'Enter "' + param.description ?? '' + '"',
                     value: param.defaultParameterValue.value
                 }).then((val) => {
-                    if (val) {
-                        formData.set(param.name, val);
-                    } else {
-                        flag = false;
-                    }
+                    return val;
                 });
-                if (!flag) { break; }
+                if (result) {
+                    formData.set(param.name, result);
+                } else {
+                    flag = false;
+                    break;
+                }
             }
             if (!flag) {
                 return 'Cancelled by user';

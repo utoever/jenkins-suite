@@ -62,7 +62,7 @@ export default class JenkinsSnippet {
 
 }
 
-type SnippetItems = {
+export type SnippetItems = {
     [key: string]: SnippetItem
 };
 

@@ -1,4 +1,5 @@
 import { xml2js } from 'xml-js';
+import { ViewType } from '../types/jenkins-types';
 
 export function parseXml(xmlString: string): any {
     const options = {
@@ -63,10 +64,10 @@ export function extractViewnameFromText(xmlContent: string) {
     let viewModel;
     if (xmlData['org.jenkinsci.plugins.categorizedview.CategorizedJobsView']) {
         viewModel = xmlData['org.jenkinsci.plugins.categorizedview.CategorizedJobsView'];
-    } else if (xmlData['hudson.model.ListView']) {
-        viewModel = xmlData['hudson.model.ListView'];
+    } else if (xmlData[ViewType.listView.toString()]) {
+        viewModel = xmlData[ViewType.listView.toString()];
     } else {
-        viewModel = xmlData['hudson.model.AllView'];
+        viewModel = xmlData[ViewType.allView.toString()];
     }
     return viewModel.name._text;
 }

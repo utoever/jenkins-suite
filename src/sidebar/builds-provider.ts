@@ -94,7 +94,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
                 text.appendMarkdown(`* ${param.name} (${param.value}) \n`);
             }
         } else {
-            text.appendMarkdown('* **None**\n');
+            text.appendMarkdown('* __None__\n');
         }
         text.appendMarkdown('\n---\n');
 

@@ -1,12 +1,21 @@
-import { JobsModel } from "../types/model";
+import { DefinitionPropertyType } from '../types/jenkins-types';
+import { BuildsModel, JobProperty } from "../types/model";
 
-export function lookupFolder(jobs: JobsModel): string {
-    let jobPath = '';
-    if (jobs && jobs.parents && jobs.parents.length > 0) {
-        jobs.parents.forEach(job => {
-            jobPath += `job/${job.name}/`;
-        });
+export function getParameterDefinition(build: BuildsModel | undefined): JobProperty[] {
+    if (build) {
+        return build.property.filter(val => val._class === DefinitionPropertyType.parametersDefinitionProperty.toString());
+    } else {
+        return [];
     }
-    jobPath += `job/${jobs.name}`;
-    return jobPath;
 }
+
+// export function lookupFolder(jobs: JobsModel): string {
+//     let jobPath = '';
+//     if (jobs && jobs.parents && jobs.parents.length > 0) {
+//         jobs.parents.forEach(job => {
+//             jobPath += `job/${job.name}/`;
+//         });
+//     }
+//     jobPath += `job/${jobs.name}`;
+//     return jobPath;
+// }
