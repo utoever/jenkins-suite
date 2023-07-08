@@ -2,7 +2,7 @@
 
 VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발하였습니다.
 개발 / 스테이징 / 운영환경 처럼 분리된 서버를 전환하며 View >> Job (혹은 Folder) 를 쉽게 선택하며 빌드 / 로그를 쉽게 볼 수 있도록 하였습니다.
-주요한 단축키는 Alt+1 ~ Alt+6, Ctrl+Alt+Insert (Generate Job Code), Shift+Alt+Enter (Job 실행/업데이트) 를 사용하시면 편한 작업이 가능합니다.
+주요한 단축키는 Alt+1 ~ Alt+6, Ctrl+Alt+Insert (Generate Job Code) 를 사용하시면 작업을 편하게 하실 수 있습니다.
 
 ## Prerequisites
 

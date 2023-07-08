@@ -104,7 +104,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
     async updateUIView(viewname: string, text: string) {
         const mesg = await this.executor?.updateConfigView(viewname, text);
         // console.log(`result <${mesg}>`);
-        setTimeout(() => {
+        setTimeout(async () => {
             if (viewname === this.jobsProvider.view.name) {
                 vscode.commands.executeCommand('utocode.jobs.refresh');
             }
@@ -157,12 +157,8 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
     readonly onDidChangeTreeData: vscode.Event<ViewsModel | ViewsModel[] | undefined> = this._onDidChangeTreeData.event;
 
     changeView(view: ViewsModel) {
-        if (this._view && this._view.name !== view.name) {
-            this.view = view;
-        }
-        if (this.jobsProvider.view && this.jobsProvider.view.name !== view.name) {
-            this.jobsProvider.view = view;
-        }
+        this.view = view;
+        this.jobsProvider.view = view;
     }
 
     getViewIcon(name: string) {

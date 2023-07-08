@@ -96,13 +96,6 @@ export async function printEditor(output: string, redraw: boolean = false) {
     }
 }
 
-export async function closeActiveEditor1() {
-    const activeEditor = vscode.window.activeTextEditor;
-    if (activeEditor) {
-        await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-    }
-}
-
 export async function closeActiveEditor() {
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor) {

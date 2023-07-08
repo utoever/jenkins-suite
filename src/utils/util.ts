@@ -1,3 +1,4 @@
+import { log } from 'console';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import JenkinsConfiguration from '../config/settings';
@@ -22,13 +23,25 @@ export async function invokeSnippetFromPath(context: vscode.ExtensionContext, sn
 }
 
 export async function invokeSnippetAll(context: vscode.ExtensionContext, filtering: boolean = true): Promise<SnippetItems> {
-    const files = ['snippet.json', 'jenkins.json'];
+    const files = ['snippet.json'];
+    const customFile = JenkinsConfiguration.snippetCustomFilePath.split(';');
+
     let snippets: SnippetItems = {};
     for (let snippetPath of files) {
         const snippetFilePath = path.join(context.extensionPath, 'snippets', snippetPath);
         const snippetContent = await vscode.workspace.fs.readFile(vscode.Uri.file(snippetFilePath));
         const snippet = JSON.parse(snippetContent.toString()) as SnippetItems;
         snippets = { ...snippets, ...snippet };
+    }
+
+    for (let snippetPath of customFile) {
+        try {
+            const snippetContent = await vscode.workspace.fs.readFile(vscode.Uri.file(snippetPath));
+            const snippet = JSON.parse(snippetContent.toString()) as SnippetItems;
+            snippets = { ...snippets, ...snippet };
+        } catch (error: any) {
+            console.log(error.message);
+        }
     }
 
     let filteredSnippets: SnippetItems = {};

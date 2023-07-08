@@ -43,6 +43,9 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             vscode.commands.registerCommand('utocode.connections.settings', () => {
                 openSettings('server');
             }),
+            vscode.commands.registerCommand('utocode.connections.question', () => {
+                openLinkBrowser('https://jenkinssuite.github.io');
+            }),
             vscode.commands.registerCommand('utocode.connections.refresh', () => {
                 this.refresh();
             }),
@@ -337,7 +340,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             if (this._currentServer) {
                 const isAdmin = await this._executor.isAdmin(this._currentServer.username);
                 if (isAdmin) {
-                    this._currentServer.admin = "Result: true" === isAdmin;
+                    this._currentServer.admin = 'Result: true' === isAdmin;
                     this.refresh();
                 }
             }
@@ -346,8 +349,8 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         }
     }
 
-    public updateUI(connected: boolean) {
-        this.updateViewsProvider();
+    public async updateUI(connected: boolean) {
+        await this.updateViewsProvider();
         if (!connected && this._wsClient) {
             this._wsClient?.disconnect();
             this.notifyProvider.clear();

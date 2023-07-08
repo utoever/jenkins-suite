@@ -1,3 +1,4 @@
+import { log } from 'console';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
@@ -5,7 +6,7 @@ import { SnippetItem } from '../snippet/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
-import { getFolderAsModel, getJobsAsModel, runJobAll } from '../ui/manage';
+import { getFolderAsModel, runJobAll } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
@@ -44,8 +45,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
 
                 const items: vscode.QuickPickItem[] = [
-                    { label: 'Update', description: 'Update the existing Job' },
                     { label: 'Create', description: 'Create a job with a new name' },
+                    { label: 'Update', description: 'Update the existing Job' },
                 ];
                 const jobCmd = await vscode.window.showQuickPick(items, {
                     placeHolder: vscode.l10n.t("Select the command you want to execute")
@@ -60,12 +61,28 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
                 }
             }),
+            vscode.commands.registerCommand('utocode.executeQuick', async () => {
+                const activeEditor = vscode.window.activeTextEditor;
+                if (activeEditor) {
+                    const document = activeEditor.document;
+                    const languageIds = document.languageId;
+                    console.log(languageIds);
+
+                    if (languageIds === 'jenkins') {
+                        await vscode.commands.executeCommand('utocode.validateJenkins');
+                    } else if (languageIds === 'groovy') {
+                        await vscode.commands.executeCommand('utocode.executeScript');
+                    } else if (languageIds === 'xml') {
+                        await vscode.commands.executeCommand('utocode.withJob');
+                    }
+                }
+            }),
             vscode.commands.registerCommand('utocode.createJob', async () => {
                 this.createJob();
             }),
             vscode.commands.registerCommand('utocode.createFolder', async () => {
                 const mesg = await this.executor?.createFolder(this.view.name);
-                console.log(`result <${mesg}>`);
+                // console.log(`result <${mesg}>`);
                 setTimeout(() => {
                     this.refresh();
                 }, 1500);
@@ -83,22 +100,13 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
             }),
             vscode.commands.registerCommand('utocode.openLink#appHome', (job: JobsModel) => {
-                if (job.jobDetail) {
-                    const paramAction: JobParamDefinition[] | undefined = getJobParamDefinitions(job.jobDetail?.property);
-                    const hiddenParams = paramAction?.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
-                    if (hiddenParams) {
-                        let url;
-                        for (let param of hiddenParams) {
-                            if (param.name === 'home.url') {
-                                url = param.defaultParameterValue.value;
-                                break;
-                            }
-                        }
-                        if (url) {
-                            openLinkBrowser(url);
-                        }
-                    }
-                }
+                this.openLinkHomeWithHidden(job, 'home.url');
+            }),
+            vscode.commands.registerCommand('utocode.openLink#manage', (job: JobsModel) => {
+                this.openLinkHomeWithHidden(job, 'manage.url');
+            }),
+            vscode.commands.registerCommand('utocode.openLink#swagger', (job: JobsModel) => {
+                this.openLinkHomeWithHidden(job, 'swagger.url');
             }),
             vscode.commands.registerCommand('utocode.generateJobCode', async () => {
                 if (!this.executor?.initialized()) {
@@ -120,7 +128,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     printEditorWithNew(snippetItem.body.join('\n'));
 
                     setTimeout(() => {
-                        showInfoMessageWithTimeout(vscode.l10n.t('If you want to modify the xml data and apply it to the server, run "Create Job"or "Update Config Job" (Shift + Alt + Enter)'), 10000);
+                        showInfoMessageWithTimeout(vscode.l10n.t('If you want to modify the xml data and apply it to the server, run "Create Job" or "Update Config Job"'), 10000);
                     }, 1000);
                 }
             }),
@@ -143,10 +151,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 const item = await vscode.window.showQuickPick(items, {
                     placeHolder: vscode.l10n.t("Select to generate Job Code")
                 }).then(async (selectedItem) => {
-                    if (selectedItem) {
-                        printEditorWithNew(selectedItem.model!.body.join('\n'));
-                    }
+                    return selectedItem;
                 });
+
+                if (item && item.model) {
+                    printEditorWithNew(item.model.body.join('\n'), item.model.language);
+                }
             }),
             vscode.commands.registerCommand('utocode.switchJob', async (job: JobsModel) => {
                 const items = this.getJobsWithViewAsModel();
@@ -298,10 +308,28 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         );
     }
 
+    openLinkHomeWithHidden(job: JobsModel, target: string) {
+        if (job.jobDetail) {
+            const paramAction: JobParamDefinition[] | undefined = getJobParamDefinitions(job.jobDetail?.property);
+            const hiddenParams = paramAction?.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
+            if (hiddenParams) {
+                let url;
+                for (let param of hiddenParams) {
+                    if (param.name === target) {
+                        url = param.defaultParameterValue.value;
+                        break;
+                    }
+                }
+                if (url) {
+                    openLinkBrowser(url);
+                }
+            }
+        }
+    }
+
     async getJobsWithViewAsModel() {
-        const allJobs = await this.getJobsWithView();
         const items: ModelQuickPick<JobsModel>[] = [];
-        allJobs.filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
+        (await this.getJobsWithView()).filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
             items.push({
                 label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
                 description: job.jobDetail?.description,
@@ -325,10 +353,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             console.log(`viewName <${viewName}>`);
             const mesg = await this.executor?.createJob(text, viewName);
             console.log(`result <${mesg}>`);
-
-            setTimeout(() => {
-                this.refresh();
-            }, 1500);
         } else {
             let jobs = this.buildsProvider.jobs;
             if (!jobs || !jobs?.name) {
@@ -342,6 +366,11 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 vscode.commands.executeCommand('utocode.getConfigJob', jobs, true);
             }, 1500);
         }
+
+        setTimeout(() => {
+            vscode.commands.executeCommand('utocode.jobs.refresh');
+            // this.refresh();
+        }, 800);
     }
 
     async getTreeItem(element: JobsModel): Promise<vscode.TreeItem> {
