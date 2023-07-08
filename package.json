@@ -1152,13 +1152,13 @@
       {
         "command": "utocode.generateJobCode",
         "key": "ctrl+alt+insert",
-        "mac": "cmd+option+f12",
+        "mac": "ctrl+option+f11",
         "category": "jenkinssuite"
       },
       {
         "command": "utocode.generateJobCodePick",
-        "key": "ctrl+alt+shift+insert",
-        "mac": "cmd+option+shift+f12",
+        "key": "ctrl+shift+insert",
+        "mac": "ctrl+shift+f11",
         "category": "jenkinssuite"
       },
       {
@@ -1202,7 +1202,6 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0",
     "@types/lodash": "^4.14.195",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.3.1",
@@ -1212,7 +1211,7 @@
     "@typescript-eslint/parser": "^5.59.1",
     "@vscode/l10n-dev": "0.0.26",
     "eslint": "^8.39.0",
-    "glob": "^8.1.0",
+    "glob": "^10.3.2",
     "mocha": "^10.2.0",
     "typescript": "^5.1.3"
   },
