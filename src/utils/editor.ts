@@ -72,18 +72,45 @@ export async function printEditorWithNew(output: string | undefined, languageId:
     }
 }
 
-export async function printEditor(output: string) {
+export async function printEditor(output: string, redraw: boolean = false) {
     if (!output) {
         return;
     }
     // console.log(output);
     const editor = vscode.window.activeTextEditor;
     if (editor) {
-        const currentPosition = editor.selection.start;
-        editor.edit((editBuilder) => {
-            editBuilder.insert(currentPosition, output);
-        });
+        if (redraw) {
+            const document = editor.document;
+            const range = document.validateRange(new vscode.Range(0, 0, document.lineCount, 0));
+            editor.edit((editBuilder) => {
+                editBuilder.replace(new vscode.Selection(range.start, range.end), output);
+            });
+        } else {
+            const currentPosition = editor.selection.start;
+            editor.edit((editBuilder) => {
+                editBuilder.insert(currentPosition, output);
+            });
+        }
     } else {
         vscode.window.showErrorMessage("There is no Editor window. Create or open a file");
+    }
+}
+
+export async function closeActiveEditor1() {
+    const activeEditor = vscode.window.activeTextEditor;
+    if (activeEditor) {
+        await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+    }
+}
+
+export async function closeActiveEditor() {
+    const activeEditor = vscode.window.activeTextEditor;
+    if (activeEditor) {
+        const document = activeEditor.document;
+        const edit = new vscode.WorkspaceEdit();
+        edit.set(document.uri, [{ range: document.validateRange(new vscode.Range(0, 0, Infinity, Infinity)), newText: document.getText() }]);
+        vscode.workspace.applyEdit(edit).then(() => {
+            vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+        });
     }
 }

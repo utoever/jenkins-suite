@@ -21,7 +21,7 @@ export async function invokeSnippetFromPath(context: vscode.ExtensionContext, sn
     return snippets[snippetName];
 }
 
-export async function invokeSnippetAll(context: vscode.ExtensionContext, filtering: boolean = true): Promise<{ [key: string]: SnippetItem }> {
+export async function invokeSnippetAll(context: vscode.ExtensionContext, filtering: boolean = true): Promise<SnippetItems> {
     const files = ['snippet.json', 'jenkins.json'];
     let snippets: SnippetItems = {};
     for (let snippetPath of files) {
@@ -35,9 +35,8 @@ export async function invokeSnippetAll(context: vscode.ExtensionContext, filteri
     if (filtering) {
         Object.keys(snippets).forEach((key: string) => {
             const item = snippets[key];
-            const when = item.when ? JenkinsConfiguration.getPropertyAsBoolean(item.when) : true;
-            const flag = item.hidden ? !item.hidden : true;
-            if (when && flag) {
+            // const when = item.when ? JenkinsConfiguration.getPropertyAsBoolean(item.when) : true;
+            if (!item.hidden) {
                 filteredSnippets = {
                     ...filteredSnippets, ...{
                         [key]: item

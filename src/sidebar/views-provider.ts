@@ -4,7 +4,7 @@ import { Executor } from '../api/executor';
 import { ViewType } from '../types/jenkins-types';
 import { JenkinsInfo, ModelQuickPick, ViewsModel } from '../types/model';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
-import { getSelectionText, printEditorWithNew } from '../utils/editor';
+import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { extractViewnameFromText } from '../utils/xml';
 import { JobsProvider } from './jobs-provider';
@@ -31,25 +31,30 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
             }),
             vscode.commands.registerCommand('utocode.createView', async () => {
                 const mesg = await this.executor?.createView();
-                console.log(`result <${mesg}>`);
                 setTimeout(() => {
-                    // vscode.commands.executeCommand('utocode.views.refresh');
-                    this.refresh();
+                    vscode.commands.executeCommand('utocode.views.refresh');
                 }, 2000);
             }),
             vscode.commands.registerCommand('utocode.updateConfigView', async () => {
                 const text = getSelectionText();
                 if (text) {
+                    showInfoMessageWithTimeout('Processing', 1500);
+                    printEditor(' ', true);
+
                     const viewname = extractViewnameFromText(text);
-                    this.updateView(viewname, text);
+                    this.updateUIView(viewname, text);
                 } else {
                     showInfoMessageWithTimeout(vscode.l10n.t('Please There is not exist contents of the view'));
                 }
             }),
-            vscode.commands.registerCommand('utocode.getConfigView', async (view: ViewsModel) => {
+            vscode.commands.registerCommand('utocode.getConfigView', async (view: ViewsModel, reuse: boolean = false) => {
+                this.changeView(view);
                 const text = await this.executor?.getConfigView(view.name);
-                // console.log(`text <${text}>`);
-                printEditorWithNew(text);
+                if (reuse) {
+                    printEditor(text, reuse);
+                } else {
+                    printEditorWithNew(text);
+                }
             }),
             vscode.commands.registerCommand('utocode.renameView', async (view: ViewsModel) => {
                 if (!this._executor || !this._executor?.isConnected()) {
@@ -96,27 +101,26 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         );
     }
 
-    async updateView(viewname: string, text: string) {
+    async updateUIView(viewname: string, text: string) {
         const mesg = await this.executor?.updateConfigView(viewname, text);
-        console.log(`result <${mesg}>`);
+        // console.log(`result <${mesg}>`);
         setTimeout(() => {
-            this.refresh();
             if (viewname === this.jobsProvider.view.name) {
-                this.jobsProvider.refresh();
+                vscode.commands.executeCommand('utocode.jobs.refresh');
             }
-        }, 2300);
+            vscode.commands.executeCommand('utocode.getConfigView', this._view, true);
+        }, 2000);
     }
 
     async renameView(viewname: string, newViewName: string) {
         const result = await this.executor?.renameView(viewname, newViewName);
-        console.log(`result <${result}>`);
         setTimeout(() => {
             this.refresh();
             if (viewname === this.jobsProvider.view.name) {
                 this.jobsProvider.view.name = newViewName;
                 this.jobsProvider.refresh();
             }
-        }, 2300);
+        }, 2000);
     }
 
     async switchView() {
@@ -153,8 +157,12 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
     readonly onDidChangeTreeData: vscode.Event<ViewsModel | ViewsModel[] | undefined> = this._onDidChangeTreeData.event;
 
     changeView(view: ViewsModel) {
-        this.view = view;
-        this.jobsProvider.view = view;
+        if (this._view && this._view.name !== view.name) {
+            this.view = view;
+        }
+        if (this.jobsProvider.view && this.jobsProvider.view.name !== view.name) {
+            this.jobsProvider.view = view;
+        }
     }
 
     getViewIcon(name: string) {

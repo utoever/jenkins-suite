@@ -21,5 +21,6 @@
   "If you want to modify the xml data and apply it to the server, run \"Create Job\"or \"Update Config Job\" (Shift + Alt + Enter)": "If you want to modify the xml data and apply it to the server, run \"Create Job\" or \"Update Config Job\" (Shift + Alt + Enter)",
   "To test the pipeline, run validateJenkins (Ctrl+Alt+t)": "To test the pipeline, run validateJenkins (Ctrl+Alt+t)",
   "This feature is not guaranteed to run because it runs in VS Code, not on the server": "This feature is not guaranteed to run because it runs in VS Code, not on the server",
-  "The input time is {0} ~ {1} minutes": "The input time is {0} ~ {1} minutes"
+  "The input time is {0} ~ {1} minutes": "The input time is {0} ~ {1} minutes",
+  "Please choose the job first": "Please choose the job first"
 }

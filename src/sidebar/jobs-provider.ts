@@ -7,7 +7,7 @@ import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType
 import { getJobParamDefinitions } from '../types/model-util';
 import { getFolderAsModel, getJobsAsModel, runJobAll } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
-import { getSelectionText, printEditorWithNew } from '../utils/editor';
+import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { getParameterDefinition } from '../utils/model-utils';
 import { inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
@@ -47,58 +47,40 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     { label: 'Update', description: 'Update the existing Job' },
                     { label: 'Create', description: 'Create a job with a new name' },
                 ];
-                await vscode.window.showQuickPick(items, {
+                const jobCmd = await vscode.window.showQuickPick(items, {
                     placeHolder: vscode.l10n.t("Select the command you want to execute")
                 }).then(async (selectedItem) => {
-                    if (!selectedItem) {
-                        return;
-                    }
-                    if (selectedItem.label === 'Create') {
-                        vscode.commands.executeCommand('utocode.createJob');
-                    } else if (selectedItem.label === 'Update') {
-                        vscode.commands.executeCommand('utocode.updateConfigJob');
-                    }
-
-                    setTimeout(() => {
-                        vscode.commands.executeCommand('utocode.jobs.refresh');
-                    }, 2200);
+                    return selectedItem;
                 });
+
+                if (jobCmd) {
+                    let cmd = jobCmd.label === 'Create' ? 'utocode.createJob' : 'utocode.updateConfigJob';
+                    await vscode.commands.executeCommand(cmd);
+                } else {
+                    showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
+                }
+            }),
+            vscode.commands.registerCommand('utocode.createJob', async () => {
+                this.createJob();
+            }),
+            vscode.commands.registerCommand('utocode.createFolder', async () => {
+                const mesg = await this.executor?.createFolder(this.view.name);
+                console.log(`result <${mesg}>`);
+                setTimeout(() => {
+                    this.refresh();
+                }, 1500);
             }),
             vscode.commands.registerCommand('utocode.updateConfigJob', async () => {
-                const text = getSelectionText();
-                if (!text) {
-                    showInfoMessageWithTimeout(vscode.l10n.t('Job Data is not exist'));
-                    return;
+                this.createJob(false);
+            }),
+            vscode.commands.registerCommand('utocode.getConfigJob', async (job: JobsModel, reuse: boolean = false) => {
+                this.buildsProvider.jobs = job;
+                const text = await this.executor?.getConfigJob(job);
+                if (reuse) {
+                    printEditor(text, reuse);
+                } else {
+                    printEditorWithNew(text);
                 }
-
-                let jobs = this.buildsProvider.jobs;
-                if (!jobs?.name) {
-                    const allJobs = await this.getJobsWithView();
-                    const items: ModelQuickPick<JobsModel>[] = [];
-                    allJobs.forEach(job => {
-                        items.push({
-                            label: job.name,
-                            description: job.description,
-                            detail: job.fullName,
-                            model: job
-                        });
-                    });
-
-                    await vscode.window.showQuickPick(items, {
-                        placeHolder: vscode.l10n.t("Select the command you want to execute")
-                    }).then(async (selectedItem) => {
-                        if (selectedItem) {
-                            this.buildsProvider.jobs = selectedItem.model!;
-                        }
-                    });
-                }
-
-                if (!jobs?.name) {
-                    vscode.window.showErrorMessage('Select running job');
-                    return;
-                }
-                const mesg = await this.executor?.updateJobConfig(jobs.name, text);
-                console.log(`result <${mesg}>`);
             }),
             vscode.commands.registerCommand('utocode.openLink#appHome', (job: JobsModel) => {
                 if (job.jobDetail) {
@@ -166,16 +148,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     }
                 });
             }),
-            vscode.commands.registerCommand('utocode.createJob', async () => {
-                this.createJob();
-            }),
-            vscode.commands.registerCommand('utocode.createFolder', async () => {
-                const mesg = await this.executor?.createFolder(this.view.name);
-                console.log(`result <${mesg}>`);
-                setTimeout(() => {
-                    this.refresh();
-                }, 1500);
-            }),
             vscode.commands.registerCommand('utocode.switchJob', async (job: JobsModel) => {
                 const items = this.getJobsWithViewAsModel();
 
@@ -186,10 +158,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                         this.buildsProvider.jobs = selectedItem.model!;
                     }
                 });
-            }),
-            vscode.commands.registerCommand('utocode.getConfigJob', async (job: JobsModel) => {
-                const text = await this.executor?.getConfigJob(job);
-                printEditorWithNew(text);
             }),
             vscode.commands.registerCommand('utocode.addReservation', async (job: JobsModel) => {
                 this.reservationProvider.addReservation(job);
@@ -343,19 +311,36 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         return items;
     }
 
-    async createJob() {
-        const viewName = this.view?.name ?? 'all';
-        console.log(`viewName <${viewName}>`);
+    async createJob(flag: boolean = true) {
         const text = getSelectionText();
-        if (text) {
+        if (!text) {
+            showInfoMessageWithTimeout(vscode.l10n.t('Job Data is not exist'));
+            return;
+        }
+        showInfoMessageWithTimeout('Processing', 1500);
+        printEditor(' ', true);
+
+        if (flag) {
+            const viewName = this.view?.name ?? 'all';
+            console.log(`viewName <${viewName}>`);
             const mesg = await this.executor?.createJob(text, viewName);
             console.log(`result <${mesg}>`);
 
             setTimeout(() => {
                 this.refresh();
-            }, 2500);
+            }, 1500);
         } else {
-            showInfoMessageWithTimeout(vscode.l10n.t('There is no xml data to create a job'));
+            let jobs = this.buildsProvider.jobs;
+            if (!jobs || !jobs?.name) {
+                showInfoMessageWithTimeout(vscode.l10n.t('Please choose the job first'));
+                return;
+            }
+
+            const mesg = await this.executor?.updateJobConfig(jobs.name, text);
+            console.log(`result <${mesg}>`);
+            setTimeout(() => {
+                vscode.commands.executeCommand('utocode.getConfigJob', jobs, true);
+            }, 1500);
         }
     }
 
