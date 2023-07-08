@@ -50,7 +50,7 @@ Jenkins Extension for Visual Studio Code
   ![Generate Code](images/guide/guide6.png)
 
 
-- Validate Jenkinsfiles (Ctrl+Alt+t)
+- Validate Jenkinsfiles (Ctrl+Alt+T)
 
   ![Validate](images/guide/guide7.png)
 

@@ -50,7 +50,7 @@ VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발�
   ![Generate Code](images/guide/guide6.png)
 
 
-- Validate Jenkinsfiles (Ctrl+Alt+t)
+- Validate Jenkinsfiles (Ctrl+Alt+T)
 
   ![Validate](images/guide/guide7.png)
 

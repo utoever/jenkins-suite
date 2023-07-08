@@ -365,7 +365,6 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         } else {
             const jobs: Partial<JobsModel> = {};
             this.buildsProvider.jobs = jobs as JobsModel;
-            this.notifyProvider.clear();
 
             vscode.window.showInformationMessage(vscode.l10n.t(`Disconnected Server <{0}>`, `${this._currentServer?.name}`));
         }
@@ -388,7 +387,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         if (disconnected && server.name === this._currentServer?.name) {
             this._executor?.disconnect();
             this._executor = undefined;
-            this.updateUI(false);
+            await this.updateUI(false);
             this._currentServer = undefined;
         }
     }
