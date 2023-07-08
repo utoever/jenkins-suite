@@ -109,20 +109,20 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     { label: 'Pipeline', description: 'Generate Pipeline Job' },
                     { label: 'FreeStyle', description: 'Generate FreeStyle Job' },
                 ];
-                await vscode.window.showQuickPick(items, {
+                const result = await vscode.window.showQuickPick(items, {
                     placeHolder: vscode.l10n.t("Select to generate Job Code")
                 }).then(async (selectedItem) => {
-                    if (!selectedItem) {
-                        return;
-                    }
+                    return selectedItem;
+                });
 
-                    const snippetItem = await invokeSnippet(this.context, `c_job_${selectedItem.label}`.toUpperCase());
+                if (result) {
+                    const snippetItem = await invokeSnippet(this.context, `c_job_${result.label}`.toUpperCase());
                     printEditorWithNew(snippetItem.body.join('\n'));
 
                     setTimeout(() => {
                         showInfoMessageWithTimeout(vscode.l10n.t('If you want to modify the xml data and apply it to the server, run "Create Job"or "Update Config Job" (Shift + Alt + Enter)'), 10000);
                     }, 1000);
-                });
+                }
             }),
             vscode.commands.registerCommand('utocode.generateJobCodePick', async () => {
                 if (!this.executor?.initialized()) {

@@ -72,4 +72,3 @@ export function inferFileExtension(content: string): string | null {
     }
     return null;
 }
-
