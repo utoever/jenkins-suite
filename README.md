@@ -2,7 +2,8 @@
 
 Jenkins Extension for Visual Studio Code
 
-* Korean Document [한글문서](README_KO.md)
+* [Jenkins Suite](https://jenkinssuite.github.io/)
+* [Korean Document](README_KO.md)
 
 ## Prerequisites
 
