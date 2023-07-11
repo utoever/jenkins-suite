@@ -1,4 +1,8 @@
-# Jenkins Suite
+# Jenkins Suite for Visual Studio Code
+
+[![Visual Studio Marketplace](https://img.shields.io/visual-studio-marketplace/v/utocode.jenkinssuite?style=for-the-badge&label=VS%20Marketplace&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=utocode.jenkinssuite)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/utocode.jenkinssuite?style=for-the-badge)](https://marketplace.visualstudio.com/items?itemName=utocode.jenkinssuite)
+[![License](https://img.shields.io/github/license/utocode/jenkins-suite?style=for-the-badge&logo=)](https://github.com/utocode/jenkins-suite/blob/master/LICENSE)
 
 [Jenkins](https://jenkins.io/) is a self-contained Java-based program, ready to run out-of-the-box, with packages for Windows, Linux, macOS and other Unix-like operating systems.
 This extension was created to make it easier to use Jenkins in VS Code.
@@ -10,10 +14,9 @@ For more information, please visit the following site.
 
 * Install Jenkins
 * Install Jenkins Plugins [Recommend]
-  * JobDSL: <https://plugins.jenkins.io/job-dsl/>
-  * CategorizedView: <https://plugins.jenkins.io/categorized-view/>
-  * WsTalk: Communicate build information from the jenkins server via websockets [Working to publish]
-    * Download: <https://github.com/utocode/wstalk/releases/>
+  * JobDSL: [https://plugins.jenkins.io/job-dsl/](https://plugins.jenkins.io/job-dsl/)
+  * CategorizedView: [https://plugins.jenkins.io/categorized-view/](https://plugins.jenkins.io/categorized-view/)
+  * WsTalk: Communicate build information from the jenkins server via websockets [https://github.com/utocode/wstalk/releases/](https://github.com/utocode/wstalk/releases/)
 * Make User of the Jenkins (Account & API Token)
 
 ## Features
@@ -126,3 +129,7 @@ Please let me know of any bugs via the issues page
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md)
+
+## License
+
+See [LICENSE](LICENSE) for more information.
