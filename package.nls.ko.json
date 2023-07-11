@@ -46,6 +46,8 @@
   "deleteFolder.title": "Folder 삭제",
   "generateJobCode.title": "Job Code 생성 (FreeStyle, Pipeline)",
   "generateJobCodePick.title": "Generate Custom Job Code",
+  "withView.title": "Execute View",
+  "withJob.title": "Execute Job",
   "getConfigView.title": "View 설정 가져오기",
   "renameView.title": "이름 변경",
   "updateConfigView.title": "View 설정 업데이트",
