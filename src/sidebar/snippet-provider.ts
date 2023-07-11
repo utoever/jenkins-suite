@@ -25,9 +25,11 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     readonly onDidChangeTreeData: vscode.Event<SnippetItem | SnippetItem[] | undefined> = this._onDidChangeTreeData.event;
 
     async getTreeItem(element: SnippetItem): Promise<vscode.TreeItem> {
+        const iconPath = element.type && element.type === 'system' ? new vscode.ThemeIcon('symbol-enum') : this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`);
+        const label = this.getLabel(element);
         let treeItem; vscode.TreeItem;
         treeItem = {
-            label: element.prefix.toUpperCase(),
+            label: label,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             // command: {
             //     command: 'utocode.generateCode',
@@ -36,10 +38,15 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
             // },
             contextValue: 'snippet',
             // iconPath: new vscode.ThemeIcon('symbol-enum'),
-            iconPath: this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`),
-            tooltip: element.description
+            // iconPath: this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`),
+            iconPath: iconPath,
+            tooltip: this.makeToolTip(element)
         };
         return treeItem;
+    }
+
+    getLabel(element: SnippetItem) {
+        return (element.type && element.type === 'system' ? 'JK_' : 'USER_') + element.prefix.toUpperCase();
     }
 
     async getChildren(element?: SnippetItem): Promise<SnippetItem[]> {
@@ -47,6 +54,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
         if (!this.jenkinsSnippet) {
             return [];
         }
+
         const items = await this.jenkinsSnippet.getSnippets();
         return items.filter(item => {
             const when = item.when ? JenkinsConfiguration.getPropertyAsBoolean(item.when) : true;
@@ -63,6 +71,23 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
                 showInfoMessageWithTimeout(vscode.l10n.t('To test the pipeline, run validateJenkins (Ctrl+Alt+t)'));
             }
         }
+    }
+
+    makeToolTip(snippetItem: SnippetItem) {
+        const text = new vscode.MarkdownString();
+        text.appendMarkdown(`## * _${snippetItem.description ?? ' '}_\n`);
+        if (snippetItem.type !== 'system') {
+            text.appendMarkdown(`* Language: **${snippetItem.language ?? '-'}**\n`);
+        }
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown('```' + snippetItem.language + '\n');
+        const items = snippetItem.body.map(item => {
+            text.appendMarkdown(`${item}\n`);
+        });
+        text.appendMarkdown('```\n');
+
+        return text;
     }
 
     refresh(): void {

@@ -222,6 +222,14 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.withView",
+        "title": "%withView.title%"
+      },
+      {
+        "command": "utocode.withJob",
+        "title": "%withJob.title%"
+      },
+      {
         "command": "utocode.copyJob",
         "title": "%copyJob.title%",
         "category": "jenkinssuite"
@@ -1121,37 +1129,37 @@
       {
         "command": "utocode.switchConnection",
         "key": "alt+1",
-        "mac": "option+1"
+        "mac": "cmd+1"
       },
       {
         "command": "utocode.switchView",
         "key": "alt+2",
-        "mac": "option+2"
+        "mac": "cmd+2"
       },
       {
         "command": "utocode.switchJob",
         "key": "alt+3",
-        "mac": "option+3"
+        "mac": "cmd+3"
       },
       {
         "command": "utocode.runJob",
         "key": "alt+4",
-        "mac": "option+4"
+        "mac": "cmd+4"
       },
       {
         "command": "utocode.runFolderJob",
         "key": "alt+6",
-        "mac": "option+6"
+        "mac": "cmd+6"
       },
       {
         "command": "utocode.switchBuild",
         "key": "alt+5",
-        "mac": "option+5"
+        "mac": "cmd+5"
       },
       {
         "command": "utocode.runAddReservation",
         "key": "alt+7",
-        "mac": "option+7"
+        "mac": "cmd+7"
       },
       {
         "command": "utocode.validateJenkins",

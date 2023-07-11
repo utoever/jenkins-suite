@@ -1,9 +1,10 @@
 # Jenkins Suite
 
-Jenkins Extension for Visual Studio Code
+[Jenkins](https://jenkins.io/) is a self-contained Java-based program, ready to run out-of-the-box, with packages for Windows, Linux, macOS and other Unix-like operating systems.
+This extension was created to make it easier to use Jenkins in VS Code.
+For more information, please visit the following site.
 
-* [Jenkins Suite](https://jenkinssuite.github.io/)
-* [Korean Document](README_KO.md)
+**[https://jenkinssuite.github.io/](https://jenkinssuite.github.io/)**
 
 ## Prerequisites
 
@@ -17,32 +18,32 @@ Jenkins Extension for Visual Studio Code
 
 ## Features
 
-- Connection [SwitchConnection (Alt+1)]
-  - connect / disconnect
+* Connection [SwitchConnection (Alt+1)]
+  * connect / disconnect
 
   ![SwitchConnection](images/guide/guide1.png)
 
-- View [SwitchView (Alt+2)]
-  - List
-  - Create View
+* View [SwitchView (Alt+2)]
+  * List
+  * Create View
 
   ![SwitchView](images/guide/guide2.png)
 
-- Job [SwitchBuild (Alt+3) RunJob (Alt+4) RunFolder (Alt+6)]
+* Job [SwitchBuild (Alt+3) RunJob (Alt+4) RunFolder (Alt+6)]
 
-  - Job: List / Create / Build
-  - Configuration: Get / Update
-  - Open Job in Web Browser
+  * Job: List / Create / Build
+  * Configuration: Get / Update
+  * Open Job in Web Browser
 
   ![SwitchJob](images/guide/guide3.png)
 
-- Build History [SwitchBuild (Alt+5)]
-  - View Log
-  - Open Log in Web Browser
+* Build History [SwitchBuild (Alt+5)]
+  * View Log
+  * Open Log in Web Browser
 
   ![SwitchBuild](images/guide/guide4.png)
 
-- Generate Job Code (Ctrl+Alt+Insert)
+* Generate Job Code (Ctrl+Alt+Insert)
 
   ![Generate Job Code](images/guide/guide5.png)
 
@@ -50,13 +51,11 @@ Jenkins Extension for Visual Studio Code
 
   ![Generate Code](images/guide/guide6.png)
 
-
-- Validate Jenkinsfiles (Ctrl+Alt+T)
+* Validate Jenkinsfiles (Ctrl+Alt+T)
 
   ![Validate](images/guide/guide7.png)
 
-
-# Getting Started
+## Getting Started
 
 * Generate an API Token
   * Log in to the Jenkins instance
@@ -75,7 +74,7 @@ Jenkins Extension for Visual Studio Code
 
 ## Extension Settings
 
-+ Add Jenkins Server
+* Add Jenkins Server
 
 ```json
   "jenkinssuite.servers": {
@@ -122,7 +121,7 @@ Jenkins Extension for Visual Studio Code
 
 ## Issues
 
-Please let me know of any bugs via the issues page!
+Please let me know of any bugs via the issues page
 
 ## Release Notes
 

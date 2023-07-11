@@ -46,6 +46,8 @@
   "deleteFolder.title": "Delete Folder",
   "generateJobCode.title": "Generate Job Code (FreeStyle, Pipeline)",
   "generateJobCodePick.title": "Generate Custom Job Code",
+  "withView.title": "Execute View",
+  "withJob.title": "Execute Job",
   "getConfigView.title": "Get Config View",
   "renameView.title": "Rename View",
   "updateConfigView.title": "Update Config View",

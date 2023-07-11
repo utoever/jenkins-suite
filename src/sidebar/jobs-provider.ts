@@ -109,10 +109,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 this.openLinkHomeWithHidden(job, 'swagger.url');
             }),
             vscode.commands.registerCommand('utocode.generateJobCode', async () => {
-                if (!this.executor?.initialized()) {
-                    return;
-                }
-
                 const items: vscode.QuickPickItem[] = [
                     { label: 'Pipeline', description: 'Generate Pipeline Job' },
                     { label: 'FreeStyle', description: 'Generate FreeStyle Job' },
@@ -133,10 +129,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
             }),
             vscode.commands.registerCommand('utocode.generateJobCodePick', async () => {
-                if (!this.executor?.initialized()) {
-                    return;
-                }
-
                 const snippets = await invokeSnippetAll(this.context, true);
                 const items: ModelQuickPick<SnippetItem>[] = [];
 

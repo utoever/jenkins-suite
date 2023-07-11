@@ -2,12 +2,13 @@ import { initial } from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import logger from '../utils/logger';
+import { invokeSnippetAll } from '../utils/util';
 
 export default class JenkinsSnippet {
 
     private _snippets: SnippetItems | undefined;
 
-    private snippetFilePath: string;
+    // private snippetFilePath: string;
 
     private static _instance: JenkinsSnippet;
 
@@ -15,21 +16,22 @@ export default class JenkinsSnippet {
 
     private constructor(protected context: vscode.ExtensionContext) {
         const extensionPath = this.context.extensionPath;
-        this.snippetFilePath = path.join(extensionPath, 'snippets', 'snippet.json');
+        // this.snippetFilePath = path.join(extensionPath, 'snippets', 'snippet.json');
         this.initialize();
     }
 
     async initialize() {
-        this._snippets = await this.loadSnippet();
+        // this._snippets = await this.loadSnippet();
+        this._snippets = await invokeSnippetAll(this.context, true);
         this._initialized = true;
     }
 
-    async loadSnippet() {
-        const file = vscode.Uri.file(this.snippetFilePath);
-        const snippetContent = (await vscode.workspace.fs.readFile(file)).toString();
-        logger.debug(`snippets <${this._snippets}>`);
-        return JSON.parse(snippetContent) as SnippetItems;
-    }
+    // async loadSnippet() {
+    //     const file = vscode.Uri.file(this.snippetFilePath);
+    //     const snippetContent = (await vscode.workspace.fs.readFile(file)).toString();
+    //     logger.debug(`snippets <${this._snippets}>`);
+    //     return JSON.parse(snippetContent) as SnippetItems;
+    // }
 
     static getInstance(context: vscode.ExtensionContext) {
         if (!JenkinsSnippet._instance) {
@@ -73,4 +75,5 @@ export interface SnippetItem {
     language?: string
     hidden?: boolean
     when?: string
+    type?: string
 }

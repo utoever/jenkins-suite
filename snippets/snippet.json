@@ -191,7 +191,8 @@
       "</project>"
     ],
     "description": "탭 페이지를 생성합니다",
-    "when": "plugin.jobdsl.enabled"
+    "when": "plugin.jobdsl.enabled",
+    "type": "system"
   },
   "C_DSL_JOB": {
     "prefix": "c_dsl_job",
@@ -201,7 +202,7 @@
       "  <actions/>",
       "  <description>서버 구성을 위한 Job을 생성합니다.&#xd;",
       "&#xd;",
-      "    - kaf-AAA_dev</description>",
+      "    - PID-AAA_dev</description>",
       "  <keepDependencies>false</keepDependencies>",
       "  <properties>",
       "    <com.sonyericsson.rebuild.RebuildSettings plugin=\"rebuild@320.v5a_0933a_e7d61\">",
@@ -213,7 +214,7 @@
       "        <hudson.model.StringParameterDefinition>",
       "          <name>PID</name>",
       "          <description>프로젝트 코드를 입력하세요</description>",
-      "          <defaultValue>kaf</defaultValue>",
+      "          <defaultValue>PID</defaultValue>",
       "          <trim>false</trim>",
       "        </hudson.model.StringParameterDefinition>",
       "        <hudson.model.StringParameterDefinition>",
@@ -231,7 +232,7 @@
       "        <hudson.model.StringParameterDefinition>",
       "          <name>CREDENTIALS</name>",
       "          <description>credentials of the Git </description>",
-      "          <defaultValue>kaf-git</defaultValue>",
+      "          <defaultValue>PID-git</defaultValue>",
       "          <trim>false</trim>",
       "        </hudson.model.StringParameterDefinition>",
       "      </parameterDefinitions>",
@@ -283,7 +284,8 @@
       "</project>"
     ],
     "description": "파이프라인 Job을 생성합니다",
-    "when": "plugin.jobdsl.enabled"
+    "when": "plugin.jobdsl.enabled",
+    "type": "system"
   },
   "C_VIEW_CATEVIEW": {
     "prefix": "c_view_cateview",
@@ -317,7 +319,8 @@
       "</org.jenkinsci.plugins.categorizedview.CategorizedJobsView>"
     ],
     "description": "Categorizedview 를 생성합니다. [Plugin 필수]",
-    "when": "plugin.categorized.enabled"
+    "when": "plugin.categorized.enabled",
+    "type": "system"
   },
   "C_VIEW_LISTVIEW": {
     "prefix": "c_view_listview",
@@ -345,7 +348,8 @@
       "</hudson.model.ListView>"
     ],
     "description": "LIST_VIEW를 생성합니다.",
-    "hidden": true
+    "hidden": true,
+    "type": "system"
   },
   "C_FOLDER": {
     "prefix": "c_folder",
@@ -380,7 +384,8 @@
       "</com.cloudbees.hudson.plugins.folder.Folder>"
     ],
     "description": "Create Folder",
-    "hidden": true
+    "hidden": true,
+    "type": "system"
   },
   "C_JOB_PIPELINE": {
     "prefix": "c_job_pipeline",
@@ -435,7 +440,8 @@
     ],
     "language": "jenkins",
     "description": "C_JOB_PIPELINE",
-    "hidden": true
+    "hidden": true,
+    "type": "system"
   },
   "C_JOB_FREESTYLE": {
     "prefix": "c_job_freestyle",
@@ -491,7 +497,8 @@
       "</project>"
     ],
     "description": "Make FreeStyle Project",
-    "hidden": true
+    "hidden": true,
+    "type": "system"
   },
   "DEMO_JOB_PIPELINE": {
     "prefix": "demo_job_pipeline",
@@ -520,7 +527,8 @@
       "}",
       ""
     ],
+    "description": "Pipeline Job 을 생성합니다.",
     "language": "jenkins",
-    "description": "Pipeline Job 을 생성합니다."
+    "type": "system"
   }
 }
