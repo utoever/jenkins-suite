@@ -1,8 +1,8 @@
 {
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
-  "description": "Manage your Jenkins Job inside Visual Studio Code",
-  "version": "0.1.5",
+  "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
+  "version": "0.2.0",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -65,6 +65,12 @@
       ]
     },
     "views": {
+      "explorer": [
+        {
+          "id": "jenkinsProject",
+          "name": "Jenkins Project"
+        }
+      ],
       "jenkins-explorer": [
         {
           "id": "utocode.views.connection",
@@ -414,6 +420,57 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.project.refresh",
+        "title": "%project.refresh.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "utocode.connectProjectServer",
+        "title": "%connectProjectServer.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.disconnectProjectServer",
+        "title": "%disconnectProjectServer.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.buildProjectJob",
+        "title": "%buildProjectJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#projectServer",
+        "title": "%openLinkProjectServer.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#projectJob",
+        "title": "%openLinkProjectJob.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#projectBuild",
+        "title": "%openLinkProjectBuild.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.connectServer",
         "title": "%connectServer.title%",
         "category": "jenkinssuite"
@@ -576,6 +633,36 @@
       ],
       "view/item/context": [
         {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv/ && !(viewItem =~ /^.*project_srv_conn/)",
+          "command": "utocode.connectProjectServer",
+          "group": "1_jenkinssuite_actions@10"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv_conn/",
+          "command": "utocode.disconnectProjectServer",
+          "group": "1_jenkinssuite_actions@10"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job/",
+          "command": "utocode.buildProjectJob",
+          "group": "1_jenkinssuite_actions@10"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv/",
+          "command": "utocode.openLink#projectServer",
+          "group": "inline@90"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job/",
+          "command": "utocode.openLink#projectJob",
+          "group": "inline@90"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_build/",
+          "command": "utocode.openLink#projectBuild",
+          "group": "inline@90"
+        },
+        {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^.*sparrow.*/",
           "command": "utocode.openLink#sparrow",
           "group": "inline@10"
@@ -596,12 +683,12 @@
           "group": "inline@70"
         },
         {
-          "when": "view == 'utocode.views.connection'",
+          "when": "view == 'utocode.views.connection' && !(viewItem =~ /^.*_conn/)",
           "command": "utocode.connectServer",
           "group": "1_jenkinssuite_actions@10"
         },
         {
-          "when": "view == 'utocode.views.connection'",
+          "when": "view == 'utocode.views.connection' && (viewItem =~ /^.*_conn/)",
           "command": "utocode.disconnectServer",
           "group": "1_jenkinssuite_actions@10"
         },
@@ -757,6 +844,11 @@
         }
       ],
       "view/title": [
+        {
+          "command": "utocode.project.refresh",
+          "when": "view == 'jenkinsProject'",
+          "group": "navigation@99"
+        },
         {
           "command": "utocode.connections.settings",
           "when": "view == utocode.views.connection",

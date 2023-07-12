@@ -16,7 +16,7 @@ export class NotifyProvider implements vscode.TreeDataProvider<WsTalkMessage> {
 
     async getTreeItem(element: WsTalkMessage): Promise<vscode.TreeItem> {
         console.log(`notify::treeItem <${element}>`);
-        let treeItem; vscode.TreeItem;
+        let treeItem: vscode.TreeItem;
         treeItem = {
             label: `[${getLocalDate(element.timestamp)}] ${element.job} #${element.number} (${element.duration})`,
             collapsibleState: vscode.TreeItemCollapsibleState.None,

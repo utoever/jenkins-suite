@@ -1,6 +1,11 @@
 # Change Log
 
-## 0.1.x Version
+### [0.2.0] - 2023-07-12
+
+- A few bug fixes
+- Add Project View
+
+---
 
 ### [0.1.5] - 2023-07-11
 
@@ -33,8 +38,6 @@
 - A few bug fixes
 
 ---
-
-## 0.0.x Version
 
 ### [0.0.7] - 2023-06-29
 

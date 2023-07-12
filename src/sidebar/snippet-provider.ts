@@ -27,7 +27,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     async getTreeItem(element: SnippetItem): Promise<vscode.TreeItem> {
         const iconPath = element.type && element.type === 'system' ? new vscode.ThemeIcon('symbol-enum') : this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`);
         const label = this.getLabel(element);
-        let treeItem; vscode.TreeItem;
+        let treeItem: vscode.TreeItem;
         treeItem = {
             label: label,
             collapsibleState: vscode.TreeItemCollapsibleState.None,

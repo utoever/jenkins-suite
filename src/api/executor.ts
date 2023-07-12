@@ -182,6 +182,13 @@ export class Executor {
         );
     };
 
+    async getJobAsViewFromProject(uri: string): Promise<AllViewModel> {
+        console.log(`getJobAsView: uri <${uri}>`);
+        return await this._jenkins._get<AllViewModel>(
+            `${uri}/api/json`
+        );
+    };
+
     async checkJobName(name: string): Promise<boolean> {
         const result = await this._jenkins._post<string>(
             `checkJobName?value=${name}`
@@ -196,6 +203,13 @@ export class Executor {
 
     async getJob(job: JobsModel): Promise<BuildsModel> {
         const uri = this.extractUrl(job.url);
+        console.log(`uri <${uri}>`);
+        return await this._jenkins._get<BuildsModel>(
+            `${uri}/api/json`
+        );
+    };
+
+    async getJobFromProject(uri: string): Promise<BuildsModel> {
         console.log(`uri <${uri}>`);
         return await this._jenkins._get<BuildsModel>(
             `${uri}/api/json`

@@ -10,7 +10,7 @@ import { getFolderAsModel, runJobAll } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
-import { getParameterDefinition } from '../utils/model-utils';
+import { getParameterDefinition, makeJobTreeItems } from '../utils/model-utils';
 import { inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
 import { notifyMessageWithTimeout, showErrorMessage } from '../utils/vsc';
 import { FlowDefinition, ShortcutJob, parseXml } from '../utils/xml';
@@ -365,96 +365,24 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         }, 800);
     }
 
-    async getTreeItem(element: JobsModel): Promise<vscode.TreeItem> {
+    async getTreeItem(jobsModel: JobsModel): Promise<vscode.TreeItem> {
         // console.log(`jobs::treeItem <${element?.fullName ?? element?.name}>`);
-        let jobDetail: BuildsModel | undefined = element.jobDetail;
         let treeItem: vscode.TreeItem;
-        if (element && element.jobParam && element.level === 100) {
-            const jobParam = element.jobParam;
+        if (jobsModel && jobsModel.jobParam && jobsModel.level === 100) {
+            const jobParam = jobsModel.jobParam;
             treeItem = {
                 label: `${jobParam.name} [${jobParam.defaultParameterValue.value}]`,
                 collapsibleState: vscode.TreeItemCollapsibleState.None,
                 iconPath: new vscode.ThemeIcon(jobParam._class === ParametersDefinitionProperty.wHideParameterDefinition ? 'eye-closed' : 'file-code'),
-                tooltip: this.getToolTipParams(element)
+                tooltip: this.getToolTipParams(jobsModel)
             };
         } else {
-            if (element._class === JobModelType.workflowMultiBranchProject) {
-                treeItem = {
-                    label: element.name,
-                    collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-                    contextValue: 'jobs',
-                    iconPath: new vscode.ThemeIcon('symbol-enum'),
-                    tooltip: element.jobDetail?.description ?? element.name
-                };
-            } else if (buildJobModelType.includes(element._class)) {
-                let icon = 'grey';
-                let paramAction;
-                if (jobDetail) {
-                    if (jobDetail.buildable) {
-                        icon = element._class === JobModelType.workflowJob ? 'green' : 'blue';
-                    }
-                    paramAction = getJobParamDefinitions(jobDetail.property);
-                }
-                let cntParam = paramAction ? paramAction.length : 0;
-                const hiddenParams = paramAction && paramAction.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
-                const ctx = [];
-                if (hiddenParams) {
-                    for (let param of hiddenParams) {
-                        if (param.name.endsWith('.url')) {
-                            ctx.push('_' + param.name.split('.url')[0]);
-                        }
-                    }
-                }
-
-                treeItem = {
-                    label: element.name,
-                    collapsibleState: cntParam === 0 ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
-                    contextValue: (jobDetail?.buildable ? 'jobs' : 'jobs_disabled') + ctx.join(''),
-                    // iconPath: new vscode.ThemeIcon('output-view-icon'),
-                    iconPath: this.context.asAbsolutePath(`resources/job/${icon}.png`),
-                    tooltip: this.makeToolTipJob(element)
-                };
-            } else if (element._class === JobModelType.folder || element._class === JobModelType.organizationFolder) {
-                treeItem = {
-                    label: `<${element.jobDetail?.jobs.length}> ${element.name}`,
-                    collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-                    contextValue: 'jobs_folder',
-                    iconPath: new vscode.ThemeIcon('folder'),
-                    tooltip: this.makeToolTipFolder(element)
-                };
-            } else if (element._class === JobModelType.shortcutJob) {
-                const detail = await this.executor?.getConfigJob(element);
-                const xmlData: ShortcutJob = parseXml(detail);
-                treeItem = {
-                    label: element.name,
-                    collapsibleState: vscode.TreeItemCollapsibleState.None,
-                    contextValue: 'jobs_no',
-                    iconPath: new vscode.ThemeIcon('link'),
-                    tooltip: this.makeToolTipShortcut(xmlData)
-                };
-            } else if (element._class === JobModelType.externalJob) {
-                treeItem = {
-                    label: element.name,
-                    collapsibleState: vscode.TreeItemCollapsibleState.None,
-                    contextValue: 'jobs_no',
-                    iconPath: new vscode.ThemeIcon('live-share'),
-                    tooltip: element.jobDetail?.description ?? element.name
-                };
-            } else {
-                treeItem = {
-                    label: element.name,
-                    collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-                    contextValue: jobDetail?.buildable ? 'jobs' : 'jobs_disabled',
-                    // iconPath: new vscode.ThemeIcon('output-view-icon'),
-                    iconPath: this.context.asAbsolutePath(`resources/job/${element.color}.png`),
-                    tooltip: element.jobDetail?.description ?? element.name
-                };
-            }
+            treeItem = await makeJobTreeItems(jobsModel, this._executor!, this.context);
         }
         treeItem.command = {
             command: 'utocode.showBuilds',
             title: 'Show Builds',
-            arguments: [element]
+            arguments: [jobsModel]
         };
         return treeItem;
     }
@@ -519,81 +447,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         return jobsModel;
     }
 
-    makeToolTipFolder(jobModel: JobsModel) {
-        const jobDetail: BuildsModel = jobModel.jobDetail!;
-        const text = new vscode.MarkdownString();
-        text.appendMarkdown('### Summary: \n');
-        text.appendMarkdown(`${jobDetail.displayName ?? jobDetail.fullDisplayName}\n`);
-        text.appendMarkdown('\n---\n');
-
-        text.appendMarkdown(`### Jobs: \n`);
-        if (jobDetail.jobs && jobDetail.jobs.length > 0) {
-            for (let folderJob of jobDetail.jobs) {
-                text.appendMarkdown(`* ${folderJob.name}: ${folderJob.color}\n`);
-            }
-        } else {
-            text.appendMarkdown('* __None__\n');
-        }
-        text.appendMarkdown('\n---\n');
-
-        text.appendMarkdown(`*${jobModel.url}*\n`);
-        return text;
-    }
-
-    makeToolTipJob(jobModel: JobsModel) {
-        const jobDetail: BuildsModel = jobModel.jobDetail!;
-        const paramAction: JobParamDefinition[] | undefined = getJobParamDefinitions(jobDetail.property);
-        const text = new vscode.MarkdownString();
-        text.appendMarkdown(`### Job: \n`);
-        text.appendMarkdown(`* name: ${jobModel.name}\n`);
-        text.appendMarkdown(`* buildable: ${jobModel.jobDetail?.buildable}\n`);
-        const hiddenParams = paramAction?.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
-        if (hiddenParams) {
-            for (let param of hiddenParams) {
-                text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue.value}) \n`);
-            }
-        }
-        text.appendMarkdown('\n---\n');
-
-        text.appendMarkdown(`### Parameters: \n`);
-        const usedParams = paramAction?.filter(param => param._class !== ParametersDefinitionProperty.wHideParameterDefinition.toString());
-        if (usedParams && usedParams.length > 0) {
-            for (let param of usedParams) {
-                text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue.value}) \n`);
-            }
-        } else {
-            text.appendMarkdown('* __None__\n');
-        }
-
-        text.appendMarkdown('\n---\n');
-        text.appendMarkdown('### Summary: \n');
-        text.appendMarkdown(`${jobDetail.description ? jobDetail.description : jobDetail.fullDisplayName}\n`);
-        text.appendMarkdown('\n---\n');
-
-        text.appendMarkdown(`${jobModel.url}\n`);
-        return text;
-    }
-
-    getToolTipParams(jobModel: JobsModel) {
-        const jobParam = jobModel.jobParam!;
-        const text = new vscode.MarkdownString();
-        text.appendMarkdown(`### Job: \n`);
-        text.appendMarkdown(`* name: ${jobModel.fullDisplayName ?? jobModel.fullName}\n`);
-        text.appendMarkdown('\n---\n');
-
-        text.appendMarkdown(`### Parameter: \n`);
-        text.appendMarkdown(`* Type: _${jobParam.type.substring(0, jobParam.type.length - 'ParameterValue'.length)}_\n`);
-        text.appendMarkdown(`* Default Value: *${jobParam.defaultParameterValue.value}*\n`);
-        return text;
-    }
-
-    makeToolTipShortcut(xmlData: ShortcutJob) {
-        const text = new vscode.MarkdownString();
-        text.appendMarkdown(`### URL: \n`);
-        text.appendMarkdown(`${xmlData['com.legrig.jenkins.shortcut.ShortcutJob'].targetUrl._text}\n`);
-        return text;
-    }
-
     public async getJobsWithFolder(folder: BaseJobModel): Promise<JobsModel[]> {
         if (!this._executor) {
             return [];
@@ -617,6 +470,19 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
         const allViewModel = await this.executor?.getViewsWithDetail(this._view ? this.view.name : 'all', true);
         return allViewModel ? allViewModel.jobs : [];
+    }
+
+    getToolTipParams(jobModel: JobsModel) {
+        const jobParam = jobModel.jobParam!;
+        const text = new vscode.MarkdownString();
+        text.appendMarkdown(`### Job: \n`);
+        text.appendMarkdown(`* name: ${jobModel.fullDisplayName ?? jobModel.fullName}\n`);
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown(`### Parameter: \n`);
+        text.appendMarkdown(`* Type: _${jobParam.type.substring(0, jobParam.type.length - 'ParameterValue'.length)}_\n`);
+        text.appendMarkdown(`* Default Value: *${jobParam.defaultParameterValue.value}*\n`);
+        return text;
     }
 
     get view() {

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ThemeIcon, Uri } from 'vscode';
+import { JenkinsServer } from '../config/settings';
 import { BallColor, Jobs, Result } from "./jenkins-types";
 
 export interface JenkinsInfo {
@@ -255,6 +255,21 @@ export interface WsTalkMessage {
 
 export interface ModelQuickPick<T> extends vscode.QuickPickItem {
     model?: T
+}
+
+export type ProjectModels = {
+    [key: string]: ProjectModel
+};
+
+export interface ProjectModel {
+    name?: string
+    // prefix: string
+    // suffix: string
+    applications: string[]
+    server: JenkinsServer | undefined
+    models?: {
+        [key: string]: JobsModel
+    }
 }
 
 export default buildJobModelType;

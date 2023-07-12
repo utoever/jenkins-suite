@@ -4,8 +4,8 @@
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/utocode.jenkinssuite?style=for-the-badge)](https://marketplace.visualstudio.com/items?itemName=utocode.jenkinssuite)
 [![License](https://img.shields.io/github/license/utocode/jenkins-suite?style=for-the-badge&logo=)](https://github.com/utocode/jenkins-suite/blob/master/LICENSE)
 
-[Jenkins](https://jenkins.io/) is a self-contained Java-based program, ready to run out-of-the-box, with packages for Windows, Linux, macOS and other Unix-like operating systems.
-This extension was created to make it easier to use Jenkins in VS Code.
+This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.
+
 For more information, please visit the following site.
 
 **[https://jenkinssuite.github.io/](https://jenkinssuite.github.io/)**
@@ -120,6 +120,24 @@ For more information, please visit the following site.
       }
     }
   }
+```
+
+## Jenkins Project Tree View of Explorer
+
+* You can run a job related to the folder of the current project inside Visual Studio Code.
+* Create a .jenkinsrc.json file in your project directory
+
+**.jenkinsrc.json** file
+
+```json
+{
+  "local": {
+    "applications": [
+      "job/demo1",
+      "job/demo2"
+    ]
+  }
+}
 ```
 
 ## Issues

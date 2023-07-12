@@ -253,7 +253,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             label: element.name,
             description: element.description,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
-            contextValue: 'connection' + (this._primary && this._primary === element.name ? '' : '_not') + authority + git + sqube,
+            contextValue: 'connection' + (this._primary && this._primary === element.name ? '' : '_not') + authority + git + sqube + (status === 'blue' ? '_conn' : ''),
             iconPath: this.context.asAbsolutePath(`resources/job/${status}.png`),
             tooltip: this.viewServer(element)
         };

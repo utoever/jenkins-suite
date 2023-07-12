@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { ProjectModels } from '../types/model';
 
 export function getTempFilePath(filename: string): string {
     let workspacePath = '';
@@ -22,4 +23,27 @@ export function openAfterConfigXml(content: string) {
     vscode.workspace.openTextDocument(tempFilePath).then((document) => {
         vscode.window.showTextDocument(document);
     });
+}
+
+export function appendPath(uri: vscode.Uri, pathSuffix: string): vscode.Uri {
+    const pathPrefix = uri.path.endsWith("/") ? uri.path : `${uri.path}/`;
+    const filePath = `${pathPrefix}${pathSuffix}`;
+
+    return uri.with({
+        path: filePath
+    });
+}
+
+export async function uriExists(uri: vscode.Uri): Promise<boolean> {
+    try {
+        await vscode.workspace.fs.stat(uri);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export async function readFileUri(uri: vscode.Uri): Promise<ProjectModels> {
+    const bytes = await vscode.workspace.fs.readFile(uri);
+    return JSON.parse(Buffer.from(bytes).toString('utf8')) as ProjectModels;
 }
