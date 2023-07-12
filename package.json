@@ -42,17 +42,7 @@
   },
   "activationEvents": [],
   "extensionDependencies": [],
-  "files": [
-    "out/",
-    "l10n/",
-    "media/",
-    "images/",
-    "snippets/",
-    "syntaxes/",
-    "languages/",
-    "resources/"
-  ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "l10n": "./l10n",
   "contributes": {
     "viewsContainers": {
@@ -229,11 +219,13 @@
       },
       {
         "command": "utocode.withView",
-        "title": "%withView.title%"
+        "title": "%withView.title%",
+        "category": "jenkinssuite"
       },
       {
         "command": "utocode.withJob",
-        "title": "%withJob.title%"
+        "title": "%withJob.title%",
+        "category": "jenkinssuite"
       },
       {
         "command": "utocode.copyJob",
@@ -1316,11 +1308,16 @@
     ]
   },
   "scripts": {
+    "build": "webpack --mode development",
+    "watch": "webpack --watch --mode development",
+    "vscode:prepublish": "webpack --mode production",
+    "webpack": "webpack --mode development",
+    "webpack-dev": "webpack --mode development --watch",
+    "compile": "tsc -p ./",
     "minify": "node minify.js",
     "vscode:prepublish1": "npm run compile && npm run minify",
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile1": "tsc -p ./",
+    "watch1": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
@@ -1337,7 +1334,12 @@
     "eslint": "^8.39.0",
     "glob": "^10.3.2",
     "mocha": "^10.2.0",
-    "typescript": "^5.1.3"
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-loader": "^9.4.4",
+    "tslint": "^6.1.3",
+    "typescript": "^5.1.3",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "ajv": "^8.12.0",
