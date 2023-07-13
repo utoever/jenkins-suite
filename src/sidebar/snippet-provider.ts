@@ -37,8 +37,6 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
             //     arguments: [element]
             // },
             contextValue: 'snippet',
-            // iconPath: new vscode.ThemeIcon('symbol-enum'),
-            // iconPath: this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`),
             iconPath: iconPath,
             tooltip: this.makeToolTip(element)
         };
@@ -64,12 +62,10 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     }
 
     generateCode(snippetItem: SnippetItem) {
-        if (snippetItem) {
-            const text = snippetItem.body.join('\n');
-            printEditorWithNew(text, snippetItem.language);
-            if (snippetItem.language === 'jenkins') {
-                showInfoMessageWithTimeout(vscode.l10n.t('To test the pipeline, run validateJenkins (Ctrl+Alt+t)'));
-            }
+        const text = snippetItem.body.join('\n');
+        printEditorWithNew(text, snippetItem.language);
+        if (snippetItem.language === 'jenkins') {
+            showInfoMessageWithTimeout(vscode.l10n.t('To test the pipeline, run validateJenkins (Ctrl+Alt+t)'));
         }
     }
 

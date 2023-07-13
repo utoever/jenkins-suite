@@ -13,13 +13,13 @@ export function getTempFilePath(filename: string): string {
     return path.join(tempDir, filename);
 }
 
-export function writeFileSync(content: string, tempFilePath: string) {
+export function writeFileSync(tempFilePath: string, content: string) {
     fs.writeFileSync(tempFilePath, content);
 }
 
 export function openAfterConfigXml(content: string) {
     const tempFilePath = getTempFilePath('config.xml');
-    writeFileSync(content, tempFilePath);
+    writeFileSync(tempFilePath, content);
     vscode.workspace.openTextDocument(tempFilePath).then((document) => {
         vscode.window.showTextDocument(document);
     });
@@ -43,7 +43,14 @@ export async function uriExists(uri: vscode.Uri): Promise<boolean> {
     }
 }
 
-export async function readFileUri(uri: vscode.Uri): Promise<ProjectModels> {
+export async function readFileUriAsProject(uri: vscode.Uri): Promise<ProjectModels> {
     const bytes = await vscode.workspace.fs.readFile(uri);
     return JSON.parse(Buffer.from(bytes).toString('utf8')) as ProjectModels;
+}
+
+export async function getConfigPath(uri: vscode.Uri): Promise<vscode.Uri> {
+    if (await uriExists(appendPath(uri, ".jenkinsrc.json"))) {
+        return appendPath(uri, ".jenkinsrc.json");
+    }
+    return uri;
 }

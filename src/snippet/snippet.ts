@@ -8,8 +8,6 @@ export default class JenkinsSnippet {
 
     private _snippets: SnippetItems | undefined;
 
-    // private snippetFilePath: string;
-
     private static _instance: JenkinsSnippet;
 
     private _initialized: boolean = false;
@@ -25,13 +23,6 @@ export default class JenkinsSnippet {
         this._snippets = await invokeSnippetAll(this.context, true);
         this._initialized = true;
     }
-
-    // async loadSnippet() {
-    //     const file = vscode.Uri.file(this.snippetFilePath);
-    //     const snippetContent = (await vscode.workspace.fs.readFile(file)).toString();
-    //     logger.debug(`snippets <${this._snippets}>`);
-    //     return JSON.parse(snippetContent) as SnippetItems;
-    // }
 
     static getInstance(context: vscode.ExtensionContext) {
         if (!JenkinsSnippet._instance) {

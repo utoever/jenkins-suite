@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { JenkinsConfigError } from './api/exceptions';
 import JenkinsConfiguration from './config/settings';
 import { BuildsProvider } from './sidebar/builds-provider';
 import { ConnectionProvider } from './sidebar/connection-provider';
@@ -9,8 +8,8 @@ import { ProjectProvider } from './sidebar/project-provider';
 import { ReservationProvider } from './sidebar/reservation-provider';
 import { SnippetProvider } from './sidebar/snippet-provider';
 import { ViewsProvider } from './sidebar/views-provider';
-import { ProjectModel, ProjectModels } from './types/model';
-import { appendPath, readFileUri as readFileUriAsProject, uriExists } from './utils/file';
+import { ProjectModels } from './types/model';
+import { getConfigPath, readFileUriAsProject } from './utils/file';
 import { isRemoteUri } from './utils/remote';
 import { vscExtension } from './vsc-ns';
 
@@ -66,15 +65,13 @@ class Command {
 	}
 }
 
-async function hasJenkinsInAnyRoot(): Promise<boolean> {
+async function hasJenkinsProject(): Promise<boolean> {
 	if (!vscode.workspace.workspaceFolders) {
 		return false;
 	}
 
 	let hasAny = false;
-	// for (let index = 0; index < vscode.workspace.workspaceFolders.length; index++) {
 	for (const folder of vscode.workspace.workspaceFolders) {
-		// const folder: vscode.WorkspaceFolder = vscode.workspace.workspaceFolders[index];
 		hasAny = !!await getConfigPath(folder.uri);
 		if (hasAny) {
 			return hasAny;
@@ -82,43 +79,6 @@ async function hasJenkinsInAnyRoot(): Promise<boolean> {
 	}
 
 	return hasAny;
-}
-
-async function getConfigPath(uri: vscode.Uri): Promise<vscode.Uri> {
-	if (await uriExists(appendPath(uri, ".jenkinsrc.json"))) {
-		return appendPath(uri, ".jenkinsrc.json");
-	}
-	return uri;
-}
-
-async function getCurrentSettings(): Promise<ProjectModels> {
-	if (!vscode.workspace.workspaceFolders) {
-		return {};
-	}
-
-	let allProjectModels: ProjectModels = {};
-	try {
-		const servers = JenkinsConfiguration.servers;
-		for (const folder of vscode.workspace.workspaceFolders) {
-			const jenkinsrcPath = await getConfigPath(folder.uri);
-			if (jenkinsrcPath.fsPath !== folder.uri.fsPath) {
-				const projectModels = await readFileUriAsProject(jenkinsrcPath);
-				if (projectModels) {
-					if (servers) {
-						Object.entries<ProjectModel>(projectModels).forEach(([key, projectModel]) => {
-							const server = servers.get(key);
-							projectModel.server = server;
-						});
-					}
-					allProjectModels = { ...allProjectModels, ...projectModels };
-				}
-			}
-		}
-	} catch (error: any) {
-		vscode.window.showErrorMessage(vscode.l10n.t("Error while retrieving .jenkinsrc.json"));
-		console.log(error.message);
-	}
-	return allProjectModels;
 }
 
 async function readSettings1(jenkinsSettingsPath: vscode.Uri): Promise<ProjectModels | string | undefined> {
@@ -143,9 +103,8 @@ async function readSettings1(jenkinsSettingsPath: vscode.Uri): Promise<ProjectMo
 }
 
 async function showProjectView(projectProvider: ProjectProvider) {
-	if (await hasJenkinsInAnyRoot()) {
-		const projectModels = await getCurrentSettings();
-		projectProvider.projectModels = projectModels;
+	if (await hasJenkinsProject()) {
+		projectProvider.refresh();
 	}
 }
 

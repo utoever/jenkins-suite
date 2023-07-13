@@ -263,10 +263,9 @@ export type ProjectModels = {
 
 export interface ProjectModel {
     name?: string
-    // prefix: string
-    // suffix: string
     applications: string[]
     server: JenkinsServer | undefined
+    description?: string
     models?: {
         [key: string]: JobsModel
     }

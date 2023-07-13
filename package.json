@@ -412,6 +412,15 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.project.settings",
+        "title": "%project.settings.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/settings.svg",
+          "dark": "resources/dark/settings.svg"
+        }
+      },
+      {
         "command": "utocode.project.refresh",
         "title": "%project.refresh.title%",
         "category": "jenkinssuite",
@@ -836,6 +845,11 @@
         }
       ],
       "view/title": [
+        {
+          "command": "utocode.project.settings",
+          "when": "view == 'jenkinsProject'",
+          "group": "navigation@99"
+        },
         {
           "command": "utocode.project.refresh",
           "when": "view == 'jenkinsProject'",

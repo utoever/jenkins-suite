@@ -530,5 +530,20 @@
     "description": "Pipeline Job 을 생성합니다.",
     "language": "jenkins",
     "type": "system"
+  },
+  "C_SETTING_JENKINSRC": {
+    "prefix": "C_SETTING_JENKINSRC",
+    "body": [
+      "{",
+      "    \"Local\": {",
+      "        \"applications\": [",
+      "            \"job/demo1\"",
+      "        ],",
+      "        \"description\": \"Demo Project\"",
+      "    }",
+      "}"
+    ],
+    "description": "Create .jenkinsrc.json File",
+    "hidden": true
   }
 }

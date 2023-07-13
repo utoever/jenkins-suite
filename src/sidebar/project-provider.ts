@@ -1,10 +1,13 @@
 import { log } from 'console';
+import path from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { BuildStatus, JobsModel, ProjectModel, ProjectModels } from '../types/model';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
+import { getConfigPath, readFileUriAsProject, writeFileSync } from '../utils/file';
 import logger from '../utils/logger';
+import { invokeSnippet } from '../utils/util';
 
 export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | JobsModel | BuildStatus> {
 
@@ -24,9 +27,46 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
         this.registerContext();
     }
 
-    registerContext() {
+    async registerContext() {
         this.context.subscriptions.push(
-            vscode.commands.registerCommand('utocode.project.refresh', () => {
+            vscode.commands.registerCommand('utocode.project.settings', async () => {
+                const workspaceFolders = vscode.workspace.workspaceFolders;
+                let rootDir;
+
+                if (workspaceFolders && workspaceFolders.length > 1) {
+                    const items: vscode.QuickPickItem[] = [];
+                    workspaceFolders.forEach(folder => {
+                        items.push(
+                            { label: folder.name, description: folder.uri.path }
+                        );
+                    });
+                    rootDir = await vscode.window.showQuickPick(items, {
+                        placeHolder: vscode.l10n.t("Select to view")
+                    }).then(async (selectedItem) => {
+                        return selectedItem?.description;
+                    });
+                } else if (workspaceFolders && workspaceFolders.length === 1) {
+                    rootDir = workspaceFolders[0].uri.fsPath;
+                } else {
+                    showInfoMessageWithTimeout('Project Folder is not exist');
+                }
+
+                if (!rootDir) {
+                    return;
+                }
+
+                const filePath = vscode.Uri.file(path.join(rootDir, '.jenkinsrc.json'));
+                try {
+                    await vscode.workspace.fs.stat(filePath);
+                } catch (error) {
+                    const snippetItem = await invokeSnippet(this.context, 'C_SETTING_JENKINSRC');
+                    writeFileSync(filePath.fsPath, snippetItem.body.join('\n'));
+                }
+                const document = await vscode.workspace.openTextDocument(filePath);
+                await vscode.window.showTextDocument(document);
+            }),
+            vscode.commands.registerCommand('utocode.project.refresh', async () => {
+                this._projectModels = await this.getProjectSettings();
                 this.refresh();
             }),
             vscode.commands.registerCommand('utocode.connectProjectServer', (projectModel: ProjectModel) => {
@@ -37,7 +77,6 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
             }),
             vscode.commands.registerCommand('utocode.buildProjectJob', async (job: JobsModel) => {
                 const mesg = await this.executor?.buildJobWithParameter(job, JenkinsConfiguration.buildDelay);
-                // console.log(`buildProjectJob <${mesg}>`);
                 setTimeout(() => {
                     this.refresh();
                 }, 3300);
@@ -74,8 +113,18 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: 'project_build',
             iconPath: new vscode.ThemeIcon('output'),
-            // tooltip: this.makeToolTip(element)
+            tooltip: this.makeBuildToolTip(element)
         };
+    }
+
+    makeBuildToolTip(buildStatus: BuildStatus): string | vscode.MarkdownString | undefined {
+        const text = new vscode.MarkdownString();
+        text.appendMarkdown(`## Status\n`);
+        text.appendMarkdown(`* number: ${buildStatus.number}\n`);
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown(`*${buildStatus.url}*\n`);
+        return text;
     }
 
     makeJobTreeItem(element: JobsModel): vscode.TreeItem {
@@ -84,9 +133,27 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
             collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
             contextValue: 'project_job',
             iconPath: new vscode.ThemeIcon('symbol-enum'),
-            // iconPath: this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`),
-            // tooltip: this.makeToolTip(element)
+            tooltip: this.makeJobToolTip(element)
         };
+    }
+
+    makeJobToolTip(jobModel: JobsModel): string | vscode.MarkdownString | undefined {
+        const text = new vscode.MarkdownString();
+        text.appendMarkdown(`## Job\n`);
+        text.appendMarkdown(`* name: ${jobModel.fullDisplayName ?? jobModel.fullName}\n`);
+        text.appendMarkdown('\n---\n');
+
+        text.appendMarkdown(`### Parameter: \n`);
+        if (jobModel.jobParam) {
+            const jobParam = jobModel.jobParam;
+            text.appendMarkdown(`* Type: _${jobParam.type.substring(0, jobParam.type.length - 'ParameterValue'.length)}_\n`);
+            text.appendMarkdown(`* Default Value: *${jobParam.defaultParameterValue.value}*\n`);
+        } else {
+            text.appendMarkdown('* __None__\n');
+        }
+        text.appendMarkdown('\n---\n');
+        text.appendMarkdown(`*${jobModel.url}*\n`);
+        return text;
     }
 
     makeProjectTreeItem(element: ProjectModel): vscode.TreeItem {
@@ -103,8 +170,19 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
             collapsibleState: this._executor ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
             contextValue: 'project_srv' + (status === 'blue' ? '_conn' : ''),
             iconPath: this.context.asAbsolutePath(`resources/job/${status}.png`),
-            // tooltip: this.makeToolTip(element)
+            tooltip: this.makeProjectToolTip(element)
         };
+    }
+
+    makeProjectToolTip(projectModel: ProjectModel): string | vscode.MarkdownString | undefined {
+        const text = new vscode.MarkdownString();
+        text.appendMarkdown(`## Server\n`);
+
+        text.appendMarkdown(`_${projectModel.description ?? projectModel.server?.name}_\n`);
+        text.appendMarkdown('\n---\n');
+        text.appendMarkdown(`* name: __${projectModel.name}__\n`);
+        text.appendMarkdown(`* URL: *${projectModel.server!.url}*\n`);
+        return text;
     }
 
     getModelType(target: ProjectModel | JobsModel | BuildStatus): ProjectModelType {
@@ -153,8 +231,8 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
             Object.entries<ProjectModel>(this._projectModels).forEach(([key, projectModel]) => {
                 projectModel.name = key;
             });
-            const servers = JenkinsConfiguration.servers;
-            return Object.values(this._projectModels).filter(projectModel => servers.has(projectModel.name!));
+            // const servers = JenkinsConfiguration.servers;
+            return Object.values(this._projectModels); // .filter(projectModel => servers.has(projectModel.name!));
         }
     }
 
@@ -204,6 +282,44 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
         this._currentServer = undefined;
     }
 
+    async getProjectSettings(): Promise<ProjectModels> {
+        if (!vscode.workspace.workspaceFolders) {
+            return {};
+        }
+
+        let allProjectModels: ProjectModels = {};
+        try {
+            const servers = JenkinsConfiguration.servers;
+            for (const folder of vscode.workspace.workspaceFolders) {
+                const jenkinsrcPath = await getConfigPath(folder.uri);
+                if (jenkinsrcPath.fsPath !== folder.uri.fsPath) {
+                    const projectModels = await readFileUriAsProject(jenkinsrcPath);
+                    if (projectModels && servers) {
+                        Object.entries<ProjectModel>(projectModels).forEach(([key, projectModel]) => {
+                            const server = servers.get(key);
+                            if (!server) {
+                                return;
+                            }
+                            projectModel.server = server;
+                            if (allProjectModels[key]) {
+                                const modelKey = key + '-' + folder.name;
+                                projectModel.name = modelKey;
+                                allProjectModels[modelKey] = projectModel;
+                            } else {
+                                allProjectModels[key] = projectModel;
+                            }
+                        });
+                        // allProjectModels = { ...allProjectModels, ...projectModels };
+                    }
+                }
+            }
+        } catch (error: any) {
+            vscode.window.showErrorMessage(vscode.l10n.t("Error while retrieving .jenkinsrc.json"));
+            console.log(error.message);
+        }
+        return allProjectModels;
+    }
+
     public get executor() {
         if (!this._executor) {
             showInfoMessageWithTimeout(vscode.l10n.t('Server is not connected'));
@@ -216,21 +332,13 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
         this.refresh();
     }
 
-    public get projectModels(): ProjectModels | undefined {
-        return this._projectModels;
-    }
-
-    public set projectModels(projectModels: ProjectModels) {
-        this._projectModels = projectModels;
-        this.refresh();
-    }
-
     clear() {
         this._executor = undefined;
         this.refresh();
     }
 
-    refresh(): void {
+    async refresh(): Promise<void> {
+        this._projectModels = await this.getProjectSettings();
         this._onDidChangeTreeData.fire(undefined);
     }
 
