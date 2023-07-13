@@ -66,7 +66,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 if (activeEditor) {
                     const document = activeEditor.document;
                     const languageIds = document.languageId;
-                    console.log(languageIds);
+                    logger.debug(`language <${languageIds}>`);
 
                     if (languageIds === 'jenkins') {
                         await vscode.commands.executeCommand('utocode.validateJenkins');
@@ -74,6 +74,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                         await vscode.commands.executeCommand('utocode.executeScript');
                     } else if (languageIds === 'xml') {
                         await vscode.commands.executeCommand('utocode.withJob');
+                    } else {
+                        showInfoMessageWithTimeout(vscode.l10n.t('Language Mode {0}, {1} is supported. Try changing to a different mode', 'xml', 'jenkins'));
                     }
                 }
             }),
@@ -110,6 +112,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.generateJobCode', async () => {
                 const items: vscode.QuickPickItem[] = [
+                    { label: 'Pipeline_GIT', description: 'Generate Pipeline Job From Git' },
                     { label: 'Pipeline', description: 'Generate Pipeline Job' },
                     { label: 'FreeStyle', description: 'Generate FreeStyle Job' },
                 ];

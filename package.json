@@ -124,6 +124,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.setSystemMessage",
+        "title": "%setSystemMessage.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.switchConnection",
         "title": "%switchConnection.title%",
         "category": "jenkinssuite"
@@ -255,6 +260,11 @@
       {
         "command": "utocode.getConfigView",
         "title": "%getConfigView.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.changePrimaryView",
+        "title": "%changePrimaryView.title%",
         "category": "jenkinssuite"
       },
       {
@@ -724,6 +734,11 @@
           "group": "2_configure@20"
         },
         {
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
+          "command": "utocode.setSystemMessage",
+          "group": "2_configure@90"
+        },
+        {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_not.*/",
           "command": "utocode.setPrimaryServer",
           "group": "2_configure@10"
@@ -737,6 +752,11 @@
           "when": "view == 'utocode.views.views' && viewItem =~ /^.*_enabled.*/",
           "command": "utocode.renameView",
           "group": "1_jenkinssuite_actions@20"
+        },
+        {
+          "when": "view == 'utocode.views.views' && viewItem =~ /^.*_enabled.*/",
+          "command": "utocode.changePrimaryView",
+          "group": "1_jenkinssuite_actions@50"
         },
         {
           "when": "view == 'utocode.views.views'",

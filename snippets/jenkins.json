@@ -162,5 +162,24 @@
       "return permissions.isEmpty() ? false : true"
     ],
     "description": "is_admin"
+  },
+  "grv_changePrimaryView": {
+    "prefix": "grv_changePrimaryView",
+    "body": [
+      "def jenkins = Jenkins.getInstanceOrNull(); ",
+      "def view = jenkins.getPrimaryView().getViewName()",
+      "",
+      "if (view != '__NEW_VIEWNAME__') {",
+      "    def newView = jenkins.getViews().find { v -> v.getViewName() == '__NEW_VIEWNAME__' }",
+      "    if (newView) {",
+      "        jenkins.setPrimaryView(newView)",
+      "        view = jenkins.getPrimaryView().getViewName()",
+      "    }",
+      "}",
+      "",
+      "println view"
+    ],
+    "description": "GRV_SET_VIEW",
+    "hidden": true
   }
 }

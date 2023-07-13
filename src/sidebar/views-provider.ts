@@ -75,6 +75,15 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
 
                 this.renameView(view.name, newViewname);
             }),
+            vscode.commands.registerCommand('utocode.changePrimaryView', async (view: ViewsModel) => {
+                if (!this._executor || !this._executor?.isConnected()) {
+                    vscode.window.showErrorMessage('Jenkins server is not connected');
+                    return;
+                }
+
+                await this._executor.changePrimaryView(view.name);
+                this.changeView(view);
+            }),
             vscode.commands.registerCommand('utocode.withView', async () => {
                 if (!this._executor || !this._executor?.isConnected()) {
                     vscode.window.showErrorMessage('Jenkins server is not connected');

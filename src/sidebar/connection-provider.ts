@@ -151,6 +151,19 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                     }
                 }
             }),
+            vscode.commands.registerCommand('utocode.setSystemMessage', async () => {
+                if (this._executor) {
+                    const previous = await this._executor.getSystemMessage();
+                    await vscode.window.showInputBox({
+                        prompt: 'Enter system message',
+                        value: previous
+                    }).then(async (val) => {
+                        if (val) {
+                            await this._executor!.setSystemMessage(val);
+                        }
+                    });
+                }
+            }),
             vscode.commands.registerCommand('utocode.setPrimaryServer', (server: JenkinsServer) => {
                 if (JenkinsConfiguration.primary !== server.name) {
                     JenkinsConfiguration.primary = server.name;
@@ -212,14 +225,19 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                     return;
                 }
 
-                const result = await this._executor?.executeScript(text);
-                if (result) {
-                    if (result === '') {
-                        showInfoMessageWithTimeout('Execute successfully', 5000);
-                    } else {
-                        showInfoMessageWithTimeout(result);
+                try {
+                    const result = await this._executor?.executeScript(text);
+                    if (result) {
+                        if (result === '') {
+                            showInfoMessageWithTimeout('Execute successfully', 5000);
+                        } else {
+                            logger.warn(result);
+                            showInfoMessageWithTimeout(result);
+                        }
+                        console.log(result);
                     }
-                    console.log(result);
+                } catch (error: any) {
+                    logger.error(error.message);
                 }
             }),
         );

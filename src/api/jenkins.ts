@@ -123,7 +123,7 @@ export class Jenkins {
 
         const headers = new AxiosHeaders();
         headers.set('jenkins-crumb', this._crumb);
-        headers.set('Content-Type', 'application/x-www-form-urlencoded');
+        headers.set('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
         config.headers = headers;
         config.method = 'POST';
 

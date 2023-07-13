@@ -113,6 +113,20 @@ export class Executor {
         return result;
     }
 
+    async changePrimaryView(name: string) {
+        console.log(`changePrimaryView:: name <${name}>`);
+
+        const snippetItem = await invokeSnippetJenkins(this.context, 'grv_changePrimaryView');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace(/__NEW_VIEWNAME__/g, name);
+            const result = await this.executeScript(data);
+            return result;
+        } else {
+            return undefined;
+        }
+    }
+
     async createUser(username: string, password: string, role: string = 'USER') {
         const snippetItem = await invokeSnippetJenkins(this.context, 'create_user');
         let data: string | undefined;
@@ -120,10 +134,11 @@ export class Executor {
             data = snippetItem.body.join('\n').replace('__ROLE__', role)
                 .replace('__USERNAME__', username)
                 .replace('__PASSWORD__', password);
+            console.log(`createUser:: username <${username}> role <${role}>`);
+            return data && await this.executeScript(data);
+        } else {
+            return undefined;
         }
-
-        console.log(`createUser:: username <${username}> role <${role}>`);
-        return data && await this.executeScript(data);
     }
 
     async createCredential(username: string, password: string, kind: string) {
@@ -139,14 +154,31 @@ export class Executor {
         return data && await this.executeScript(data);
     }
 
+    async getSystemMessage(): Promise<string> {
+        const data = 'def jenkins = Jenkins.getInstanceOrNull(); jenkins.getSystemMessage()';
+        const result = await this.executeScript(data);
+        let message = '';
+        if (result && result.startsWith('Result')) {
+            message = result.split('Result: ').pop() ?? '';
+        }
+        return message;
+    }
+
+    async setSystemMessage(message: string): Promise<string> {
+        // const text = encodeURIComponent(message);
+        const data = `def jenkins = Jenkins.getInstanceOrNull(); jenkins.getSystemMessage(); jenkins.setSystemMessage("${message}"); jenkins.save()`;
+        const result = await this.executeScript(data);
+        return result;
+    }
+
     async getExecutor() {
-        const data = 'Jenkins jenkins = Jenkins.getInstance();jenkins.getNumExecutors()';
+        const data = 'def jenkins = Jenkins.getInstanceOrNull(); jenkins.getNumExecutors()';
         const result = await this.executeScript(data);
         return result ? result.split(':').pop()?.trim() : result;
     }
 
     async changeExecutor(numExecutors: string) {
-        const data = `Jenkins jenkins = Jenkins.getInstance();jenkins.setNumExecutors(${numExecutors});jenkins.save();jenkins.getNumExecutors()`;
+        const data = `def jenkins = Jenkins.getInstanceOrNull(); jenkins.setNumExecutors(${numExecutors}); jenkins.save(); jenkins.getNumExecutors()`;
         const result = await this.executeScript(data);
         return result ? result.split(':').pop()!.trim() : result;
     }
@@ -376,7 +408,7 @@ export class Executor {
             throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
         }
 
-        const uri = this.extractUrl(job.url);
+        // const uri = this.extractUrl(job.url);
         const mode = 'copy';
         return await this._jenkins._post<string>(
             `createItem?name=${name}&mode=${mode}&from=${job.name}`
@@ -426,21 +458,6 @@ export class Executor {
         return await this._jenkins._postForm<string>(
             `pipeline-model-converter/validate`, formData
         );
-    }
-
-    notify(mesg: string, type: number = 0) {
-        console.log(`notify:: message <${mesg}>`);
-        if (mesg === '') {
-            mesg = '정상적으로 수행되었습니다';
-        } else {
-            type = 1;
-        }
-
-        if (type === 0 || mesg) {
-            vscode.window.showInformationMessage(mesg);
-        } else {
-            vscode.window.showErrorMessage(mesg);
-        }
     }
 
 }
