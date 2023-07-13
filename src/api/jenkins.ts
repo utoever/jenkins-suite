@@ -3,6 +3,7 @@ import FormData from 'form-data';
 import { JenkinsServer } from '../config/settings';
 import { CrumbIssuer } from '../types/model';
 import { Response } from '../types/response';
+import logger from '../utils/logger';
 import { JenkinsAxiosInterface } from './interfaces';
 
 export class Jenkins {
@@ -28,7 +29,7 @@ export class Jenkins {
     public async initialized() {
         if (!this._crumb) {
             const crumbIssuer = await this.getCrumbIssuer();
-            // logger.debug(`crumbIssuer <${crumbIssuer.crumb}>`);
+            logger.debug(`crumbIssuer <${crumbIssuer.crumb}>`);
             this._crumb = crumbIssuer.crumb;
         }
         return this._crumb ? true : false;
@@ -54,7 +55,7 @@ export class Jenkins {
     }
 
     _get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
-        console.log(`url <${url}>`);
+        console.log(`_get:: url <${url}>`);
         const response = await this.client.get<Response<T>>(url, config);
         console.log(`response <${response.data}>`);
 
@@ -91,7 +92,7 @@ export class Jenkins {
     };
 
     _postForm = async <T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> => {
-        console.log(`url <${url}>`);
+        console.log(`_postForm:: url <${url}>`);
         if (!config) {
             config = {
             };
@@ -115,7 +116,7 @@ export class Jenkins {
     };
 
     _postFormEncoded = async <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
-        console.log(`url <${url}>`);
+        console.log(`_postFormEncoded:: url <${url}>`);
         if (!config) {
             config = {
             };
@@ -139,7 +140,7 @@ export class Jenkins {
     };
 
     _postJson = async <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
-        console.log(`url <${url}>`);
+        console.log(`_postJson:: url <${url}>`);
         if (!config) {
             config = {
             };

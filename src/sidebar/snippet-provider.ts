@@ -3,6 +3,7 @@ import JenkinsConfiguration from '../config/settings';
 import JenkinsSnippet, { SnippetItem } from '../snippet/snippet';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { printEditorWithNew } from '../utils/editor';
+import { openSettings } from '../utils/vsc';
 
 export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
 
@@ -10,11 +11,14 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
 
     constructor(protected context: vscode.ExtensionContext) {
         context.subscriptions.push(
-            vscode.commands.registerCommand('utocode.generateCode', (snippetItem: SnippetItem) => {
-                this.generateCode(snippetItem);
+            vscode.commands.registerCommand('utocode.snippets.settings', () => {
+                openSettings('snippet');
             }),
             vscode.commands.registerCommand('utocode.snippets.refresh', () => {
                 this.refresh();
+            }),
+            vscode.commands.registerCommand('utocode.generateCode', (snippetItem: SnippetItem) => {
+                this.generateCode(snippetItem);
             }),
         );
         this.jenkinsSnippet = JenkinsSnippet.getInstance(context);

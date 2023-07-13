@@ -63,8 +63,8 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                 }
 
                 const newViewname = await vscode.window.showInputBox({
-                    prompt: 'Enter view name',
-                    placeHolder: view.name
+                    title: 'Enter view name',
+                    value: view.name
                 }).then((val) => {
                     return val;
                 });

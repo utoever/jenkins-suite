@@ -93,6 +93,7 @@
   "jobs.refresh.title": "Refresh Job",
   "builds.refresh.title": "Refresh Build",
   "reservation.refresh.title": "Refresh Reservation",
+  "snippets.settings.title": "Snippets Settings",
   "snippets.refresh.title": "Refresh Snippets",
   "reservation.sort.title": "Sort",
   "reservation.info.title": "이 기능은 Jenkins 서버에서 실행되는 것이 아닌 VS Code에서 실행되는 것이므로 이 프로그램을 종료한다면 실행되지 않습니다.",

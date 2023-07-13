@@ -25,8 +25,8 @@ export class Executor {
         return await this._jenkins.initialized();
     }
 
-    public isConnected() {
-        return this.initialized();
+    public async isConnected() {
+        return await this.initialized();
     }
 
     public disconnect() {
@@ -368,7 +368,7 @@ export class Executor {
     }
 
     async createFolder(viewName: string = 'all') {
-        const name = await vscode.window.showInputBox({ prompt: 'Enter folder name' }).then((val) => {
+        const name = await vscode.window.showInputBox({ title: 'Enter folder name' }).then((val) => {
             return val;
         });
         if (name) {

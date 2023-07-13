@@ -93,6 +93,7 @@
   "jobs.refresh.title": "Refresh Job",
   "builds.refresh.title": "Refresh Build",
   "reservation.refresh.title": "Refresh Reservation",
+  "snippets.settings.title": "Snippets Settings",
   "snippets.refresh.title": "Refresh Snippets",
   "reservation.sort.title": "Sort",
   "reservation.info.title": "This feature is not guaranteed to run because it runs in VS Code, not on the server",
