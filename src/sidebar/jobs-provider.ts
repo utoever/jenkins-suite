@@ -13,7 +13,7 @@ import logger from '../utils/logger';
 import { getParameterDefinition, makeJobTreeItems } from '../utils/model-utils';
 import { inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
 import { notifyMessageWithTimeout, showErrorMessage } from '../utils/vsc';
-import { FlowDefinition, ShortcutJob, parseXml } from '../utils/xml';
+import { FlowDefinition, parseXml } from '../utils/xml';
 import { BuildsProvider } from './builds-provider';
 import { ReservationProvider } from './reservation-provider';
 
@@ -212,6 +212,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     this.refresh();
                 } catch (error: any) {
                     showInfoMessageWithTimeout(error.message);
+                    console.log(error.message);
                 }
             }),
             vscode.commands.registerCommand('utocode.moveJob', async (job: JobsModel) => {
@@ -248,7 +249,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     return;
                 }
 
-                const mesg = await this.executor?.renameJob(job, name);
+                try {
+                    const mesg = await this.executor?.renameJob(job, name);
+                } catch (error: any) {
+                    showInfoMessageWithTimeout(error.message);
+                    console.log(error.message);
+                }
                 this.refresh();
             }),
             vscode.commands.registerCommand('utocode.enabledJob', async (job: JobsModel) => {
@@ -260,7 +266,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 this.refresh();
             }),
             vscode.commands.registerCommand('utocode.runJob', async () => {
-                runJobAll(this);
+                runJobAll(this, true);
             }),
             vscode.commands.registerCommand('utocode.runFolderJob', async () => {
                 runJobAll(this, false);

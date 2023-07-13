@@ -384,11 +384,11 @@ export class Executor {
     }
 
     async moveJob(job: JobsModel, newJob: JobsModel): Promise<string> {
-        // const name = this.extractUrl(newJob.url);
-        // const existed = await this.checkJobName(name);
-        // if (!existed) {
-        //     throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
-        // }
+        const name = this.extractUrl(newJob.url);
+        const existed = await this.checkJobName(name);
+        if (!existed) {
+            throw new Error(vscode.l10n.t('Job <{0}> is exist', job.name));
+        }
 
         const uri = this.extractUrl(job.url);
         return await this._jenkins._post<string>(

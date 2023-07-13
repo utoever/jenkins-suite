@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -1308,16 +1308,9 @@
     ]
   },
   "scripts": {
-    "build": "webpack --mode development",
-    "watch": "webpack --watch --mode development",
+    "compile": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
     "vscode:prepublish": "webpack --mode production",
-    "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch",
-    "compile": "tsc -p ./",
-    "minify": "node minify.js",
-    "vscode:prepublish1": "npm run compile && npm run minify",
-    "compile1": "tsc -p ./",
-    "watch1": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
@@ -1346,7 +1339,7 @@
     "axios": "^1.4.0",
     "dayjs": "^1.11.8",
     "formdata-node": "^5.0.1",
-    "html-entities": "^2.3.6",
+    "html-entities": "^2.4.0",
     "lodash": "^4.17.21",
     "ws": "^8.13.0",
     "xml-js": "^1.6.11"

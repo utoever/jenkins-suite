@@ -10,8 +10,7 @@ import { ReservationProvider } from './sidebar/reservation-provider';
 import { SnippetProvider } from './sidebar/snippet-provider';
 import { ViewsProvider } from './sidebar/views-provider';
 import { ProjectModel, ProjectModels } from './types/model';
-import { showInfoMessageWithTimeout } from './ui/ui';
-import { appendPath, readFileUri, uriExists } from './utils/file';
+import { appendPath, readFileUri as readFileUriAsProject, uriExists } from './utils/file';
 import { isRemoteUri } from './utils/remote';
 import { vscExtension } from './vsc-ns';
 
@@ -36,8 +35,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.window.registerTreeDataProvider("utocode.views.reservation", reservationProvider);
 	vscode.window.registerTreeDataProvider("utocode.views.snippets", snippetProvider);
-
-	let currentServer;
 
 	context.subscriptions.push(
 		vscode.window.createTreeView('jenkinsProject', {
@@ -105,7 +102,7 @@ async function getCurrentSettings(): Promise<ProjectModels> {
 		for (const folder of vscode.workspace.workspaceFolders) {
 			const jenkinsrcPath = await getConfigPath(folder.uri);
 			if (jenkinsrcPath.fsPath !== folder.uri.fsPath) {
-				const projectModels = await readSettings(jenkinsrcPath);
+				const projectModels = await readFileUriAsProject(jenkinsrcPath);
 				if (projectModels) {
 					if (servers) {
 						Object.entries<ProjectModel>(projectModels).forEach(([key, projectModel]) => {
@@ -118,15 +115,10 @@ async function getCurrentSettings(): Promise<ProjectModels> {
 			}
 		}
 	} catch (error: any) {
-		vscode.window.showErrorMessage(vscode.l10n.t("Error while retrieving Jenkins settings"));
+		vscode.window.showErrorMessage(vscode.l10n.t("Error while retrieving .jenkinsrc.json"));
 		console.log(error.message);
 	}
 	return allProjectModels;
-}
-
-async function readSettings(jenkinsSettingsPath: vscode.Uri): Promise<ProjectModels | undefined> {
-	const content = await readFileUri(jenkinsSettingsPath);
-	return content;
 }
 
 async function readSettings1(jenkinsSettingsPath: vscode.Uri): Promise<ProjectModels | string | undefined> {
@@ -145,7 +137,7 @@ async function readSettings1(jenkinsSettingsPath: vscode.Uri): Promise<ProjectMo
 		// delete r.cache[r.resolve(jenkinsSettingsPath.fsPath)];
 		return await jenkinsSettingsPath.fsPath;
 	} else {
-		const content = await readFileUri(jenkinsSettingsPath);
+		const content = await readFileUriAsProject(jenkinsSettingsPath);
 		return content;
 	}
 }
