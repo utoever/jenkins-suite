@@ -6,6 +6,12 @@
     "lib": [
       "ES2021"
     ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,

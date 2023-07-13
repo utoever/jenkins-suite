@@ -1318,9 +1318,11 @@
   "scripts": {
     "minify": "node minify.js",
     "vscode:prepublish1": "npm run compile && npm run minify",
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish0": "npm run compile",
+    "vscode:prepublish": "vite build",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "build": "vite build",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
@@ -1337,7 +1339,9 @@
     "eslint": "^8.39.0",
     "glob": "^10.3.2",
     "mocha": "^10.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "vite": "^4.4.3",
+    "vite-node": "^0.33.0"
   },
   "dependencies": {
     "ajv": "^8.12.0",
