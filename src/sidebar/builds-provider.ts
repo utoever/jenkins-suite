@@ -8,6 +8,7 @@ import { getCauseAction, getParameterAction } from '../types/model-util';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { formatDurationTime, getLocalDate } from '../utils/datetime';
 import { getSelectionText, printEditorWithNew } from '../utils/editor';
+import { notifyMessageWithTimeout } from '../utils/vsc';
 
 export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
@@ -44,6 +45,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
                 if (builds && builds.length > 0) {
                     await vscode.window.showQuickPick(builds.map<string>(v => v.number.toString()), {
+                        title: vscode.l10n.t("Switch Build"),
                         placeHolder: vscode.l10n.t("Select to view Job Log")
                     }).then(async (selectedItem) => {
                         if (selectedItem) {

@@ -3,6 +3,7 @@ import { decode } from 'html-entities';
 import { initial } from 'lodash';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
+import { Constants } from '../types/constants';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JobModelType, JobProperty, JobsModel } from "../types/model";
 import { mapToUrlParams } from '../utils/html';
@@ -76,12 +77,15 @@ export class Executor {
     };
 
     async createView() {
-        const name = await vscode.window.showInputBox({ prompt: 'Enter view name' }).then((val) => {
+        const name = await vscode.window.showInputBox({
+            title: 'View',
+            prompt: 'Enter view name'
+        }).then((val) => {
             return val;
         });
         if (name) {
             const categorizedEnabled = JenkinsConfiguration.categorizedEnabled;
-            let createView = categorizedEnabled ? JenkinsConfiguration.createSnippetView : 'c_view_listview';
+            let createView = categorizedEnabled ? JenkinsConfiguration.createSnippetView : Constants.SNIPPET_DEFAULT_LISTVIEW;
             const snippetItem = await invokeSnippet(this.context, createView.toUpperCase());
             let data: string | undefined;
             if (snippetItem && snippetItem.body) {
@@ -360,7 +364,7 @@ export class Executor {
         if (name) {
             console.log(`createJob:: name <${name}>`);
             return await this._jenkins._create<string>(
-                `createItem?name=${name}`, data
+                `view/${viewName}/createItem?name=${name}`, data
             );
         } else {
             return 'Cancelled creating job';

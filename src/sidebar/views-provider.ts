@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import { ViewType } from '../types/jenkins-types';
 import { JenkinsInfo, ModelQuickPick, ViewsModel } from '../types/model';
-import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
+import { notifyUIUserMessage, openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { extractViewnameFromText } from '../utils/xml';
@@ -38,8 +38,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
             vscode.commands.registerCommand('utocode.updateConfigView', async () => {
                 const text = getSelectionText();
                 if (text) {
-                    showInfoMessageWithTimeout('Processing', 1500);
-                    printEditor(' ', true);
+                    notifyUIUserMessage();
 
                     const viewname = extractViewnameFromText(text);
                     this.updateUIView(viewname, text);
@@ -95,6 +94,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                     { label: 'Create', description: 'Create a view with a new name' },
                 ];
                 const viewCmd = await vscode.window.showQuickPick(items, {
+                    title: vscode.l10n.t("Create or Update"),
                     placeHolder: vscode.l10n.t("Select to run view")
                 }).then(async (selectedItem) => {
                     return selectedItem;
@@ -153,6 +153,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         });
 
         await vscode.window.showQuickPick(items, {
+            title: vscode.l10n.t("Switch view"),
             placeHolder: vscode.l10n.t("Select to switch view")
         }).then(async (selectedItem) => {
             if (selectedItem) {

@@ -81,20 +81,30 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                         { label: 'GUEST', description: 'Create guest user' },
                     ];
                     const role = await vscode.window.showQuickPick(items, {
+                        title: vscode.l10n.t("User Type"),
                         placeHolder: vscode.l10n.t("Select user type")
                     }).then(async (selectedItem) => {
                         return selectedItem && selectedItem.label;
                     });
-                    const username = await vscode.window.showInputBox({ prompt: 'Enter username' }).then((val) => {
-                        return val;
-                    });
-                    const password = await vscode.window.showInputBox({ prompt: 'Enter password' }).then((val) => {
-                        return val;
+                    if (!role) {
+                        return;
+                    }
+                    const users = await vscode.window.showInputBox({ prompt: 'Enter username' }).then(async (username) => {
+                        if (username) {
+                            const password = await vscode.window.showInputBox({ prompt: 'Enter password' }).then((val) => {
+                                return val;
+                            });
+                            if (password) {
+                                return [username, password];
+                            }
+                            return undefined;
+                        }
+                        return undefined;
                     });
 
-                    if (role && username && password) {
-                        const result = await this._executor.createUser(username, password, role);
-                        showInfoMessageWithTimeout(vscode.l10n.t('Create User {0}', result === '' ? `<${username}>` : 'Failed'));
+                    if (role && users && users.length === 2) {
+                        const result = await this._executor.createUser(users[0], users[1], role);
+                        showInfoMessageWithTimeout(vscode.l10n.t('Create User {0}', result === '' ? `<${users[0]}>` : 'Failed'));
                     } else {
                         showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
                     }

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import JenkinsConfiguration from '../config/settings';
 import JenkinsSnippet, { SnippetItem } from '../snippet/snippet';
+import { Constants } from '../types/constants';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { printEditorWithNew } from '../utils/editor';
 import { openSettings } from '../utils/vsc';
@@ -48,11 +49,10 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     }
 
     getLabel(element: SnippetItem) {
-        return (element.type && element.type === 'system' ? 'JK_' : 'USER_') + element.prefix.toUpperCase();
+        return (element.type === Constants.SNIPPET_TYPE_SYSTEM ? Constants.SNIPPET_PREFIX_JENKINS : Constants.SNIPPET_PREFIX_USER) + element.prefix.toUpperCase();
     }
 
     async getChildren(element?: SnippetItem): Promise<SnippetItem[]> {
-        // console.log(`snippet::children <${element}>`);
         if (!this.jenkinsSnippet) {
             return [];
         }

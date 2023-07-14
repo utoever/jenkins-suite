@@ -1,10 +1,9 @@
-import { partial } from 'lodash';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from "../config/settings";
 import { ConnectionProvider } from '../sidebar/connection-provider';
 import { JobsProvider } from '../sidebar/jobs-provider';
 import { BallColor } from '../types/jenkins-types';
-import { HealthReport, JobModelType, JobsModel, ModelQuickPick } from '../types/model';
+import { JobModelType, JobsModel, ModelQuickPick } from '../types/model';
 import { showInfoMessageWithTimeout } from "./ui";
 
 export async function switchConnection(context: vscode.ExtensionContext, connectionProvider: ConnectionProvider) {
@@ -24,6 +23,7 @@ export async function switchConnection(context: vscode.ExtensionContext, connect
     }
 
     await vscode.window.showQuickPick(items, {
+        title: vscode.l10n.t("Switch Server"),
         placeHolder: vscode.l10n.t("Select to switch server")
     }).then(async (selectedItem) => {
         if (selectedItem) {
@@ -41,6 +41,7 @@ export async function runJobAll(jobsProvider: JobsProvider, includeJob: boolean 
 
     const items = getJobsAsModel(jobsProvider, jobs, includeJob);
     await vscode.window.showQuickPick(items, {
+        title: vscode.l10n.t("Build Job"),
         placeHolder: vscode.l10n.t("Select the job you want to build"),
         canPickMany: false
     }).then(async (selectedItem) => {

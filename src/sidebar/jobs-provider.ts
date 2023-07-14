@@ -3,12 +3,13 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
+import { Constants } from '../types/constants';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
 import { getFolderAsModel, runJobAll } from '../ui/manage';
-import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
-import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
+import { notifyUIUserMessage, openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
+import { clearEditor, getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { getParameterDefinition, makeJobTreeItems } from '../utils/model-utils';
 import { inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
@@ -49,6 +50,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     { label: 'Update', description: 'Update the existing Job' },
                 ];
                 const jobCmd = await vscode.window.showQuickPick(items, {
+                    title: vscode.l10n.t("Create or Update"),
                     placeHolder: vscode.l10n.t("Select the command you want to execute")
                 }).then(async (selectedItem) => {
                     return selectedItem;
@@ -84,7 +86,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.createFolder', async () => {
                 const mesg = await this.executor?.createFolder(this.view.name);
-                // console.log(`result <${mesg}>`);
                 setTimeout(() => {
                     this.refresh();
                 }, 1500);
@@ -117,6 +118,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     { label: 'FreeStyle', description: 'Generate FreeStyle Job' },
                 ];
                 const result = await vscode.window.showQuickPick(items, {
+                    title: vscode.l10n.t("Generate Job Code"),
                     placeHolder: vscode.l10n.t("Select to generate Job Code")
                 }).then(async (selectedItem) => {
                     return selectedItem;
@@ -138,12 +140,14 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 Object.keys(snippets).forEach((key: string) => {
                     const snippet = snippets[key];
                     items.push({
-                        label: key,
+                        label: (snippet.type === Constants.SNIPPET_TYPE_SYSTEM ? Constants.SNIPPET_PREFIX_JENKINS : Constants.SNIPPET_PREFIX_USER) + key,
+                        description: snippet.description,
                         model: snippet
                     });
                 });
 
                 const item = await vscode.window.showQuickPick(items, {
+                    title: vscode.l10n.t("Generate Custom Code"),
                     placeHolder: vscode.l10n.t("Select to generate Job Code")
                 }).then(async (selectedItem) => {
                     return selectedItem;
@@ -157,6 +161,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 const items = this.getJobsWithViewAsModel();
 
                 await vscode.window.showQuickPick(items, {
+                    title: vscode.l10n.t("Switch job"),
                     placeHolder: vscode.l10n.t("Select to switch only job")
                 }).then(async (selectedItem) => {
                     if (selectedItem) {
@@ -171,6 +176,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 const items = this.getJobsWithViewAsModel();
 
                 await vscode.window.showQuickPick(items, {
+                    title: vscode.l10n.t("Reservation"),
                     placeHolder: vscode.l10n.t("Select to switch only job")
                 }).then(async (selectedItem) => {
                     if (selectedItem) {
@@ -184,7 +190,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 setTimeout(() => {
                     notifyMessageWithTimeout(mesg);
                     this.buildsProvider.jobs = job;
-                }, 3300);
+                }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
             }),
             vscode.commands.registerCommand('utocode.deleteJob', async (job: JobsModel) => {
                 let mesg = await this.executor?.deleteJob(job);
@@ -196,10 +202,11 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     notifyMessageWithTimeout(mesg);
                     this.buildsProvider.jobs = undefined;
                     this.refresh();
-                }, 3300);
+                }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
             }),
             vscode.commands.registerCommand('utocode.copyJob', async (job: JobsModel) => {
                 const name = await vscode.window.showInputBox({
+                    title: 'Copy Job',
                     prompt: 'Enter Job Name',
                     value: job.name + '-copy'
                 });
@@ -329,14 +336,46 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
     }
 
     async getJobsWithViewAsModel() {
+        if (!this._executor) {
+            return [];
+        }
+
         const items: ModelQuickPick<JobsModel>[] = [];
-        (await this.getJobsWithView()).filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
-            items.push({
-                label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
-                description: job.jobDetail?.description,
-                model: job
-            });
-        });
+        let allViewModel;
+        if (this._view.name === 'all') {
+            const views = (await this._executor.getInfo()).views;
+            for (let view of views) {
+                const viewModel = await this.executor?.getViewsWithDetail(view.name, true);
+                if (!viewModel) {
+                    continue;
+                }
+                viewModel.jobs.filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
+                    items.push({
+                        label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
+                        detail: view.name === 'all' ? '' : view.name,
+                        description: job.jobDetail?.description ?? job.description,
+                        model: job
+                    });
+                });
+
+                items.push({
+                    label: '',
+                    kind: vscode.QuickPickItemKind.Separator
+                });
+            }
+        } else {
+            allViewModel = await this.executor?.getViewsWithDetail(this._view.name, true);
+            if (allViewModel?.jobs) {
+                allViewModel.jobs.filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
+                    items.push({
+                        label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
+                        description: job.jobDetail?.description,
+                        model: job
+                    });
+                });
+            }
+        }
+
         return items;
     }
 
@@ -346,14 +385,13 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             showInfoMessageWithTimeout(vscode.l10n.t('Job Data is not exist'));
             return;
         }
-        showInfoMessageWithTimeout('Processing', 1500);
-        printEditor(' ', true);
 
         if (flag) {
             const viewName = this.view?.name ?? 'all';
-            console.log(`viewName <${viewName}>`);
+            notifyUIUserMessage();
             const mesg = await this.executor?.createJob(text, viewName);
             console.log(`result <${mesg}>`);
+            clearEditor();
         } else {
             let jobs = this.buildsProvider.jobs;
             if (!jobs || !jobs?.name) {
@@ -361,6 +399,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 return;
             }
 
+            notifyUIUserMessage();
             const mesg = await this.executor?.updateJobConfig(jobs.name, text);
             console.log(`result <${mesg}>`);
             setTimeout(() => {
@@ -403,12 +442,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         }
 
         if (element) {
-            // if (element._class === JobModelType.folder) {
-            //     const jobs = await this.getJobsWithFolder(element);
-            //     return jobs;
-            // } else {
-            //     return this.getJobs(element);
-            // }
             return this.getJobs(element);
         } else {
             const jobs = await this.getJobsWithView();

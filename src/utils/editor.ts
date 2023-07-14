@@ -72,8 +72,12 @@ export async function printEditorWithNew(output: string | undefined, languageId:
     }
 }
 
+export async function clearEditor() {
+    await printEditor('', true);
+}
+
 export async function printEditor(output: string, redraw: boolean = false) {
-    if (!output) {
+    if (!output && !redraw) {
         return;
     }
     // console.log(output);
