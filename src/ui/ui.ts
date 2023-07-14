@@ -1,5 +1,6 @@
-import { ProgressLocation, Uri, env, version, window } from 'vscode';
+import { ProgressLocation, Uri, ViewColumn, env, version, window } from 'vscode';
 import { printEditor } from '../utils/editor';
+import { showEmbedFrameView, showPageView } from './view-page';
 
 export function showInfoMessageWithTimeout(message: string, timeout: number = 3000) {
     const upTo = timeout / 10;
@@ -42,7 +43,12 @@ export async function showErrorMessageWithMoreInfo(message: string, link: string
 
 export function openLinkBrowser(url: string) {
     try {
-        env.openExternal(Uri.parse(url));
+        const isBrowser = false;
+        if (isBrowser) {
+            env.openExternal(Uri.parse(url));
+        } else {
+            showEmbedFrameView(Uri.parse(url));
+        }
     } catch (error) {
         console.error('Error opening browser: ', error);
     }

@@ -29,13 +29,12 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
                 this.jobs = job;
             }),
             vscode.commands.registerCommand('utocode.getJobLog', async (build: BuildStatus) => {
-                const job = this.jobs;
-                if (!job) {
+                if (!this.jobs) {
                     showInfoMessageWithTimeout(vscode.l10n.t("Jenkins is not connected"));
                     return;
                 }
 
-                const text = await this.executor?.getJobLog(job.url, build.number);
+                const text = await this.executor?.getJobLog(this.jobs.url, build.number);
                 if (text) {
                     printEditorWithNew(text, 'shellscript');
                 }
