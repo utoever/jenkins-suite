@@ -22,5 +22,6 @@
   "To test the pipeline, run validateJenkins (Ctrl+Alt+t)": "Pipeline 를 테스트하려면 validateJenkins (Ctrl+Alt+T) 를 실행하세요",
   "This feature is not guaranteed to run because it runs in VS Code, not on the server": "이 기능은 서버에서 실행되는 것이 아니라 VS Code에서 실행되는 것이므로 실행을 보장하지 않는다",
   "The input time is {0} ~ {1} minutes": "입력시간은 {0} ~ {1} 사이입니다",
-  "Please choose the job first": "Job 을 먼저 선택해 주세요"
+  "Please choose the job first": "Job 을 먼저 선택해 주세요",
+  "Language Mode {0}, {1} is supported. Try changing to a different mode": "Language Mode {0}, {1} is supported. Try changing to a different mode"
 }

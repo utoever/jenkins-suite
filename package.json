@@ -38,6 +38,9 @@
     "management"
   ],
   "capabilities": {
+    "codeLensProvider": {
+      "resolveProvider": "true"
+    },
     "virtualWorkspaces": true
   },
   "activationEvents": [],
