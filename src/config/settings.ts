@@ -1,9 +1,8 @@
 import Ajv, * as ajv from 'ajv';
 import _ from 'lodash';
 import * as vscode from "vscode";
-import { EXTENSION_NAME } from '../constants';
+import { Constants } from '../types/constants';
 import logger from '../utils/logger';
-
 
 export interface JenkinsProperty {
     url: string;
@@ -45,7 +44,7 @@ export default class JenkinsConfiguration {
 
     private static readonly compiledSchemas = new Map<string, ajv.ValidateFunction>();
 
-    private static readonly rootName = EXTENSION_NAME;
+    private static readonly rootName = 'jenkinssuite';
 
     private static config<T>(name: string): T | undefined {
         let settings = vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<T>(name);

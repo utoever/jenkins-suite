@@ -1,185 +1,111 @@
 {
-  "create_user": {
-    "prefix": "create_user",
+  "pipeline": {
+    "prefix": "pipe",
     "body": [
-      "import hudson.security.*",
+      "pipeline {",
       "",
-      "def role = \"__ROLE__\";",
-      "def username = \"__USERNAME__\";",
-      "def password = \"__PASSWORD__\";",
+      "    agent any",
       "",
-      "def instance = Jenkins.getInstance();",
-      "def strategy = instance.getAuthorizationStrategy();",
-      "jenkins.model.Jenkins.instance.securityRealm.createAccount(username, password);",
-      "if (role == \"ADMIN\") {",
-      "    strategy.add(Jenkins.ADMINISTER, username);",
-      "} else if (role == \"GUEST\") {",
-      "    strategy.add(Jenkins.READ   , username);",
-      "    strategy.add(Item.READ      , username);",
-      "} else {",
-      "    strategy.add(Jenkins.READ   , username);",
-      "    strategy.add(Item.BUILD     , username);",
-      "    strategy.add(Item.READ      , username);",
-      "    strategy.add(Item.CREATE    , username);",
-      "    strategy.add(Item.DISCOVER  , username);",
-      "    strategy.add(Item.WORKSPACE , username);",
-      "    strategy.add(Item.CONFIGURE , username);",
-      "    strategy.add(Item.CANCEL    , username);",
-      "}",
-      "instance.save()"
-    ],
-    "description": "CreateUser"
-  },
-  "get_executor": {
-    "prefix": "get_executor",
-    "body": ["Jenkins jenkins = Jenkins.getInstance();jenkins.getNumExecutors()"],
-    "description": "get_executor"
-  },
-  "set_executor": {
-    "prefix": "set_executor",
-    "body": ["Jenkins jenkins = Jenkins.getInstance();jenkins.setNumExecutors(__NUM__);jenkins.save();jenkins.getNumExecutors();"],
-    "description": "set_executor"
-  },
-  "createCredential": {
-    "prefix": "createCredential",
-    "body": [
-      "#!groovy",
-      "import com.cloudbees.plugins.credentials.*",
-      "import com.cloudbees.plugins.credentials.domains.*",
-      "import com.cloudbees.plugins.credentials.impl.*",
-      "import hudson.util.Secret",
-      "",
-      "import java.io.*",
-      "import java.nio.file.*",
-      "import java.time.LocalDateTime",
-      "import jenkins.model.*",
-      "import org.jenkinsci.plugins.plaincredentials.impl.*",
-      "",
-      "Jenkins jenkins = Jenkins.getInstance()",
-      "def store = jenkins.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()",
-      "def domain = Domain.global()",
-      "def kind = '__KIND__'",
-      "def username = \"__USERNAME__\";",
-      "def password = \"__PASSWORD__\";",
-      "",
-      "if (kind == 'CredentialUser') {",
-      "    def id = username + '_user'",
-      "    def credUser = makeCredentialUser(id, username, password, username + \" User\")",
-      "    store.addCredentials(domain, credUser)",
-      "} else if (kind == 'SecretText') {",
-      "    def id = username + '_secret'",
-      "    def secretText = makeSecretText(id, username, password)",
-      "    store.addCredentials(domain, secretText)",
-      "} else if (kind == 'KubeConfig') {",
-      "    def pId = userame",
-      "    Path fileLocation = Paths.get(\"/root/.kube/config\");",
-      "    File kubeFile = new File(fileLocation.toString())",
-      "    if (kubeFile.exists()) {",
-      "        def secretBytes = SecretBytes.fromBytes(Files.readAllBytes(fileLocation))",
-      "        def secretFile = new FileCredentialsImpl(",
-      "            CredentialsScope.GLOBAL,",
-      "            pId + '_k8s',",
-      "            'kubeconfig file',",
-      "            'kubeconfig',",
-      "            secretBytes)",
-      "        store.addCredentials(domain, secretFile)",
+      "    parameters {",
+      "        hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
+      "        hidden defaultValue: 'https://_YOUR_HOME_/actuator/info', description: 'Go Management', name: 'manage.url'",
+      "        hidden defaultValue: 'https://_YOUR_HOME_/swagger-ui/index.html', description: 'Go Swagger', name: 'swagger.url'",
       "    }",
-      "}",
-      "jenkins.save()",
       "",
+      "    // triggers {",
+      "    //     cron('H 8 * * 1-5')",
+      "    // }",
       "",
-      "def makeSecretText(id, name, passwd) {",
-      "    def secretText = new StringCredentialsImpl(",
-      "        CredentialsScope.GLOBAL,",
-      "        id,",
-      "        name,",
-      "        Secret.fromString(passwd)",
-      "    )",
-      "    return secretText",
-      "}",
+      "    environment {",
+      "        VERSION='0.0.1-SNAPSHOT'",
+      "    }",
       "",
-      "def makeCredentialUser(id, userame, passwd, desc) {",
-      "  def jenkinsKeyUsernameWithPasswordParameters = [",
-      "    description:  desc,",
-      "    id:           id,",
-      "    userName:     userame,",
-      "    secret:       passwd",
-      "  ]",
-      "",
-      "  def jenkinsKeyUsernameWithPassword = new UsernamePasswordCredentialsImpl(",
-      "    CredentialsScope.GLOBAL,",
-      "    jenkinsKeyUsernameWithPasswordParameters.id,",
-      "    jenkinsKeyUsernameWithPasswordParameters.description,",
-      "    jenkinsKeyUsernameWithPasswordParameters.userName,",
-      "    jenkinsKeyUsernameWithPasswordParameters.secret",
-      "  )",
-      "",
-      "  return jenkinsKeyUsernameWithPassword;",
-      "}"
-    ],
-    "description": "createCredential"
-  },
-  "getGlobalEnvironment": {
-    "prefix": "getGlobalEnvironment",
-    "body": [
-      "import hudson.slaves.EnvironmentVariablesNodeProperty;",
-      "",
-      "import hudson.slaves.NodeProperty;",
-      "import hudson.slaves.NodePropertyDescriptor;",
-      "import hudson.util.DescribableList;",
-      "  ",
-      "Jenkins instance = Jenkins.getInstance();",
-      "DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = instance.getGlobalNodeProperties();",
-      "List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class);",
-      "for (EnvironmentVariablesNodeProperty property : envVarsNodePropertyList) {",
-      "  println(property.getEnvVars())",
-      "}"
-    ],
-    "description": "getGlobalEnvironment"
-  },
-  "is_admin": {
-    "prefix": "is_admin",
-    "body": [
-      "import jenkins.model.*",
-      "import hudson.security.*",
-      "",
-      "def instance = jenkins.model.Jenkins.instance",
-      "def authorizationStrategy = instance.getAuthorizationStrategy()",
-      "def username = '__USERNAME__'",
-      "def user = instance.getUser(username)",
-      "",
-      "def permissions = [:]",
-      "if (user != null) {",
-      "    authorizationStrategy.getGrantedPermissionEntries().each { entry ->",
-      "    entry.value.each { permissionEntry ->",
-      "        if (permissionEntry.sid == username && entry.key == Jenkins.ADMINISTER) {",
-      "        permissions.put(entry.key, permissionEntry)",
+      "    stages {",
+      "        stage('Pipeline') {",
+      "            steps {",
+      "                echo \"welcome to Pipeline Job\"",
+      "            }",
       "        }",
       "    }",
-      "    }",
       "}",
-      "",
-      "return permissions.isEmpty() ? false : true"
+      ""
     ],
-    "description": "is_admin"
+    "description": "Pipeline"
   },
-  "grv_changePrimaryView": {
-    "prefix": "grv_changePrimaryView",
+  "environment": {
+    "prefix": "env",
     "body": [
-      "def jenkins = Jenkins.getInstanceOrNull(); ",
-      "def view = jenkins.getPrimaryView().getViewName()",
-      "",
-      "if (view != '__NEW_VIEWNAME__') {",
-      "    def newView = jenkins.getViews().find { v -> v.getViewName() == '__NEW_VIEWNAME__' }",
-      "    if (newView) {",
-      "        jenkins.setPrimaryView(newView)",
-      "        view = jenkins.getPrimaryView().getViewName()",
-      "    }",
+      "environment {",
+      "    $1",
       "}",
-      "",
-      "println view"
+      ""
     ],
-    "description": "GRV_SET_VIEW",
-    "hidden": true
+    "description": "Parameter"
+  },
+  "parameter": {
+    "prefix": "par",
+    "body": [
+      "parameters {",
+      "    hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
+      "    $1",
+      "}",
+      ""
+    ],
+    "description": "Parameter"
+  },
+  "string parameter": {
+    "prefix": "stp",
+    "body": [
+      "    string(name: '$1', defaultValue: '$2', description: '$3')",
+      "    $4",
+      ""
+    ],
+    "description": "String Parameter"
+  },
+  "choice parameter": {
+    "prefix": "chp",
+    "body": [
+      "    choice(",
+      "        name: '$1',",
+      "        choices: ['$2'],",
+      "        description: '$3'",
+      "    )",
+      ""
+    ],
+    "description": "Choice Parameter"
+  },
+  "stage": {
+    "prefix": "st",
+    "body": [
+      "    stage('$1') {",
+      "        steps {",
+      "            $2",
+      "        }",
+      "    }",
+      ""
+    ],
+    "description": "Stage"
+  },
+  "gitScm": {
+    "prefix": "gsc",
+    "body": [
+      "git branch: '$1', credentialsId: '$2', url: '$3'",
+      "    script {",
+      "        env.GIT_COMMIT_MSG = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()",
+      "        env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%cn ${GIT_COMMIT}', returnStdout: true).trim()",
+      "    }",
+      ""
+    ],
+    "description": "Git SCM"
+  },
+  "mvncp": {
+    "prefix": "mvncp",
+    "body": [
+      "sh \"\"\"",
+      "    mvn clean package $1",
+      "    \"\"\"",
+      ""
+    ],
+    "description": "Maven Clean Package"
   }
 }

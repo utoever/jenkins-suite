@@ -1,5 +1,11 @@
 export namespace Constants {
 
+    export const EXTENSION_NAME = 'jenkinssuite';
+
+    export const VIEW_EXTENSION_NAME = 'Jenkins Suite';
+
+    export const SNIPPET_JENKINS_SUITE = '_jenkinssuite.json';
+
     export const JENKINS_DEFAULT_BUILD_DELAY = 3350;
 
     export const JENKINS_DEFAULT_GROOVY_DELAY = 2250;

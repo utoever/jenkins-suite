@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem, SnippetItems } from '../snippet/snippet';
+import { Constants } from '../types/constants';
 
 export async function invokeSnippet(context: vscode.ExtensionContext, snippetName: string): Promise<SnippetItem> {
     const snippetFilePath = path.join(context.extensionPath, 'snippets', 'snippet.json');
@@ -12,7 +13,7 @@ export async function invokeSnippet(context: vscode.ExtensionContext, snippetNam
 }
 
 export async function invokeSnippetJenkins(context: vscode.ExtensionContext, snippetName: string): Promise<SnippetItem> {
-    return await invokeSnippetFromPath(context, snippetName, 'jenkins.json');
+    return await invokeSnippetFromPath(context, snippetName, Constants.SNIPPET_JENKINS_SUITE);
 }
 
 export async function invokeSnippetFromPath(context: vscode.ExtensionContext, snippetName: string, snippetPath: string): Promise<SnippetItem> {

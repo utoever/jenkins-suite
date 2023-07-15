@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { VIEW_EXTENSION_NAME } from '../constants';
+import { Constants } from '../types/constants';
 import StatusBarItem from './statusbar-item';
 
 let isShow = false;
-const outputChannel = vscode.window.createOutputChannel(VIEW_EXTENSION_NAME);
+const outputChannel = vscode.window.createOutputChannel(Constants.VIEW_EXTENSION_NAME);
 
 export function show() {
     // app.sftpBarItem.updateStatus(StatusBarItem.Status.ok);
@@ -38,7 +38,7 @@ export function print(...args: any) {
 
         return arg;
     })
-    .join(' ');
+        .join(' ');
 
     outputChannel.appendLine(msg);
 }

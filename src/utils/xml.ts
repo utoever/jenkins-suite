@@ -12,7 +12,10 @@ export function parseXml(xmlString: string): any {
     return xml2js(xmlString, options);
 }
 
-export interface FlowDefinition {
+export interface JenkinsPipeline {
+}
+
+export interface FlowDefinition extends JenkinsPipeline {
     _declaration: any
     'flow-definition': {
         actions: any
@@ -36,6 +39,23 @@ export interface CpsFlowDefinition {
         _text: string
     }
     sandbox: boolean
+}
+
+export interface Project {
+    actions: any
+    description: string
+    keepDependencies: boolean
+    properties: [any]
+}
+
+export interface JenkinsView {
+}
+
+export interface AllView {
+    name: string
+    filterExecutors: boolean
+    filterQueue: boolean
+    properties: any
 }
 
 export interface ShortcutJob {
@@ -70,4 +90,15 @@ export function extractViewnameFromText(xmlContent: string) {
         viewModel = xmlData[ViewType.allView.toString()];
     }
     return viewModel.name._text;
+}
+
+export function isJenkinsView(xmlData: any): xmlData is JenkinsView {
+    return xmlData && ((typeof xmlData[ViewType.allView.toString()] === 'object') ||
+        (typeof xmlData[ViewType.listView.toString()] === 'object') ||
+        (typeof xmlData[ViewType.categorizedJobsView.toString()] === 'object') ||
+        (typeof xmlData[ViewType.myView.toString()] === 'object'));
+}
+
+export function isJenkinsPipeline(xmlData: any): xmlData is JenkinsPipeline {
+    return xmlData && (typeof xmlData['flow-definition'] === 'object');
 }

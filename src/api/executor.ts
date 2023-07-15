@@ -76,13 +76,7 @@ export class Executor {
         return allViewModel;
     };
 
-    async createView() {
-        const name = await vscode.window.showInputBox({
-            title: 'View',
-            prompt: 'Enter view name'
-        }).then((val) => {
-            return val;
-        });
+    async createView(name: string) {
         if (name) {
             const categorizedEnabled = JenkinsConfiguration.categorizedEnabled;
             let createView = categorizedEnabled ? JenkinsConfiguration.createSnippetView : Constants.SNIPPET_DEFAULT_LISTVIEW;

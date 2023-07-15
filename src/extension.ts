@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import JenkinsConfiguration from './config/settings';
+import { JenkinsCodeLensProvider } from './provider/jenkins-codelens';
+import { XmlCodeLensProvider } from './provider/xml-codelens';
 import { BuildsProvider } from './sidebar/builds-provider';
 import { ConnectionProvider } from './sidebar/connection-provider';
-import { JenkinsCodeLensProvider } from './sidebar/jenkins-codelens';
 import { JobsProvider } from './sidebar/jobs-provider';
 import { NotifyProvider } from './sidebar/notify-provider';
 import { ProjectProvider } from './sidebar/project-provider';
@@ -37,7 +38,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider("utocode.views.snippets", snippetProvider);
 
 	const jenkinsLensProvider = new JenkinsCodeLensProvider(context);
-	const supportedLanguages = ['jenkins'];
+	const jenkinsLanguages = ['jenkins'];
+	const xmlLensProvider = new XmlCodeLensProvider(context);
+	const xmlLanguages = ['xml'];
 	context.subscriptions.push(
 		vscode.window.createTreeView('jenkinsProject', {
 			treeDataProvider: projectProvider
@@ -48,12 +51,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand("utocode.welcome", () => {
 			vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `utocode.jenkinssuite#utocode.welcome`, false);
 		}),
-		vscode.languages.registerCodeLensProvider(supportedLanguages, jenkinsLensProvider)
+		vscode.languages.registerCodeLensProvider(jenkinsLanguages, jenkinsLensProvider),
+		vscode.languages.registerCodeLensProvider(xmlLanguages, xmlLensProvider)
 	);
 
 	showProjectView(projectProvider);
-
-
 	function registerCommand(cmd: string, callback: () => void) {
 		const command = vscode.commands.registerCommand(cmd, callback);
 		context.subscriptions.push(new Command(cmd, command));

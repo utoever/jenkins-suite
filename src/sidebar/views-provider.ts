@@ -30,10 +30,18 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                 openLinkBrowser(view.url);
             }),
             vscode.commands.registerCommand('utocode.createView', async () => {
-                const mesg = await this.executor?.createView();
-                setTimeout(() => {
-                    vscode.commands.executeCommand('utocode.views.refresh');
-                }, 2000);
+                const viewname = await vscode.window.showInputBox({
+                    title: 'View',
+                    prompt: 'Enter view name'
+                }).then((val) => {
+                    return val;
+                });
+
+                if (viewname) {
+                    const mesg = await this.executor?.createView(viewname);
+                    notifyUIUserMessage();
+                    this.updateUIView(viewname, true);
+                }
             }),
             vscode.commands.registerCommand('utocode.updateConfigView', async () => {
                 const text = getSelectionText();
@@ -41,7 +49,8 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                     notifyUIUserMessage();
 
                     const viewname = extractViewnameFromText(text);
-                    this.updateUIView(viewname, text);
+                    const mesg = await this.executor?.updateConfigView(viewname, text);
+                    this.updateUIView(viewname);
                 } else {
                     showInfoMessageWithTimeout(vscode.l10n.t('Please There is not exist contents of the view'));
                 }
@@ -110,12 +119,19 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         );
     }
 
-    async updateUIView(viewname: string, text: string) {
-        const mesg = await this.executor?.updateConfigView(viewname, text);
-        // console.log(`result <${mesg}>`);
+    async updateUIView(viewname: string, created: boolean = false) {
         setTimeout(async () => {
-            if (viewname === this.jobsProvider.view.name) {
-                vscode.commands.executeCommand('utocode.jobs.refresh');
+            if (created) {
+                this.info = await this.executor?.getInfo();
+                vscode.commands.executeCommand('utocode.views.refresh');
+                const newView = this.info?.views.filter(vw => vw.name === viewname)[0];
+                if (newView) {
+                    this._view = newView;
+                }
+            } else {
+                if (viewname === this.jobsProvider.view.name) {
+                    vscode.commands.executeCommand('utocode.jobs.refresh');
+                }
             }
             vscode.commands.executeCommand('utocode.getConfigView', this._view, true);
         }, 2000);

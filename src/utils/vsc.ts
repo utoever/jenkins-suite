@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EXTENSION_NAME } from '../constants';
+import { Constants } from '../types/constants';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 
 export function getMessageL10n(mesg: string, ...args: Array<string | number | boolean>) {
@@ -38,7 +38,7 @@ export function openSettings(kind?: string) {
 }
 
 export function getExtensionSetting() {
-    return getUserSetting(EXTENSION_NAME);
+    return getUserSetting(Constants.EXTENSION_NAME);
 }
 
 export function getUserSetting(section: string, resource?: vscode.Uri | null | undefined) {

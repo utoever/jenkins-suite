@@ -10,7 +10,7 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
         if (document.languageId === 'jenkins') {
             const text = document.getText();
 
-            if (text.includes('pipeline {')) {
+            if (text && text.startsWith('pipeline {')) {
                 const position = new vscode.Position(0, 0);
                 const range = new vscode.Range(position, position);
                 const command = {
