@@ -1,0 +1,35 @@
+.lazylog {
+  background-color: black;
+  color: white;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.lazylog-row {
+  padding: 0;
+}
+
+.lazylog-row .lazylog-line {
+  padding: 0 5px;
+}
+
+.lazylog-row-code {
+  display: flex;
+  align-items: center;
+}
+
+.lazylog-line-number {
+  color: #666;
+  margin-right: 10px;
+}
+
+.lazylog-line-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.lazylog-highlight {
+  background-color: #003375;
+  color: white;
+}
