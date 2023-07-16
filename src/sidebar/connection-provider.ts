@@ -366,7 +366,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
 
     async getChildren(element?: JenkinsServer): Promise<JenkinsServer[] | JenkinsUser[]> {
         if (element) {
-            if (this._executor) {
+            if (this._executor && element.name === this._currentServer?.name) {
                 const users = await this._executor?.getUsers();
                 return users ? Object.values(users) : [];
             } else {
