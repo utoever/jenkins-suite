@@ -70,6 +70,7 @@
   "openLinkNotifyJob.title": "Open With Browser History",
   "validateJenkins.title": "Validate Jenkinsfile",
   "setPrimaryServer.title": "Set Default",
+  "deleteUser.title": "Delete User",
   "connectProjectServer.title": "Connect Server",
   "disconnectProjectServer.title": "Disonnect Server",
   "openLinkUserConfigure.title": "Open User Configure",

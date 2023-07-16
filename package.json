@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -389,6 +389,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.deleteUser",
+        "title": "%deleteUser.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.openLink#Home",
         "title": "%openLinkHome.title%",
         "icon": {
@@ -711,12 +716,12 @@
           "group": "inline@50"
         },
         {
-          "when": "view == 'utocode.views.connection'",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
           "command": "utocode.openLink#Home",
           "group": "inline@70"
         },
         {
-          "when": "view == 'utocode.views.connection' && !(viewItem =~ /^.*_conn/)",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/ && !(viewItem =~ /^.*_conn/)",
           "command": "utocode.connectServer",
           "group": "1_jenkinssuite_actions@10"
         },
@@ -726,12 +731,12 @@
           "group": "1_jenkinssuite_actions@10"
         },
         {
-          "when": "view == 'utocode.views.connection'",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
           "command": "utocode.connectSSH",
           "group": "1_run@10"
         },
         {
-          "when": "view == 'utocode.views.connection'",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
           "command": "utocode.connectSSHExternal",
           "group": "1_run@10"
         },
@@ -756,7 +761,7 @@
           "group": "2_configure@20"
         },
         {
-          "when": "view == 'utocode.views.connection'",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
           "command": "utocode.openLinkUserConfigure",
           "group": "2_configure@90"
         },
@@ -766,9 +771,14 @@
           "group": "2_configure@99"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_not.*/",
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/ && viewItem =~ /^.*_not.*/",
           "command": "utocode.setPrimaryServer",
           "group": "2_configure@10"
+        },
+        {
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^user.*/ && viewItem != 'user_not'",
+          "command": "utocode.deleteUser",
+          "group": "1_run@10"
         },
         {
           "when": "view == 'utocode.views.views'",

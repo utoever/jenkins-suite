@@ -133,7 +133,12 @@ export class Executor {
                 .replace('__USERNAME__', username)
                 .replace('__PASSWORD__', password);
             console.log(`createUser:: username <${username}> role <${role}>`);
-            return data && await this.executeScript(data);
+            const result = data && await this.executeScript(data);
+            if (result && result.startsWith('Result:')) {
+                return result.split('Result: ').pop();
+            } else {
+                return false;
+            }
         } else {
             return undefined;
         }
@@ -145,7 +150,12 @@ export class Executor {
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__USERNAME__', username);
             console.log(`deleteUser:: username <${username}>`);
-            return data && await this.executeScript(data);
+            const result = data && await this.executeScript(data);
+            if (result && result.startsWith('Result:')) {
+                return result.split('Result: ').pop();
+            } else {
+                return false;
+            }
         } else {
             return undefined;
         }

@@ -22,7 +22,7 @@ For more information, please visit the following site.
 ## Features
 
 * Connection [SwitchConnection (Alt+1)]
-  * connect / disconnect
+  * connect / disconnect / Connect SSH / Create User / Change Executor / Create Secret Text / Create Username with password
 
   ![SwitchConnection](images/guide/guide1.png)
 
@@ -38,7 +38,7 @@ For more information, please visit the following site.
   * Configuration: Get / Update
   * Open Job in Web Browser
 
-  ![SwitchJob](images/guide/guide3.png)
+  ![Job](images/guide/guide9.png)
 
 * Build History [SwitchBuild (Alt+5)]
   * View Log
@@ -57,6 +57,10 @@ For more information, please visit the following site.
 * Validate Jenkinsfiles (Ctrl+Alt+T)
 
   ![Validate](images/guide/guide7.png)
+
+* Add Jenkins Project View of the Explorer
+
+  ![project](images/guide/guide8.png)
 
 ## Getting Started
 

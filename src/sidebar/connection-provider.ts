@@ -93,9 +93,15 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                     if (!role) {
                         return;
                     }
-                    const users = await vscode.window.showInputBox({ prompt: 'Enter username' }).then(async (username) => {
+                    const users = await vscode.window.showInputBox({
+                        title: 'User',
+                        prompt: 'Enter username'
+                    }).then(async (username) => {
                         if (username) {
-                            const password = await vscode.window.showInputBox({ prompt: 'Enter password' }).then((val) => {
+                            const password = await vscode.window.showInputBox({
+                                title: 'User',
+                                prompt: 'Enter password'
+                            }).then((val) => {
                                 return val;
                             });
                             if (password) {
@@ -108,7 +114,10 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
 
                     if (role && users && users.length === 2) {
                         const result = await this._executor.createUser(users[0], users[1], role);
-                        showInfoMessageWithTimeout(vscode.l10n.t('Create User {0}', result === '' ? `<${users[0]}>` : 'Failed'));
+                        if (result) {
+                            showInfoMessageWithTimeout(vscode.l10n.t('Create User {0}', result ? `<${users[0]}>` : 'Failed'));
+                        }
+                        this.refresh();
                     } else {
                         showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
                     }
@@ -118,6 +127,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                 if (this._executor) {
                     const numExecutors = await this._executor.getExecutor();
                     const setNumExecutor = await vscode.window.showInputBox({
+                        title: 'Executor',
                         prompt: 'Enter number of Executor',
                         placeHolder: numExecutors
                     }).then((val) => {
@@ -189,6 +199,15 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                 if (JenkinsConfiguration.primary !== server.name) {
                     JenkinsConfiguration.primary = server.name;
                     this._primary = server.name;
+                }
+            }),
+            vscode.commands.registerCommand('utocode.deleteUser', async (user: JenkinsUser) => {
+                if (user.delete) {
+                    const result = await this._executor?.deleteUser(user.name);
+                    if (result) {
+                        showInfoMessageWithTimeout(vscode.l10n.t(result ? 'Successfully' : 'failed'));
+                    }
+                    this.refresh();
                 }
             }),
             vscode.commands.registerCommand('utocode.connectSSH', (server: JenkinsServer) => {
@@ -272,30 +291,42 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
 
     async getTreeItem(element: JenkinsServer | JenkinsUser): Promise<vscode.TreeItem> {
         console.log(`connection::treeItem <${element}>`);
-        let status = 'grey';
-        let authority = '';
-        if (this._currentServer && this._currentServer.name === element.name) {
-            if (this.isConnected()) {
-                status = 'blue';
-            } else {
-                status = 'red';
-            }
-            if (this._currentServer?.admin) {
-                authority = '_admin';
-            }
-        }
-
-        let git = element.git ? '_git' : '';
-        let sqube = element.sonarqube ? '_sqube' : '';
         let treeItem: vscode.TreeItem;
-        treeItem = {
-            label: element.name,
-            description: element.description,
-            collapsibleState: vscode.TreeItemCollapsibleState.None,
-            contextValue: 'connection' + (this._primary && this._primary === element.name ? '' : '_not') + authority + git + sqube + (status === 'blue' ? '_conn' : ''),
-            iconPath: this.context.asAbsolutePath(`resources/job/${status}.png`),
-            tooltip: this.viewServer(element)
-        };
+        if (this.isJenkinsUser(element)) {
+            const user = element as JenkinsUser;
+            treeItem = {
+                label: user.name,
+                description: user.description ?? '',
+                collapsibleState: vscode.TreeItemCollapsibleState.None,
+                contextValue: 'user' + (user.delete ? '' : '_not'),
+                iconPath: new vscode.ThemeIcon('account'),
+                tooltip: user.name
+            };
+        } else {
+            let status = 'grey';
+            let authority = '';
+            if (this._currentServer && this._currentServer.name === element.name) {
+                if (this.isConnected()) {
+                    status = 'blue';
+                } else {
+                    status = 'red';
+                }
+                if (this._currentServer?.admin) {
+                    authority = '_admin';
+                }
+            }
+
+            let git = element.git ? '_git' : '';
+            let sqube = element.sonarqube ? '_sqube' : '';
+            treeItem = {
+                label: element.name,
+                description: element.description,
+                collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+                contextValue: 'connection' + (this._primary && this._primary === element.name ? '' : '_not') + authority + git + sqube + (status === 'blue' ? '_conn' : ''),
+                iconPath: this.context.asAbsolutePath(`resources/job/${status}.png`),
+                tooltip: this.viewServer(element)
+            };
+        }
         return treeItem;
     }
 
@@ -335,8 +366,12 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
 
     async getChildren(element?: JenkinsServer): Promise<JenkinsServer[] | JenkinsUser[]> {
         if (element) {
-            const users = await this._executor?.getUsers();
-            return users ? Object.values(users) : [];
+            if (this._executor) {
+                const users = await this._executor?.getUsers();
+                return users ? Object.values(users) : [];
+            } else {
+                return [];
+            }
         } else {
             return this.getServers();
         }

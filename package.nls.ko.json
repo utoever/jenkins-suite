@@ -70,6 +70,7 @@
   "openLinkNotifyJob.title": "Job 기록 외부 브라우저 열기",
   "validateJenkins.title": "Jenkinsfile 검사",
   "setPrimaryServer.title": "기본 접속으로 설정",
+  "deleteUser.title": "계정 삭제",
   "connectProjectServer.title": "Connect 서버",
   "disconnectProjectServer.title": "Disonnect 서버",
   "openLinkUserConfigure.title": "Open User Configure",

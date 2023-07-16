@@ -1,7 +1,8 @@
 # Change Log
 
-### [0.2.4] - 2023-07-16
+### [0.3.0] - 2023-07-16
 
+- Get User / Delete User
 - A few bug fixes
 
 ### [0.2.3] - 2023-07-15
