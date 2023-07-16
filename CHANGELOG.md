@@ -1,5 +1,9 @@
 # Change Log
 
+### [0.2.4] - 2023-07-16
+
+- A few bug fixes
+
 ### [0.2.3] - 2023-07-15
 
 - A few bug fixes

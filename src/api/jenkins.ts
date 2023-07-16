@@ -86,7 +86,7 @@ export class Jenkins {
             console.log(`response <${response}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            console.log(`>> Error <${error.message}>`);
             return error.message;
         }
     };
@@ -110,7 +110,7 @@ export class Jenkins {
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            console.log(`>> Error <${error.message}>`);
             return error.message;
         }
     };
@@ -124,17 +124,16 @@ export class Jenkins {
 
         const headers = new AxiosHeaders();
         headers.set('jenkins-crumb', this._crumb);
-        headers.set('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+        headers.set('Content-Type', 'application/x-www-form-urlencoded');
         config.headers = headers;
         config.method = 'POST';
 
         try {
             const response = await this.client.postForm<Response<T>>(url, data, config);
-
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            console.log(`>> Error <${error.message}>`);
             return error.message;
         }
     };
@@ -158,7 +157,7 @@ export class Jenkins {
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            console.log(`>> Error <${error.message}>`);
             return error.message;
         }
     };
@@ -198,7 +197,7 @@ export class Jenkins {
             console.log(`response <${response.headers ?? response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            console.log(`>> Error <${error.message}>`);
             return error.message;
         }
     };

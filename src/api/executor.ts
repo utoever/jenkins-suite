@@ -218,7 +218,7 @@ export class Executor {
             data = snippetItem.body.join('\n').replace('__USERNAME__', username);
         }
 
-        console.log(`isAdmin:: username <${username}>`);
+        logger.info(`isAdmin:: username <${username}>`);
         return data && await this.executeScript(data);
     }
 
