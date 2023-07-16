@@ -3,9 +3,9 @@ import { decode } from 'html-entities';
 import { initial } from 'lodash';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
-import { Constants } from '../types/constants';
+import { Constants } from '../svc/constants';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
-import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JobModelType, JobProperty, JobsModel } from "../types/model";
+import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JenkinsUsers, JobModelType, JobProperty, JobsModel } from "../types/model";
 import { mapToUrlParams } from '../utils/html';
 import logger from '../utils/logger';
 import { getParameterDefinition } from '../utils/model-utils';
@@ -134,6 +134,36 @@ export class Executor {
                 .replace('__PASSWORD__', password);
             console.log(`createUser:: username <${username}> role <${role}>`);
             return data && await this.executeScript(data);
+        } else {
+            return undefined;
+        }
+    }
+
+    async deleteUser(username: string) {
+        const snippetItem = await invokeSnippetJenkins(this.context, 'delete_user');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__USERNAME__', username);
+            console.log(`deleteUser:: username <${username}>`);
+            return data && await this.executeScript(data);
+        } else {
+            return undefined;
+        }
+    }
+
+    async getUsers(): Promise<JenkinsUsers | undefined> {
+        const snippetItem = await invokeSnippetJenkins(this.context, 'get_users');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n');
+            console.log(`getUsers:: execute`);
+            const result = await this.executeScript(data);
+            let jenkinsUsers: JenkinsUsers | undefined = undefined;
+            if (result && result.startsWith('Result:')) {
+                const body = result.split('Result: ').pop();
+                jenkinsUsers = JSON.parse(body!) as JenkinsUsers;
+            }
+            return jenkinsUsers;
         } else {
             return undefined;
         }

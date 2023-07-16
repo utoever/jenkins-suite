@@ -30,6 +30,39 @@
     ],
     "description": "CreateUser"
   },
+  "get_users": {
+    "prefix": "get_users",
+    "body": [
+      "import groovy.json.JsonOutput",
+      "",
+      "def jenkins = Jenkins.getInstanceOrNull()",
+      "def users = [:]",
+      "jenkins.securityRealm.allUsers.each { user ->",
+      "  def detail = [:]",
+      "  detail.name = user.displayName",
+      "  detail.description = user.description",
+      "  detail.delete = user.canDelete()",
+      "  users[user.id] = detail",
+      "}",
+      "",
+      "JsonOutput.toJson(users)"
+    ],
+    "description": "get_users"
+  },
+  "delete_user": {
+    "prefix": "delete_user",
+    "body": [
+      "def jenkins = Jenkins.getInstanceOrNull()",
+      "def user = jenkins.securityRealm.allUsers.find { user -> user.id == '__USERNAME__' }",
+      "def flag = false;",
+      "if (user != null) {",
+      "  user.delete()",
+      "  flag = true",
+      "}",
+      "return flag"
+    ],
+    "description": "delete_user"
+  },
   "get_executor": {
     "prefix": "get_executor",
     "body": ["Jenkins jenkins = Jenkins.getInstance();jenkins.getNumExecutors()"],

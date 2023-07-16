@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Constants } from '../types/constants';
+import { Constants } from '../svc/constants';
 import StatusBarItem from './statusbar-item';
 
 let isShow = false;

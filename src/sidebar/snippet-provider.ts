@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import JenkinsConfiguration from '../config/settings';
 import JenkinsSnippet, { SnippetItem } from '../snippet/snippet';
-import { Constants } from '../types/constants';
+import { Constants } from '../svc/constants';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { printEditorWithNew } from '../utils/editor';
 import { openSettings } from '../utils/vsc';

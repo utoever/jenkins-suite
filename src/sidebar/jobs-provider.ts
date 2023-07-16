@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
-import { Constants } from '../types/constants';
+import { Constants } from '../svc/constants';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';

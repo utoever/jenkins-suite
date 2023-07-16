@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Constants } from '../types/constants';
+import { Constants } from '../svc/constants';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 
 export function getMessageL10n(mesg: string, ...args: Array<string | number | boolean>) {

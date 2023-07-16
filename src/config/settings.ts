@@ -1,7 +1,7 @@
 import Ajv, * as ajv from 'ajv';
 import _ from 'lodash';
 import * as vscode from "vscode";
-import { Constants } from '../types/constants';
+import { Constants } from '../svc/constants';
 import logger from '../utils/logger';
 
 export interface JenkinsProperty {

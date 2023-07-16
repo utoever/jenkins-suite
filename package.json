@@ -458,6 +458,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.getResources",
+        "title": "%getResources.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.openLink#projectServer",
         "title": "%openLinkProjectServer.title%",
         "icon": {
@@ -502,6 +507,11 @@
       {
         "command": "utocode.disconnectServer",
         "title": "%disconnectServer.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLinkUserConfigure",
+        "title": "%openLinkUserConfigure.title%",
         "category": "jenkinssuite"
       },
       {
@@ -746,9 +756,14 @@
           "group": "2_configure@20"
         },
         {
+          "when": "view == 'utocode.views.connection'",
+          "command": "utocode.openLinkUserConfigure",
+          "group": "2_configure@90"
+        },
+        {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.setSystemMessage",
-          "group": "2_configure@90"
+          "group": "2_configure@99"
         },
         {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_not.*/",

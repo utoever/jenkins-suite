@@ -257,6 +257,16 @@ export interface ModelQuickPick<T> extends vscode.QuickPickItem {
     model?: T
 }
 
+export type JenkinsUsers = {
+    [key: string]: JenkinsUser
+};
+
+export interface JenkinsUser {
+    name: string,
+    description: string,
+    delete: boolean
+}
+
 export type ProjectModels = {
     [key: string]: ProjectModel
 };

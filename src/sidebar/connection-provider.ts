@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import { WebSocketClient } from '../api/ws';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
-import { JobsModel, ViewsModel } from '../types/model';
+import { JenkinsUsers, JobsModel, ViewsModel } from '../types/model';
 import { switchConnection } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText } from '../utils/editor';
@@ -15,7 +15,7 @@ import { NotifyProvider } from './notify-provider';
 import { ReservationProvider } from './reservation-provider';
 import { ViewsProvider } from './views-provider';
 
-export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer> {
+export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer | JenkinsUsers> {
 
     private _executor: Executor | undefined;
 
@@ -25,9 +25,9 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
 
     private _primary: string;
 
-    private _onDidChangeTreeData: vscode.EventEmitter<JenkinsServer | undefined> = new vscode.EventEmitter<JenkinsServer | undefined>();
+    private _onDidChangeTreeData: vscode.EventEmitter<JenkinsServer | JenkinsUsers | undefined> = new vscode.EventEmitter<JenkinsServer | JenkinsUsers | undefined>();
 
-    readonly onDidChangeTreeData: vscode.Event<JenkinsServer | JenkinsServer[] | undefined> = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<JenkinsServer | JenkinsServer[] | JenkinsUsers | JenkinsUsers[] | undefined> = this._onDidChangeTreeData.event;
 
     constructor(protected context: vscode.ExtensionContext, private readonly viewsProvider: ViewsProvider, private readonly jobsProvider: JobsProvider, private readonly buildsProvider: BuildsProvider, private readonly reservationProvider: ReservationProvider, private readonly notifyProvider: NotifyProvider) {
         context.subscriptions.push(
@@ -73,16 +73,20 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             vscode.commands.registerCommand('utocode.disconnectServer', (server: JenkinsServer) => {
                 this.disconnect(server);
             }),
+            vscode.commands.registerCommand('utocode.openLinkUserConfigure', (server: JenkinsServer) => {
+                const uri = `${server.url}/user/${server.username}/configure`;
+                openLinkBrowser(uri);
+            }),
             vscode.commands.registerCommand('utocode.createUser', async () => {
                 if (this._executor) {
                     const items: vscode.QuickPickItem[] = [
                         { label: 'USER', description: 'Create Dev User' },
-                        { label: 'ADMIN', description: 'Create admin user' },
-                        { label: 'GUEST', description: 'Create guest user' },
+                        { label: 'ADMIN', description: 'Create Admin User' },
+                        { label: 'GUEST', description: 'Create Guest User' },
                     ];
                     const role = await vscode.window.showQuickPick(items, {
                         title: vscode.l10n.t("User Type"),
-                        placeHolder: vscode.l10n.t("Select user type")
+                        placeHolder: vscode.l10n.t("Select User Type")
                     }).then(async (selectedItem) => {
                         return selectedItem && selectedItem.label;
                     });
@@ -259,7 +263,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         }
     }
 
-    async getTreeItem(element: JenkinsServer): Promise<vscode.TreeItem> {
+    async getTreeItem(element: JenkinsServer | JenkinsServer): Promise<vscode.TreeItem> {
         console.log(`connection::treeItem <${element}>`);
         let status = 'grey';
         let authority = '';
@@ -322,7 +326,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         return text;
     }
 
-    getChildren(element?: JenkinsServer): JenkinsServer[] {
+    getChildren(element?: JenkinsServer): JenkinsServer[] | JenkinsUsers[] {
         return this.getServers();
     }
 
@@ -343,7 +347,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             this._executor = new Executor(this.context, server);
             await this._executor.initialized();
             this._currentServer = server;
-            console.log(`  * jenkins <${this._currentServer.name}> url <${server.url}>`);
+            logger.info(`* jenkins <${this._currentServer.name}> url <${server.url}>`);
         } catch (error: any) {
             logger.error(error.message);
             vscode.window.showErrorMessage(vscode.l10n.t('The connection to the {0} server failed', server.name));
