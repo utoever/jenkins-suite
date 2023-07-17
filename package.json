@@ -743,6 +743,11 @@
         },
         {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
+          "command": "utocode.openLinkUserConfigure",
+          "group": "1_jenkinssuite_actions@90"
+        },
+        {
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
           "command": "utocode.connectSSH",
           "group": "1_run@10"
         },
@@ -758,11 +763,6 @@
         },
         {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
-          "command": "utocode.changeExecutor",
-          "group": "2_configure@20"
-        },
-        {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.createCredential#SecretText",
           "group": "2_configure@20"
         },
@@ -772,19 +772,19 @@
           "group": "2_configure@20"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
-          "command": "utocode.openLinkUserConfigure",
-          "group": "2_configure@90"
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/ && viewItem =~ /^.*_not.*/",
+          "command": "utocode.setPrimaryServer",
+          "group": "3_manage@10"
+        },
+        {
+          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
+          "command": "utocode.changeExecutor",
+          "group": "3_manage@20"
         },
         {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.setSystemMessage",
-          "group": "2_configure@99"
-        },
-        {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/ && viewItem =~ /^.*_not.*/",
-          "command": "utocode.setPrimaryServer",
-          "group": "2_configure@10"
+          "group": "3_manage@99"
         },
         {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^user.*/ && viewItem != 'user_not'",
