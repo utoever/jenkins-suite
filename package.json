@@ -671,32 +671,6 @@
       }
     ],
     "menus": {
-      "commandPalette": [
-        {
-          "command": "utocode.configView",
-          "when": "false"
-        },
-        {
-          "command": "utocode.deleteView",
-          "when": "false"
-        },
-        {
-          "command": "utocode.showJobs",
-          "when": "false"
-        },
-        {
-          "command": "utocode.utocode.openLink#Home",
-          "when": "false"
-        },
-        {
-          "command": "utocode.utocode.openLink#sqube",
-          "when": "false"
-        },
-        {
-          "command": "utocode.utocode.openLink#sparrow",
-          "when": "false"
-        }
-      ],
       "view/item/context": [
         {
           "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv/ && !(viewItem =~ /^.*project_srv_conn/)",
