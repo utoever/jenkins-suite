@@ -287,8 +287,8 @@
     "when": "plugin.jobdsl.enabled",
     "type": "system"
   },
-  "C_JOB_PIPELINE_GIT": {
-    "prefix": "c_job_pipeline_git",
+  "C_JOB_PIPELINE_SCM": {
+    "prefix": "c_job_pipeline_scm",
     "body": [
       "<?xml version='1.1' encoding='UTF-8'?>",
       "<flow-definition plugin=\"workflow-job@1316.vd2290d3341a_f\">",
@@ -299,13 +299,11 @@
       "        <string>jenkins.model.BuildDiscarderProperty</string>",
       "      </jobProperties>",
       "      <triggers/>",
-      "      <parameters>",
-      "        <string>DEPLOY</string>",
-      "      </parameters>",
+      "      <parameters/>",
       "      <options/>",
       "    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>",
       "  </actions>",
-      "  <description>dev-web</description>",
+      "  <description>__APP_NAME__</description>",
       "  <keepDependencies>false</keepDependencies>",
       "  <properties>",
       "    <com.sonyericsson.rebuild.RebuildSettings plugin=\"rebuild@320.v5a_0933a_e7d61\">",
@@ -320,18 +318,6 @@
       "        <artifactNumToKeep>-1</artifactNumToKeep>",
       "      </strategy>",
       "    </jenkins.model.BuildDiscarderProperty>",
-      "    <hudson.model.ParametersDefinitionProperty>",
-      "      <parameterDefinitions>",
-      "        <hudson.model.ChoiceParameterDefinition>",
-      "          <name>DEPLOY</name>",
-      "          <description>Shall we deploy?</description>",
-      "          <choices>",
-      "            <string>no</string>",
-      "            <string>yes</string>",
-      "          </choices>",
-      "        </hudson.model.ChoiceParameterDefinition>",
-      "      </parameterDefinitions>",
-      "    </hudson.model.ParametersDefinitionProperty>",
       "  </properties>",
       "  <definition class=\"org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition\" plugin=\"workflow-cps@3697.vb_470e454c232\">",
       "    <scm class=\"hudson.plugins.git.GitSCM\" plugin=\"git@5.1.0\">",
@@ -339,8 +325,8 @@
       "      <userRemoteConfigs>",
       "        <hudson.plugins.git.UserRemoteConfig>",
       "          <name>origin</name>",
-      "          <url>http://$GIT_SERVER/${PID}-${APP_NAME}.git</url>",
-      "          <credentialsId>dev-git</credentialsId>",
+      "          <url>http://${GIT_SERVER}/${PID}-__APP_NAME__.git</url>",
+      "          <credentialsId>${PID}-git</credentialsId>",
       "        </hudson.plugins.git.UserRemoteConfig>",
       "      </userRemoteConfigs>",
       "      <branches>",
@@ -352,14 +338,14 @@
       "      <submoduleCfg class=\"empty-list\"/>",
       "      <extensions/>",
       "    </scm>",
-      "    <scriptPath>Jenkinsfile.groovy</scriptPath>",
+      "    <scriptPath>Jenkinsfile</scriptPath>",
       "    <lightweight>true</lightweight>",
       "  </definition>",
       "  <triggers/>",
       "  <disabled>false</disabled>",
       "</flow-definition>"
     ],
-    "description": "C_JOB_PIPELINE_GIT",
+    "description": "C_JOB_PIPELINE_FROM_SCM",
     "hidden": true,
     "type": "system"
   },
@@ -387,7 +373,7 @@
       "    <hudson.views.LastFailureColumn/>",
       "    <hudson.views.LastDurationColumn/>",
       "  </columns>",
-      "  <includeRegex>[a-z].*</includeRegex>",
+      "  <includeRegex>__REGEX__</includeRegex>",
       "  <recurse>false</recurse>",
       "  <groupingRules/>",
       "  <regexToIgnoreOnColorComputing></regexToIgnoreOnColorComputing>",
@@ -421,6 +407,8 @@
       "        <hudson.views.LastFailureColumn/>",
       "        <hudson.views.LastDurationColumn/>",
       "    </columns>",
+      "    <includeRegex>__REGEX__</includeRegex>",
+      "    <recurse>false</recurse>",
       "</hudson.model.ListView>"
     ],
     "description": "Create a LIST_VIEW view",
@@ -600,6 +588,29 @@
     "hidden": true,
     "type": "system"
   },
+  "CREATE_JENKINS_BATCH": {
+    "prefix": "create_jenkins_batch",
+    "body": [
+      "#!jenkins",
+      "",
+      "create-user     dev1 dev1234               # create user (account: dev1, password: dev1234)",
+      "create-user     dev2 dev1234               # create user",
+      "create-views    demo-view1 demo-view2      # create demo-view1, demo-view2 with Default Regex [a-zA-z].*",
+      "create-view     custom-view1 .*-link       # create View with regex \".*-link\"",
+      "create-folder   my-folder                  # create folder",
+      "",
+      "create-pipeline dev-web ",
+      "create-shortcut home-link  https://jenkinssuite.github.io",
+      "",
+      "# delete-user dev2",
+      "# delete-view simple-view2",
+      "# delete-job  job/dev-web",
+      ""
+    ],
+    "description": "Create Jenkins Batch Script",
+    "language": "jenkins",
+    "type": "system"
+  },
   "DEMO_JOB_PIPELINE": {
     "prefix": "demo_job_pipeline",
     "body": [
@@ -647,6 +658,20 @@
     ],
     "description": "Create a Pipeline Job",
     "language": "jenkins",
+    "type": "system"
+  },
+  "CREATE_SHORTCUT": {
+    "prefix": "CREATE_SHORTCUT",
+    "body": [
+      "<?xml version='1.1' encoding='UTF-8'?>",
+      "<com.legrig.jenkins.shortcut.ShortcutJob plugin=\"shortcut-job@0.4\">",
+      "  <actions/>",
+      "  <targetUrl>__URL__</targetUrl>",
+      "  <enabled>true</enabled>",
+      "</com.legrig.jenkins.shortcut.ShortcutJob>"
+    ],
+    "description": "create_shortcut",
+    "hidden": true,
     "type": "system"
   },
   "C_SETTING_JENKINSRC": {

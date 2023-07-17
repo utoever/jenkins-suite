@@ -1,4 +1,5 @@
-import { ProgressLocation, Uri, env, version, window } from 'vscode';
+import { ProgressLocation, Uri, commands, env, version, window } from 'vscode';
+import { Constants } from '../svc/constants';
 import { printEditor } from '../utils/editor';
 
 export function showInfoMessageWithTimeout(message: string, timeout: number = 3000) {
@@ -62,4 +63,10 @@ export async function notifyUIUserMessage(message: string = 'Processing', showEd
     } catch (error: any) {
         // ignore
     }
+}
+
+export async function refreshView(cmd: string, timeout: number = Constants.JENKINS_DEFAULT_GROOVY_DELAY) {
+    setTimeout(async () => {
+        commands.executeCommand(cmd);
+    }, timeout);
 }

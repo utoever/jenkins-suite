@@ -10,17 +10,28 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
         if (document.languageId === 'jenkins') {
             const text = document.getText();
 
-            if (text && text.startsWith('pipeline {')) {
+            if (text) {
                 const position = new vscode.Position(0, 0);
                 const range = new vscode.Range(position, position);
-                const command = {
-                    title: '▶ Validate Jenkinsfile',
-                    command: 'utocode.validateJenkins',
-                    arguments: []
-                };
+                if (text.startsWith('pipeline {')) {
+                    const command = {
+                        title: '▶ Validate Jenkinsfile',
+                        command: 'utocode.validateJenkins',
+                        arguments: []
+                    };
 
-                const codeLens = new vscode.CodeLens(range, command);
-                return [codeLens];
+                    const codeLens = new vscode.CodeLens(range, command);
+                    return [codeLens];
+                } else if (text.startsWith('#!jenkins') || text.startsWith('#! jenkins')) {
+                    const command = {
+                        title: '⚡️ Execute Script',
+                        command: 'utocode.executeQuick',
+                        arguments: []
+                    };
+
+                    const codeLens = new vscode.CodeLens(range, command);
+                    return [codeLens];
+                }
             }
         }
 

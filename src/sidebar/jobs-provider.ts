@@ -1,14 +1,14 @@
-import { log } from 'console';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
 import { Constants } from '../svc/constants';
+import { JenkinsBatch } from '../svc/jenkins-batch';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
 import { getFolderAsModel, runJobAll } from '../ui/manage';
-import { notifyUIUserMessage, openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
+import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithTimeout } from '../ui/ui';
 import { clearEditor, getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { getParameterDefinition, makeJobTreeItems } from '../utils/model-utils';
@@ -71,7 +71,17 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     logger.debug(`language <${languageIds}>`);
 
                     if (languageIds === 'jenkins') {
-                        await vscode.commands.executeCommand('utocode.validateJenkins');
+                        const text = getSelectionText();
+                        if (text.startsWith('#!jenkins')) {
+                            const jenkinsBatch = new JenkinsBatch(this._executor!);
+                            await notifyUIUserMessage('Processing', false);
+                            const results = await jenkinsBatch.execute(text);
+                            printEditor(results, true);
+                            await refreshView('utocode.views.refresh');
+                            refreshView('utocode.jobs.refresh', 100);
+                        } else {
+                            await vscode.commands.executeCommand('utocode.validateJenkins');
+                        }
                     } else if (languageIds === 'groovy') {
                         await vscode.commands.executeCommand('utocode.executeScript');
                     } else if (languageIds === 'xml') {
@@ -88,7 +98,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 const mesg = await this.executor?.createFolder(this.view.name);
                 setTimeout(() => {
                     this.refresh();
-                }, 1500);
+                }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
             }),
             vscode.commands.registerCommand('utocode.updateConfigJob', async () => {
                 this.createJob(false);
@@ -113,7 +123,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.generateJobCode', async () => {
                 const items: vscode.QuickPickItem[] = [
-                    { label: 'Pipeline_GIT', description: 'Generate Pipeline Job From Git' },
+                    { label: 'Pipeline_SCM', description: 'Generate Pipeline Job From SCM' },
                     { label: 'Pipeline', description: 'Generate Pipeline Job' },
                     { label: 'FreeStyle', description: 'Generate FreeStyle Job' },
                 ];
@@ -130,7 +140,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
                     setTimeout(() => {
                         showInfoMessageWithTimeout(vscode.l10n.t('If you want to modify the xml data and apply it to the server, run "Create Job" or "Update Config Job"'), 10000);
-                    }, 1000);
+                    }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
                 }
             }),
             vscode.commands.registerCommand('utocode.generateJobCodePick', async () => {
@@ -140,7 +150,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 Object.keys(snippets).forEach((key: string) => {
                     const snippet = snippets[key];
                     items.push({
-                        label: (snippet.type === Constants.SNIPPET_TYPE_SYSTEM ? Constants.SNIPPET_PREFIX_JENKINS : Constants.SNIPPET_PREFIX_USER) + key,
+                        label: (snippet.type === Constants.SNIPPET_TYPE_SYSTEM ? '$(lightbulb) ' + Constants.SNIPPET_PREFIX_JENKINS : '$(edit) ' + Constants.SNIPPET_PREFIX_USER) + key,
                         description: snippet.description,
                         model: snippet
                     });
@@ -193,7 +203,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
             }),
             vscode.commands.registerCommand('utocode.deleteJob', async (job: JobsModel) => {
-                let mesg = await this.executor?.deleteJob(job);
+                let mesg = await this.executor?.deleteJob(job.url);
                 // console.log(`deleteJob <${mesg}>`);
                 if (mesg && !mesg.startsWith("Request failed")) {
                     mesg = `Success to delete job <${job.name}>`;
@@ -202,7 +212,13 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     notifyMessageWithTimeout(mesg);
                     this.buildsProvider.jobs = undefined;
                     this.refresh();
-                }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
+                }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
+            }),
+            vscode.commands.registerCommand('utocode.copyUri', async (job: JobsModel) => {
+                const uri = this.executor?.extractUrl(job.url);
+                if (uri) {
+                    vscode.env.clipboard.writeText(uri.substring(1));
+                }
             }),
             vscode.commands.registerCommand('utocode.copyJob', async (job: JobsModel) => {
                 const name = await vscode.window.showInputBox({
@@ -286,7 +302,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.viewJobConsole', async (message: WsTalkMessage) => {
                 const text = await this.executor?.getJobLog(message.url, message.number);
-                console.log(`text <${text}>`);
                 printEditorWithNew(text, 'shellscript');
             }),
             vscode.commands.registerCommand('utocode.openLinkNotifyJob', async (message: WsTalkMessage) => {
@@ -389,7 +404,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         if (flag) {
             const viewName = this.view?.name ?? 'all';
             notifyUIUserMessage();
-            const mesg = await this.executor?.createJob(text, viewName);
+            const mesg = await this.executor?.createJobInput(text, viewName);
             console.log(`result <${mesg}>`);
             clearEditor();
         } else {
@@ -404,13 +419,10 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             console.log(`result <${mesg}>`);
             setTimeout(() => {
                 vscode.commands.executeCommand('utocode.getConfigJob', jobs, true);
-            }, 1500);
+            }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
         }
 
-        setTimeout(() => {
-            vscode.commands.executeCommand('utocode.jobs.refresh');
-            // this.refresh();
-        }, 800);
+        refreshView('utocode.jobs.refresh');
     }
 
     async getTreeItem(jobsModel: JobsModel): Promise<vscode.TreeItem> {

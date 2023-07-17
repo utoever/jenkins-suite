@@ -1,5 +1,10 @@
 # Change Log
 
+### [0.3.1] - 2023-07-17
+
+- Add Jenkins Batch
+- A few bug fixes
+
 ### [0.3.0] - 2023-07-16
 
 - Get User / Delete User

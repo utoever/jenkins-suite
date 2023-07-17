@@ -146,7 +146,10 @@ export function makeToolTipJob(jobModel: JobsModel) {
 export function makeToolTipShortcut(xmlData: ShortcutJob) {
     const text = new vscode.MarkdownString();
     text.appendMarkdown(`### URL: \n`);
-    text.appendMarkdown(`${xmlData['com.legrig.jenkins.shortcut.ShortcutJob'].targetUrl._text}\n`);
+    const url = xmlData['com.legrig.jenkins.shortcut.ShortcutJob'].targetUrl;
+    if (url) {
+        text.appendMarkdown(`${url._text ?? ''}\n`);
+    }
     return text;
 }
 

@@ -144,6 +144,28 @@ For more information, please visit the following site.
 }
 ```
 
+## Jenkins Batch Script
+
+* Change Language Mode [Jenkins]
+* The script file must start with __"#!jenkins"__
+
+```sh
+#!jenkins
+
+create-user     dev1 dev1234               # create user (account: dev1, password: dev1234)
+create-user     dev2 dev1234               # create user (account: dev2, password: dev1234)
+create-views    simple-view1 simple-view2  # create simple-view1, simple-view2 with Regex [a-zA-z].*
+create-view     custom-view1 .*-link       # create View with regex ".*-link"
+create-folder   my-folder                  # create folder
+
+create-pipeline dev-web
+create-shortcut home-link  https://jenkinssuite.github.io
+
+# delete-user dev2
+# delete-view simple-view2
+# delete-job  job/dev-web
+```
+
 ## Issues
 
 Please let me know of any bugs via the issues page

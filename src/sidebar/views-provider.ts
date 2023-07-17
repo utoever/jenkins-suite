@@ -1,9 +1,10 @@
 import path from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
+import { Constants } from '../svc/constants';
 import { ViewType } from '../types/jenkins-types';
 import { JenkinsInfo, ModelQuickPick, ViewsModel } from '../types/model';
-import { notifyUIUserMessage, openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
+import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { extractViewnameFromText } from '../utils/xml';
@@ -71,7 +72,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                 }
 
                 const newViewname = await vscode.window.showInputBox({
-                    title: 'Enter view name',
+                    title: 'View',
                     value: view.name
                 }).then((val) => {
                     return val;
@@ -91,6 +92,15 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
 
                 await this._executor.changePrimaryView(view.name);
                 this.changeView(view);
+            }),
+            vscode.commands.registerCommand('utocode.deleteView', async (view: ViewsModel) => {
+                if (!this._executor || !this._executor?.isConnected()) {
+                    vscode.window.showErrorMessage('Jenkins server is not connected');
+                    return;
+                }
+
+                await this._executor.deleteView(view.name);
+                refreshView('utocode.views.refresh');
             }),
             vscode.commands.registerCommand('utocode.withView', async () => {
                 if (!this._executor || !this._executor?.isConnected()) {
@@ -134,7 +144,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                 }
             }
             vscode.commands.executeCommand('utocode.getConfigView', this._view, true);
-        }, 2000);
+        }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
     }
 
     async renameView(viewname: string, newViewName: string) {
@@ -145,7 +155,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
                 this.jobsProvider.view.name = newViewName;
                 this.jobsProvider.refresh();
             }
-        }, 2000);
+        }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
     }
 
     async switchView() {

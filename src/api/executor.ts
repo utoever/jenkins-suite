@@ -76,20 +76,26 @@ export class Executor {
         return allViewModel;
     };
 
-    async createView(name: string) {
+    async createView(name: string, regex: string = '[a-zA-Z].*') {
         if (name) {
             const categorizedEnabled = JenkinsConfiguration.categorizedEnabled;
             let createView = categorizedEnabled ? JenkinsConfiguration.createSnippetView : Constants.SNIPPET_DEFAULT_LISTVIEW;
             const snippetItem = await invokeSnippet(this.context, createView.toUpperCase());
             let data: string | undefined;
             if (snippetItem && snippetItem.body) {
-                data = snippetItem.body.join('\n').replace('__NAME__', name);
+                data = snippetItem.body.join('\n').replace('__NAME__', name)
+                    .replace('__REGEX__', regex);
             }
             console.log(`createView:: name <${name}> data <${data}>`);
 
-            return await this._jenkins._create<string>(
+            const result = await this._jenkins._create<string>(
                 `createView?name=${name}`, data
             );
+            if (result === '') {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return 'Cancelled creating view';
         }
@@ -106,9 +112,21 @@ export class Executor {
     async renameView(name: string, newViewName: string): Promise<string> {
         console.log(`renameView:: name <${name}>`);
 
-        const data = `def jenkins = Jenkins.getInstanceOrNull(); def view = jenkins.getView('${name}');view.rename('${newViewName}')`;
+        const data = `def jenkins = Jenkins.getInstanceOrNull();def view = jenkins.getView('${name}');view.rename('${newViewName}')`;
         const result = await this.executeScript(data);
         return result;
+    }
+
+    async deleteView(name: string): Promise<boolean | undefined> {
+        console.log(`deleteView:: name <${name}>`);
+
+        const data = `def jenkins = Jenkins.getInstanceOrNull();def view = jenkins.getView('${name}');jenkins.deleteView(view)`;
+        const result = await this.executeScript(data);
+        if (result === '') {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     async changePrimaryView(name: string) {
@@ -119,7 +137,11 @@ export class Executor {
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace(/__NEW_VIEWNAME__/g, name);
             const result = await this.executeScript(data);
-            return result;
+            if (result && result.startsWith('Result:')) {
+                return result.split('Result: ').pop();
+            } else {
+                return false;
+            }
         } else {
             return undefined;
         }
@@ -134,8 +156,8 @@ export class Executor {
                 .replace('__PASSWORD__', password);
             console.log(`createUser:: username <${username}> role <${role}>`);
             const result = data && await this.executeScript(data);
-            if (result && result.startsWith('Result:')) {
-                return result.split('Result: ').pop();
+            if (result === '') {
+                return true;
             } else {
                 return false;
             }
@@ -152,7 +174,8 @@ export class Executor {
             console.log(`deleteUser:: username <${username}>`);
             const result = data && await this.executeScript(data);
             if (result && result.startsWith('Result:')) {
-                return result.split('Result: ').pop();
+                const result1 = result.split('Result: ').pop();
+                return result1 ? result1.trim() === 'true' : false;
             } else {
                 return false;
             }
@@ -193,7 +216,7 @@ export class Executor {
     }
 
     async getSystemMessage(): Promise<string> {
-        const data = 'def jenkins = Jenkins.getInstanceOrNull(); jenkins.getSystemMessage()';
+        const data = 'def jenkins = Jenkins.getInstanceOrNull();jenkins.getSystemMessage()';
         const result = await this.executeScript(data);
         let message = '';
         if (result && result.startsWith('Result')) {
@@ -204,19 +227,19 @@ export class Executor {
 
     async setSystemMessage(message: string): Promise<string> {
         // const text = encodeURIComponent(message);
-        const data = `def jenkins = Jenkins.getInstanceOrNull(); jenkins.getSystemMessage(); jenkins.setSystemMessage("${message}"); jenkins.save()`;
+        const data = `def jenkins = Jenkins.getInstanceOrNull();jenkins.getSystemMessage();jenkins.setSystemMessage("${message}"); jenkins.save()`;
         const result = await this.executeScript(data);
         return result;
     }
 
     async getExecutor() {
-        const data = 'def jenkins = Jenkins.getInstanceOrNull(); jenkins.getNumExecutors()';
+        const data = 'def jenkins = Jenkins.getInstanceOrNull();jenkins.getNumExecutors()';
         const result = await this.executeScript(data);
         return result ? result.split(':').pop()?.trim() : result;
     }
 
     async changeExecutor(numExecutors: string) {
-        const data = `def jenkins = Jenkins.getInstanceOrNull(); jenkins.setNumExecutors(${numExecutors}); jenkins.save(); jenkins.getNumExecutors()`;
+        const data = `def jenkins = Jenkins.getInstanceOrNull();jenkins.setNumExecutors(${numExecutors}); jenkins.save(); jenkins.getNumExecutors()`;
         const result = await this.executeScript(data);
         return result ? result.split(':').pop()!.trim() : result;
     }
@@ -391,38 +414,93 @@ export class Executor {
         );
     }
 
-    async createJob(data: any, viewName: string = 'all') {
-        const name = await vscode.window.showInputBox({ prompt: 'Enter job name' }).then((val) => {
+    async createJobInput(data: any, viewName: string = 'all') {
+        const name = await vscode.window.showInputBox({
+            title: 'Job',
+            prompt: 'Enter job name'
+        }).then((val) => {
             return val;
         });
         if (name) {
-            console.log(`createJob:: name <${name}>`);
+            return await this.createJob(data, name, viewName);
+        } else {
+            return 'Cancelled creating job';
+        }
+    }
+
+    async createJob(data: any, jobName: string, viewName: string = 'all') {
+        if (jobName) {
+            console.log(`createJob:: name <${jobName}>`);
             return await this._jenkins._create<string>(
-                `view/${viewName}/createItem?name=${name}`, data
+                `view/${viewName}/createItem?name=${jobName}`, data
             );
         } else {
             return 'Cancelled creating job';
         }
     }
 
-    async createFolder(viewName: string = 'all') {
-        const name = await vscode.window.showInputBox({ title: 'Enter folder name' }).then((val) => {
-            return val;
-        });
-        if (name) {
+    async createPipelineJob(jobName: string, viewName: string = 'all') {
+        const snippetItem = await invokeSnippet(this.context, Constants.SNIPPET_CREATE_PIPELINE_SCM.toUpperCase());
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace(/__APP_NAME__/g, jobName);
+        }
+        console.log(`createPipelineJob:: name <${jobName}> data <${data}>`);
+
+        if (data) {
+            console.log(`createPipelineJob:: name <${jobName}>`);
+            const result = await this._jenkins._create<string>(
+                `view/${viewName}/createItem?name=${jobName}`, data
+            );
+            return result === '' ? true : false;
+        } else {
+            return 'Cancelled creating job';
+        }
+    }
+
+    async createFolder(folderName: string | undefined, viewName: string = 'all') {
+        if (!folderName) {
+            folderName = await vscode.window.showInputBox({
+                title: 'Folder name',
+                prompt: 'Enter to create Folder name'
+            }).then((val) => {
+                return val;
+            });
+        }
+        if (folderName) {
             let createFolder = JenkinsConfiguration.createSnippetFolder;
             const snippetItem = await invokeSnippet(this.context, createFolder.toUpperCase());
             let data: string | undefined;
             if (snippetItem && snippetItem.body) {
-                data = snippetItem.body.join('\n').replace('__NAME__', name);
+                data = snippetItem.body.join('\n').replace('__NAME__', folderName);
             }
-            console.log(`createFolder:: name <${name}> data <${data}>`);
+            console.log(`createFolder:: name <${folderName}> data <${data}>`);
 
-            return await this._jenkins._create<string>(
-                `createItem?name=${name}&mode=${JobModelType.folder.toString()}`, data
+            const result = await this._jenkins._create<string>(
+                `createItem?name=${folderName}&mode=${JobModelType.folder.toString()}`, data
             );
+            return result === '' ? true : false;
         } else {
             return 'Cancelled creating view';
+        }
+    }
+
+    async createShortcut(shortcutName: string, url: string, viewName: string = 'all') {
+        const snippetItem = await invokeSnippet(this.context, Constants.SNIPPET_CREATE_SHORTCUT.toUpperCase());
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__URL__', url);
+        }
+        console.log(`createShortcut:: name <${shortcutName}> data <${data}>`);
+
+        if (data) {
+            console.log(`createShortcut:: name <${shortcutName}>`);
+            const result = await this._jenkins._create<string>(
+                `view/${viewName}/createItem?name=${shortcutName}`, data
+            );
+            return result;
+        } else {
+            return 'Cancelled creating job';
         }
     }
 
@@ -433,8 +511,14 @@ export class Executor {
         );
     }
 
-    async deleteJob(job: JobsModel): Promise<string> {
-        const uri = this.extractUrl(job.url);
+    async deleteJob(url: string): Promise<string> {
+        const uri = this.extractUrl(url);
+        return await this._jenkins._post<string>(
+            `${uri}/doDelete`
+        );
+    }
+
+    async deleteJobWithUri(uri: string): Promise<string> {
         return await this._jenkins._post<string>(
             `${uri}/doDelete`
         );

@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -17,8 +17,10 @@
   "categories": [
     "Debuggers",
     "Extension Packs",
+    "Formatters",
     "Linters",
     "Programming Languages",
+    "Snippets",
     "Visualization",
     "Other"
   ],
@@ -28,6 +30,7 @@
     "shortcut",
     "jenkins dashboard",
     "vscode",
+    "save time",
     "pipeline",
     "pipeline validation",
     "devops",
@@ -276,6 +279,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.deleteView",
+        "title": "%deleteView.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.updateConfigView",
         "title": "%updateConfigView.title%",
         "category": "jenkinssuite"
@@ -303,6 +311,11 @@
       {
         "command": "utocode.deleteJob",
         "title": "%deleteJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.copyUri",
+        "title": "%copyUri.title%",
         "category": "jenkinssuite"
       },
       {
@@ -655,18 +668,33 @@
         "command": "utocode.welcome",
         "title": "%welcome.title%",
         "category": "jenkinssuite"
-      },
-      {
-        "command": "utocode.helloWorld",
-        "title": "Hello World",
-        "category": "jenkinssuite"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "utocode.helloWorld",
-          "when": "true"
+          "command": "utocode.configView",
+          "when": "false"
+        },
+        {
+          "command": "utocode.deleteView",
+          "when": "false"
+        },
+        {
+          "command": "utocode.showJobs",
+          "when": "false"
+        },
+        {
+          "command": "utocode.utocode.openLink#Home",
+          "when": "false"
+        },
+        {
+          "command": "utocode.utocode.openLink#sqube",
+          "when": "false"
+        },
+        {
+          "command": "utocode.utocode.openLink#sparrow",
+          "when": "false"
         }
       ],
       "view/item/context": [
@@ -796,6 +824,11 @@
           "group": "1_jenkinssuite_actions@50"
         },
         {
+          "when": "view == 'utocode.views.views' && viewItem =~ /^.*_enabled.*/",
+          "command": "utocode.deleteView",
+          "group": "1_jenkinssuite_actions@90"
+        },
+        {
           "when": "view == 'utocode.views.views'",
           "command": "utocode.openLinkView",
           "group": "inline"
@@ -859,6 +892,11 @@
           "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
           "command": "utocode.deleteJob",
           "group": "2_configure@70"
+        },
+        {
+          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "command": "utocode.copyUri",
+          "group": "2_configure@80"
         },
         {
           "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*_disabled.*/",
@@ -1280,11 +1318,6 @@
         "command": "utocode.withJob",
         "key": "ctrl+k f4",
         "mac": "cmd+k f4"
-      },
-      {
-        "command": "utocode.executeQuick",
-        "key": "ctrl+alt+enter",
-        "mac": "cmd+option+enter"
       },
       {
         "command": "utocode.switchConnection",
