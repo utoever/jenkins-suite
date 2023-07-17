@@ -226,8 +226,9 @@ export class Executor {
     }
 
     async setSystemMessage(message: string): Promise<string> {
-        // const text = encodeURIComponent(message);
-        const data = `def jenkins = Jenkins.getInstanceOrNull();jenkins.getSystemMessage();jenkins.setSystemMessage("${message}"); jenkins.save()`;
+        const data = `def jenkins = Jenkins.getInstanceOrNull();jenkins.getSystemMessage();
+        def text = new String('${message}'.getBytes('iso-8859-1'),'utf-8');
+        jenkins.setSystemMessage(text);jenkins.save()`;
         const result = await this.executeScript(data);
         return result;
     }
@@ -239,7 +240,7 @@ export class Executor {
     }
 
     async changeExecutor(numExecutors: string) {
-        const data = `def jenkins = Jenkins.getInstanceOrNull();jenkins.setNumExecutors(${numExecutors}); jenkins.save(); jenkins.getNumExecutors()`;
+        const data = `def jenkins = Jenkins.getInstanceOrNull();jenkins.setNumExecutors(${numExecutors});jenkins.save(); jenkins.getNumExecutors()`;
         const result = await this.executeScript(data);
         return result ? result.split(':').pop()!.trim() : result;
     }
@@ -394,10 +395,11 @@ export class Executor {
     }
 
     async executeScript(text: string): Promise<string> {
-        const result = await this._jenkins._postFormEncoded<string>(
-            'scriptText', {
+        logger.debug(text);
+        const body = {
             script: text
-        });
+        };
+        const result = await this._jenkins._postFormEncoded<string>('scriptText', body);
         return result ? result.trim() : result;
     }
 

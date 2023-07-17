@@ -210,6 +210,12 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                     this.refresh();
                 }
             }),
+            vscode.commands.registerCommand('utocode.openLink#user', async (user: JenkinsUser) => {
+                if (user) {
+                    const uri = `${this._currentServer?.url}/user/${user.name}/configure`;
+                    openLinkBrowser(uri);
+                }
+            }),
             vscode.commands.registerCommand('utocode.connectSSH', (server: JenkinsServer) => {
                 if (server.ssh && server.ssh.enabled) {
                     const terminal = vscode.window.createTerminal(server.name + ' terminal');
