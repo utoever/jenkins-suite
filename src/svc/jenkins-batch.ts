@@ -130,6 +130,22 @@ export class JenkinsBatch {
         return results;
     }
 
+    async renameJob(uri: string, newName: string) {
+        const results = [];
+        logger.info(`Rename Job: ${uri}`);
+        const result = await this.executor.renameJob(uri, newName);
+        results.push(`job <${uri}>: ${result ? 'Success' : 'Failed'}`);
+        return results;
+    }
+
+    async moveJob(uri: string, newName: string) {
+        const results = [];
+        logger.info(`Move Job: ${uri}`);
+        const result = await this.executor.moveJob(uri, newName);
+        results.push(`job <${uri}>: ${result ? 'Success' : 'Failed'}`);
+        return results;
+    }
+
     async deleteFolder(...folders: string[]) {
         const results = [];
         for (const folder of folders) {

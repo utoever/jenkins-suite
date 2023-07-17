@@ -1,6 +1,7 @@
 import FormData from 'form-data';
 import { decode } from 'html-entities';
 import { initial } from 'lodash';
+import path from 'path';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { Constants } from '../svc/constants';
@@ -287,7 +288,7 @@ export class Executor {
         const result = await this._jenkins._post<string>(
             `checkJobName?value=${name}`
         );
-        // console.log(result);
+        console.log(result);
         if (result === '<div/>') {
             return true;
         } else {
@@ -500,9 +501,9 @@ export class Executor {
             const result = await this._jenkins._create<string>(
                 `view/${viewName}/createItem?name=${shortcutName}`, data
             );
-            return result;
+            return result === '' ? true : false;
         } else {
-            return 'Cancelled creating job';
+            return false;
         }
     }
 
@@ -515,18 +516,20 @@ export class Executor {
 
     async deleteJob(url: string): Promise<string> {
         const uri = this.extractUrl(url);
-        return await this._jenkins._post<string>(
+        const result = await this._jenkins._post<string>(
             `${uri}/doDelete`
         );
+        return result;
     }
 
     async deleteJobWithUri(uri: string): Promise<string> {
-        return await this._jenkins._post<string>(
+        const result = await this._jenkins._post<string>(
             `${uri}/doDelete`
         );
+        return result;
     }
 
-    async copyJob(job: JobsModel, name: string): Promise<string> {
+    async copyJob(job: JobsModel, name: string): Promise<boolean> {
         const existed = await this.checkJobName(name);
         if (!existed) {
             throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
@@ -534,35 +537,49 @@ export class Executor {
 
         // const uri = this.extractUrl(job.url);
         const mode = 'copy';
-        return await this._jenkins._post<string>(
+        const result = await this._jenkins._post<string>(
             `createItem?name=${name}&mode=${mode}&from=${job.name}`
         );
+        return result ? true : false;
     }
 
-    async moveJob(job: JobsModel, newJob: JobsModel): Promise<string> {
-        const name = this.extractUrl(newJob.url);
-        const existed = await this.checkJobName(name);
-        if (!existed) {
-            throw new Error(vscode.l10n.t('Job <{0}> is exist', job.name));
-        }
+    async moveJobUrl(jobUrl: string, newJobName: string): Promise<boolean> {
+        const uri = this.extractUrl(jobUrl);
+        return this.moveJob(uri, newJobName);
+    }
 
-        const uri = this.extractUrl(job.url);
-        return await this._jenkins._post<string>(
-            `${uri}/move/move?destination=/${newJob.name}`
+    async moveJob(uri: string, newJobName: string): Promise<boolean> {
+        // let destName = path.join(path.dirname(uri), newJobName, `job/${path.basename(uri)}`);
+        // destName = destName.replace(/\\/g, '/');
+        // if (destName.charAt(0) === '/') {
+        //     destName = destName.substring(1);
+        // }
+        // const existed = await this.checkJobName(destName);
+        // if (!existed) {
+        //     throw new Error(vscode.l10n.t('Job <{0}> is exist', destName));
+        // }
+
+        const result = await this._jenkins._post<string>(
+            `${uri}/move/move?destination=/${newJobName}`
         );
+        return result.includes('status code') ? false : true;
     }
 
-    async renameJob(job: JobsModel, newName: string): Promise<string> {
-        const name = this.extractUrl(newName);
-        const existed = await this.checkJobName(name);
+    async renameJobUrl(jobUrl: string, newName: string): Promise<boolean> {
+        const uri = this.extractUrl(jobUrl);
+        return this.renameJob(uri, newName);
+    }
+
+    async renameJob(uri: string, newName: string): Promise<boolean> {
+        const existed = await this.checkJobName(newName);
         if (!existed) {
-            throw new Error(vscode.l10n.t('Job <{0}> is exist', name));
+            throw new Error(vscode.l10n.t('Job <{0}> is exist', newName));
         }
 
-        const uri = this.extractUrl(job.url);
-        return await this._jenkins._post<string>(
+        const result = await this._jenkins._post<string>(
             `${uri}/doRename?newName=${newName}`
         );
+        return result.includes('status code') ? false : true;
     }
 
     async enabledJob(job: JobsModel, flag: boolean = true): Promise<string> {

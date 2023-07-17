@@ -95,7 +95,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 this.createJob();
             }),
             vscode.commands.registerCommand('utocode.createFolder', async () => {
-                const mesg = await this.executor?.createFolder(this.view.name);
+                const mesg = await this.executor?.createFolder(undefined, this.view.name);
                 setTimeout(() => {
                     this.refresh();
                 }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
@@ -258,7 +258,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
                 try {
                     if (newJob) {
-                        const mesg = await this.executor?.moveJob(job, newJob);
+                        const mesg = await this.executor?.moveJobUrl(job.url, newJob.name);
                         this.refresh();
                     }
                 } catch (error: any) {
@@ -276,7 +276,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
 
                 try {
-                    const mesg = await this.executor?.renameJob(job, name);
+                    const mesg = await this.executor?.renameJobUrl(job.url, name);
                 } catch (error: any) {
                     showInfoMessageWithTimeout(error.message);
                     console.log(error.message);
