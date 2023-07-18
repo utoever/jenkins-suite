@@ -4,6 +4,7 @@ import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
 import { Constants } from '../svc/constants';
 import { JenkinsBatch } from '../svc/jenkins-batch';
+import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
@@ -12,7 +13,7 @@ import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithT
 import { clearEditor, getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { getParameterDefinition, makeJobTreeItems } from '../utils/model-utils';
-import { inferFileExtension, invokeSnippet, invokeSnippetAll } from '../utils/util';
+import { inferFileExtension } from '../utils/util';
 import { notifyMessageWithTimeout, showErrorMessage } from '../utils/vsc';
 import { FlowDefinition, parseXml } from '../utils/xml';
 import { BuildsProvider } from './builds-provider';
@@ -24,12 +25,15 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
     private _executor: Executor | undefined;
 
+    private snippetSvc: SnippetSvc;
+
     private _onDidChangeTreeData: vscode.EventEmitter<JobsModel | undefined> = new vscode.EventEmitter<JobsModel | undefined>();
 
     readonly onDidChangeTreeData: vscode.Event<JobsModel | JobsModel[] | undefined> = this._onDidChangeTreeData.event;
 
     constructor(protected context: vscode.ExtensionContext, private readonly buildsProvider: BuildsProvider, private readonly reservationProvider: ReservationProvider) {
         this.registerContext();
+        this.snippetSvc = new SnippetSvc(this.context);
     }
 
     registerContext() {
@@ -135,7 +139,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 });
 
                 if (result) {
-                    const snippetItem = await invokeSnippet(this.context, `c_job_${result.label}`.toUpperCase());
+                    const snippetItem = await this.snippetSvc.invokeSnippet(`c_job_${result.label}`.toUpperCase());
                     printEditorWithNew(snippetItem.body.join('\n'));
 
                     setTimeout(() => {
@@ -144,7 +148,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
             }),
             vscode.commands.registerCommand('utocode.generateJobCodePick', async () => {
-                const snippets = await invokeSnippetAll(this.context, true);
+                const snippets = await this.snippetSvc.invokeSnippetAll(true);
                 const items: ModelQuickPick<SnippetItem>[] = [];
 
                 Object.keys(snippets).forEach((key: string) => {

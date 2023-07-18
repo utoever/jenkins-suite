@@ -5,22 +5,25 @@ import path from 'path';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { Constants } from '../svc/constants';
+import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JenkinsUsers, JobModelType, JobProperty, JobsModel } from "../types/model";
 import { mapToUrlParams } from '../utils/html';
 import logger from '../utils/logger';
 import { getParameterDefinition } from '../utils/model-utils';
-import { invokeSnippet, invokeSnippetJenkins } from '../utils/util';
 import { Jenkins } from "./jenkins";
 
 export class Executor {
 
-    [key: string]: Function | Jenkins | JenkinsServer | vscode.ExtensionContext;
+    [key: string]: Function | Jenkins | JenkinsServer | vscode.ExtensionContext | SnippetSvc;
 
     private _jenkins: Jenkins;
 
+    private snippetSvc: SnippetSvc;
+
     constructor(private readonly context: vscode.ExtensionContext, private readonly server: JenkinsServer) {
         this._jenkins = new Jenkins(server);
+        this.snippetSvc = new SnippetSvc(context);
     }
 
     public async initialized() {
@@ -81,7 +84,7 @@ export class Executor {
         if (name) {
             const categorizedEnabled = JenkinsConfiguration.categorizedEnabled;
             let createView = categorizedEnabled ? JenkinsConfiguration.createSnippetView : Constants.SNIPPET_DEFAULT_LISTVIEW;
-            const snippetItem = await invokeSnippet(this.context, createView.toUpperCase());
+            const snippetItem = await this.snippetSvc.invokeSnippet(createView.toUpperCase());
             let data: string | undefined;
             if (snippetItem && snippetItem.body) {
                 data = snippetItem.body.join('\n').replace('__NAME__', name)
@@ -133,7 +136,7 @@ export class Executor {
     async changePrimaryView(name: string) {
         console.log(`changePrimaryView:: name <${name}>`);
 
-        const snippetItem = await invokeSnippetJenkins(this.context, 'grv_changePrimaryView');
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('grv_changePrimaryView');
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace(/__NEW_VIEWNAME__/g, name);
@@ -149,7 +152,7 @@ export class Executor {
     }
 
     async createUser(username: string, password: string, role: string = 'USER') {
-        const snippetItem = await invokeSnippetJenkins(this.context, 'create_user');
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('create_user');
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__ROLE__', role)
@@ -168,7 +171,7 @@ export class Executor {
     }
 
     async deleteUser(username: string) {
-        const snippetItem = await invokeSnippetJenkins(this.context, 'delete_user');
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('delete_user');
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__USERNAME__', username);
@@ -186,7 +189,7 @@ export class Executor {
     }
 
     async getUsers(): Promise<JenkinsUsers | undefined> {
-        const snippetItem = await invokeSnippetJenkins(this.context, 'get_users');
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('get_users');
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n');
@@ -204,7 +207,7 @@ export class Executor {
     }
 
     async createCredential(username: string, password: string, kind: string) {
-        const snippetItem = await invokeSnippetJenkins(this.context, 'createCredential');
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('createCredential');
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__KIND__', kind)
@@ -247,7 +250,7 @@ export class Executor {
     }
 
     async isAdmin(username: string) {
-        const snippetItem = await invokeSnippetJenkins(this.context, 'is_admin');
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('is_admin');
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__USERNAME__', username);
@@ -443,7 +446,7 @@ export class Executor {
     }
 
     async createPipelineJob(jobName: string, viewName: string = 'all') {
-        const snippetItem = await invokeSnippet(this.context, Constants.SNIPPET_CREATE_PIPELINE_SCM.toUpperCase());
+        const snippetItem = await this.snippetSvc.invokeSnippet(Constants.SNIPPET_CREATE_PIPELINE_SCM.toUpperCase());
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace(/__APP_NAME__/g, jobName);
@@ -472,7 +475,7 @@ export class Executor {
         }
         if (folderName) {
             let createFolder = JenkinsConfiguration.createSnippetFolder;
-            const snippetItem = await invokeSnippet(this.context, createFolder.toUpperCase());
+            const snippetItem = await this.snippetSvc.invokeSnippet(createFolder.toUpperCase());
             let data: string | undefined;
             if (snippetItem && snippetItem.body) {
                 data = snippetItem.body.join('\n').replace('__NAME__', folderName);
@@ -489,7 +492,7 @@ export class Executor {
     }
 
     async createShortcut(shortcutName: string, url: string, viewName: string = 'all') {
-        const snippetItem = await invokeSnippet(this.context, Constants.SNIPPET_CREATE_SHORTCUT.toUpperCase());
+        const snippetItem = await this.snippetSvc.invokeSnippet(Constants.SNIPPET_CREATE_SHORTCUT.toUpperCase());
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__URL__', url);

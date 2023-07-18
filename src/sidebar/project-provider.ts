@@ -3,11 +3,11 @@ import path from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
+import { SnippetSvc } from '../svc/snippet';
 import { BuildStatus, JobsModel, ProjectModel, ProjectModels } from '../types/model';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getConfigPath, readFileUriAsProject, writeFileSync } from '../utils/file';
 import logger from '../utils/logger';
-import { invokeSnippet } from '../utils/util';
 
 export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | JobsModel | BuildStatus> {
 
@@ -17,6 +17,8 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
 
     private _currentServer: JenkinsServer | undefined;
 
+    private snippetSvc: SnippetSvc;
+
     private readonly maxBuilds = 5;
 
     private _onDidChangeTreeData: vscode.EventEmitter<ProjectModel | JobsModel | BuildStatus | undefined> = new vscode.EventEmitter<ProjectModel | JobsModel | BuildStatus | undefined>();
@@ -25,6 +27,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
 
     constructor(protected context: vscode.ExtensionContext) {
         this.registerContext();
+        this.snippetSvc = new SnippetSvc(this.context);
     }
 
     async registerContext() {
@@ -59,7 +62,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
                 try {
                     await vscode.workspace.fs.stat(filePath);
                 } catch (error) {
-                    const snippetItem = await invokeSnippet(this.context, 'C_SETTING_JENKINSRC');
+                    const snippetItem = await this.snippetSvc.invokeSnippet('C_SETTING_JENKINSRC');
                     writeFileSync(filePath.fsPath, snippetItem.body.join('\n'));
                 }
                 const document = await vscode.workspace.openTextDocument(filePath);

@@ -603,7 +603,7 @@
       "create-shortcut home-link  https://jenkinssuite.github.io",
       "",
       "# delete-user dev2",
-      "# delete-view simple-view2",
+      "# delete-view demo-view2",
       "# delete-job  job/dev-web",
       ""
     ],

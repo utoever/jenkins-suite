@@ -64,7 +64,9 @@
       "explorer": [
         {
           "id": "jenkinsProject",
-          "name": "Jenkins Project"
+          "name": "Jenkins Project",
+          "visibility": "collapsed",
+          "when": "config.jenkinssuite.views.project.enabled"
         }
       ],
       "jenkins-explorer": [
@@ -1028,6 +1030,11 @@
           "type": "boolean",
           "default": true,
           "description": "%views.snippet.enabled.description%"
+        },
+        "jenkinssuite.views.project.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%views.project.enabled.description%"
         },
         "jenkinssuite.server.primary": {
           "type": "string",

@@ -1,8 +1,8 @@
 import { initial } from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { SnippetSvc } from '../svc/snippet';
 import logger from '../utils/logger';
-import { invokeSnippetAll } from '../utils/util';
 
 export default class JenkinsSnippet {
 
@@ -10,18 +10,16 @@ export default class JenkinsSnippet {
 
     private static _instance: JenkinsSnippet;
 
+    private snippetSvc: SnippetSvc;
+
     private _initialized: boolean = false;
 
     private constructor(protected context: vscode.ExtensionContext) {
-        const extensionPath = this.context.extensionPath;
-        // this.snippetFilePath = path.join(extensionPath, 'snippets', 'snippet.json');
-        this.initialize();
+        this.snippetSvc = new SnippetSvc(this.context);
     }
 
     async initialize() {
-        // this._snippets = await this.loadSnippet();
-        this._snippets = await invokeSnippetAll(this.context, true);
-        this._initialized = true;
+        this._snippets = await this.snippetSvc.invokeSnippetAll(true);
     }
 
     static getInstance(context: vscode.ExtensionContext) {

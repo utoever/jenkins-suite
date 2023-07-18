@@ -13,16 +13,20 @@ export class JenkinsBatch {
         const commands = text.split('\n');
         let ignoreErrors = false;
         const results: string[] = [];
-        for (let lineCmd of commands) {
-            if (lineCmd === '') {
-                continue;
-            } else if (lineCmd.startsWith('#!') && lineCmd.indexOf('ignoreErrors=true') > 0) {
-                ignoreErrors = true;
-            } else if (lineCmd.startsWith('#')) {
-                continue;
-            }
-
+        for (const lineCmdOrg of commands) {
             try {
+                let lineCmd = lineCmdOrg.trim();
+                if (!lineCmd || lineCmd === '' || lineCmd === '\n') {
+                    continue;
+                } else if (lineCmd.startsWith('#!jenkins')) {
+                    if (lineCmd.includes('ignoreErrors=true')) {
+                        ignoreErrors = true;
+                    }
+                    continue;
+                } else if (lineCmd.startsWith('#')) {
+                    continue;
+                }
+
                 let cmdString: string;
                 if (lineCmd.indexOf('#') > 0) {
                     cmdString = lineCmd.substring(0, lineCmd.indexOf('#'));
@@ -46,11 +50,11 @@ export class JenkinsBatch {
                     }
                     results.push('\n');
                 } else {
-                    logger.warn(`execute ${cmd} is not supported`);
+                    results.push(`Command ${cmd} is not supported`);
+                    logger.warn(`Command ${cmd} is not supported`);
                 }
             } catch (error: any) {
                 logger.error(error.message);
-                logger.info(error.message);
                 if (!ignoreErrors) {
                     break;
                 }
