@@ -1,4 +1,27 @@
 {
+  "CREATE_JENKINS_BATCH": {
+    "prefix": "create_jenkins_batch",
+    "body": [
+      "#!jenkins",
+      "",
+      "create-user     dev1 dev1234               # create user (account: dev1, password: dev1234)",
+      "create-user     dev2 dev1234               # create user",
+      "create-views    demo-view1 demo-view2      # create demo-view1, demo-view2 with Default Regex [a-zA-z].*",
+      "create-view     link-view1 .*-link         # create View with regex \".*-link\"",
+      "create-folder   my-folder                  # create folder",
+      "",
+      "create-pipeline dev-web ",
+      "create-shortcut home-link  https://jenkinssuite.github.io",
+      "",
+      "# delete-user dev2",
+      "# delete-view demo-view2",
+      "# delete-job  job/dev-web",
+      ""
+    ],
+    "description": "Create Jenkins Batch Script",
+    "language": "jenkins",
+    "type": "system"
+  },
   "C_DSL_VIEW_ALL": {
     "prefix": "c_dsl_view_all",
     "body": [
@@ -380,7 +403,7 @@
       "  <categorizationCriteria/>",
       "</org.jenkinsci.plugins.categorizedview.CategorizedJobsView>"
     ],
-    "description": "Create a Categorizedview View. [Required Plugin]",
+    "description": "Create a Categorizedview View [Required Plugin]",
     "when": "plugin.categorized.enabled",
     "type": "system"
   },
@@ -588,27 +611,21 @@
     "hidden": true,
     "type": "system"
   },
-  "CREATE_JENKINS_BATCH": {
-    "prefix": "create_jenkins_batch",
+  "CREATE_SAMPLE_GROOVY": {
+    "prefix": "create_sample_groovy",
     "body": [
-      "#!jenkins",
+      "// All the classes from all the plugins are visible. ",
+      "// jenkins.*, jenkins.model.*, hudson.*, and hudson.model.* are pre-imported",
       "",
-      "create-user     dev1 dev1234               # create user (account: dev1, password: dev1234)",
-      "create-user     dev2 dev1234               # create user",
-      "create-views    demo-view1 demo-view2      # create demo-view1, demo-view2 with Default Regex [a-zA-z].*",
-      "create-view     custom-view1 .*-link       # create View with regex \".*-link\"",
-      "create-folder   my-folder                  # create folder",
+      "import groovy.json.JsonOutput;",
+      "import java.time.LocalDateTime;",
       "",
-      "create-pipeline dev-web ",
-      "create-shortcut home-link  https://jenkinssuite.github.io",
-      "",
-      "# delete-user dev2",
-      "# delete-view demo-view2",
-      "# delete-job  job/dev-web",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "// println LocalDateTime.now()",
       ""
     ],
-    "description": "Create Jenkins Batch Script",
-    "language": "jenkins",
+    "description": "create Sample Groovy",
+    "language": "groovy",
     "type": "system"
   },
   "DEMO_JOB_PIPELINE": {
@@ -660,6 +677,13 @@
     "language": "jenkins",
     "type": "system"
   },
+  "C_SETTING_JENKINSRC": {
+    "prefix": "C_SETTING_JENKINSRC",
+    "body": ["{", "    \"Local\": {", "        \"applications\": [", "            \"job/demo1\"", "        ],", "        \"description\": \"Demo Project\"", "    }", "}"],
+    "description": "Create .jenkinsrc.json File",
+    "hidden": true,
+    "type": "system"
+  },
   "CREATE_SHORTCUT": {
     "prefix": "CREATE_SHORTCUT",
     "body": [
@@ -671,13 +695,6 @@
       "</com.legrig.jenkins.shortcut.ShortcutJob>"
     ],
     "description": "create_shortcut",
-    "hidden": true,
-    "type": "system"
-  },
-  "C_SETTING_JENKINSRC": {
-    "prefix": "C_SETTING_JENKINSRC",
-    "body": ["{", "    \"Local\": {", "        \"applications\": [", "            \"job/demo1\"", "        ],", "        \"description\": \"Demo Project\"", "    }", "}"],
-    "description": "Create .jenkinsrc.json File",
     "hidden": true,
     "type": "system"
   }

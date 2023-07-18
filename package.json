@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -844,7 +844,7 @@
           "group": "inline@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem != 'jobs_disabled'",
+          "when": "view == 'utocode.views.jobs' && (!(viewItem =~ /.*_disabled.*/))",
           "command": "utocode.buildJob",
           "group": "1_jenkinssuite_actions@10"
         },
@@ -1065,6 +1065,11 @@
           "type": "string",
           "default": "c_folder",
           "description": "%snippet.create-folder.description%"
+        },
+        "jenkinssuite.script.next-window.enabled": {
+          "type": "boolean",
+          "default": "false",
+          "description": "%script.next-window.enabled.description%"
         },
         "jenkinssuite.build.delay": {
           "type": "number",

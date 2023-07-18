@@ -84,7 +84,7 @@ export async function makeJobTreeItems(jobsModel: JobsModel, executor: Executor,
         treeItem = {
             label: jobsModel.name,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
-            contextValue: 'jobs_no',
+            contextValue: 'jobs_disabled',
             iconPath: new vscode.ThemeIcon('link'),
             tooltip: makeToolTipShortcut(xmlData)
         };
@@ -92,7 +92,7 @@ export async function makeJobTreeItems(jobsModel: JobsModel, executor: Executor,
         treeItem = {
             label: jobsModel.name,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
-            contextValue: 'jobs_no',
+            contextValue: 'jobs_disabled',
             iconPath: new vscode.ThemeIcon('live-share'),
             tooltip: jobsModel.jobDetail?.description ?? jobsModel.name
         };

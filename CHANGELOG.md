@@ -1,9 +1,14 @@
 # Change Log
 
+### [0.3.3] - 2023-07-18
+
+- A few bug fixes
+- Improve Snippet
+
 ### [0.3.2] - 2023-07-17
 
-- Add Jenkins Batch [moveJob, renameJob]
-- A few bug fixes [System Message]
+- Add Jenkins Batch: moveJob, renameJob
+- A few bug fixes: System Message
 
 ### [0.3.1] - 2023-07-17
 

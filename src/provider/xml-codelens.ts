@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { CodeLens, window } from 'vscode';
-import { JenkinsView, Project, isJenkinsPipeline, isJenkinsView, parseXml } from '../utils/xml';
+import { Project, isJenkinsPipeline, isJenkinsView, parseXml } from '../utils/xml';
 
 export class XmlCodeLensProvider implements vscode.CodeLensProvider {
 

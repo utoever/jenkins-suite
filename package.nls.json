@@ -117,6 +117,7 @@
   "snippet.custom-file.description": "Specify the location of the snippet file you want to use",
   "snippet.create-view.description": "Create view with snippet",
   "snippet.create-folder.description": "Create folder with snippet",
+  "script.next-window.enabled.description": "Specify the next windows of the snippet file you want to execute",
   "build.delay.description": "Set Build Delay Seconds. Default 3 seconds. Range 1 ~ 99",
   "limit.builds.description": "Choose the number you want to show on Builds View",
   "limit.history.description": "Choose the number you want to show on History View",

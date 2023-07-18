@@ -145,6 +145,15 @@ export default class JenkinsConfiguration {
             '';
     }
 
+    public static get scriptNextWindowEnabled(): boolean {
+        const key = 'script.next-window.enabled';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<boolean>(key)
+            ??
+            vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<boolean>(key)?.defaultValue
+            ??
+            true;
+    }
+
     public static get buildDelay(): number {
         const key = 'build.delay';
         return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<number>(key)

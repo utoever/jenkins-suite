@@ -4,6 +4,7 @@ import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
 import { Constants } from '../svc/constants';
 import { JenkinsBatch } from '../svc/jenkins-batch';
+import { executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
@@ -68,31 +69,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
             }),
             vscode.commands.registerCommand('utocode.executeQuick', async () => {
-                const activeEditor = vscode.window.activeTextEditor;
-                if (activeEditor) {
-                    const document = activeEditor.document;
-                    const languageIds = document.languageId;
-                    logger.debug(`language <${languageIds}>`);
-
-                    if (languageIds === 'jenkins') {
-                        const text = getSelectionText();
-                        if (text.startsWith('#!jenkins')) {
-                            const jenkinsBatch = new JenkinsBatch(this._executor!);
-                            await notifyUIUserMessage('Processing', false);
-                            const results = await jenkinsBatch.execute(text);
-                            printEditor(results, true);
-                            await refreshView('utocode.views.refresh');
-                            refreshView('utocode.jobs.refresh', 100);
-                        } else {
-                            await vscode.commands.executeCommand('utocode.validateJenkins');
-                        }
-                    } else if (languageIds === 'groovy') {
-                        await vscode.commands.executeCommand('utocode.executeScript');
-                    } else if (languageIds === 'xml') {
-                        await vscode.commands.executeCommand('utocode.withJob');
-                    } else {
-                        showInfoMessageWithTimeout(vscode.l10n.t('Language Mode {0}, {1} is supported. Try changing to a different mode', 'xml', 'jenkins'));
-                    }
+                if (this._executor) {
+                    executeQuick(this._executor);
                 }
             }),
             vscode.commands.registerCommand('utocode.createJob', async () => {
@@ -452,7 +430,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
     }
 
     async getChildren(element?: JobsModel): Promise<JobsModel[]> {
-        console.log(`jobs::children <${element?.fullName ?? element?.name}>`);
         if (!this._view || !this._executor) {
             return [];
         }

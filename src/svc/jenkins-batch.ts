@@ -1,3 +1,4 @@
+import { log } from "console";
 import _ from "lodash";
 import { Executor } from "../api/executor";
 import logger from "../utils/logger";
@@ -40,7 +41,7 @@ export class JenkinsBatch {
                 }
                 const cmd = _.camelCase(cmds[0]);
                 if (typeof this[cmd] === 'function') {
-                    logger.debug(`execute: ${cmd}`);
+                    log(`execute: ${cmd}`);
                     const result: string | string[] = await (this[cmd] as Function)(...cmds.slice(1));
                     results.push(`* ${cmds[0].toUpperCase()}\n`);
                     if (Array.isArray(result)) {
@@ -166,6 +167,46 @@ export class JenkinsBatch {
             logger.info(`Deleting job: ${job}`);
             const result = await this.executor.deleteJobWithUri(job);
             results.push(`job <${job}>: ${result ? 'Success' : 'Failed'}`);
+        }
+        return results;
+    }
+
+    async getGlobalVar() {
+        const results: string[] = [];
+        logger.info('Get Global Var');
+        const result = await this.executor.getGlobalVar();
+        if (typeof result === 'object') {
+            Object.entries<string>(result).forEach(([key, val]) => {
+                results.push(`${key}=${val}`);
+            });
+        }
+        logger.info(results.join('\n'));
+        return results;
+    }
+
+    async createGlobalVar(envKey: string, ...envVal: string[]) {
+        const results = [];
+        const valStr = envVal.join(' ').trim();
+        logger.info(`Creating Global Var: ${valStr}`);
+        const result = await this.executor.createGlobalVar(envKey, valStr);
+        results.push(`globalVar <${envKey}>: ${result === '' ? 'Success' : 'Failed'}`);
+        return results;
+    }
+
+    async changeGlobalVar(envKey: string, envVal: string) {
+        const results = [];
+        logger.info(`changing Global Var: ${envKey}`);
+        const result = await this.executor.createGlobalVar(envKey, envVal);
+        results.push(`globalVar <${envKey}>: ${result ? 'Success' : 'Failed'}`);
+        return results;
+    }
+
+    async deleteGlobalVar(...envKeys: string[]) {
+        const results = [];
+        for (const envKey of envKeys) {
+            logger.info(`Deleting  Global Var: ${envKey}`);
+            const result = await this.executor.deleteGlobalVar(envKey);
+            results.push(`globalVar <${envKey}>: ${result ? 'Success' : 'Failed'}`);
         }
         return results;
     }

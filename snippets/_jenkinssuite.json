@@ -152,24 +152,6 @@
     ],
     "description": "createCredential"
   },
-  "getGlobalEnvironment": {
-    "prefix": "getGlobalEnvironment",
-    "body": [
-      "import hudson.slaves.EnvironmentVariablesNodeProperty;",
-      "",
-      "import hudson.slaves.NodeProperty;",
-      "import hudson.slaves.NodePropertyDescriptor;",
-      "import hudson.util.DescribableList;",
-      "  ",
-      "Jenkins instance = Jenkins.getInstance();",
-      "DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = instance.getGlobalNodeProperties();",
-      "List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class);",
-      "for (EnvironmentVariablesNodeProperty property : envVarsNodePropertyList) {",
-      "  println(property.getEnvVars())",
-      "}"
-    ],
-    "description": "getGlobalEnvironment"
-  },
   "is_admin": {
     "prefix": "is_admin",
     "body": [
@@ -199,7 +181,7 @@
   "grv_changePrimaryView": {
     "prefix": "grv_changePrimaryView",
     "body": [
-      "def jenkins = Jenkins.getInstanceOrNull(); ",
+      "def jenkins = Jenkins.getInstanceOrNull();",
       "def view = jenkins.getPrimaryView().getViewName()",
       "",
       "if (view != '__NEW_VIEWNAME__') {",
@@ -213,6 +195,84 @@
       "println view"
     ],
     "description": "GRV_SET_VIEW",
+    "hidden": true
+  },
+  "getGlobalVars": {
+    "prefix": "getGlobalVars",
+    "body": [
+      "import hudson.EnvVars;",
+      "import hudson.slaves.EnvironmentVariablesNodeProperty;",
+      "import hudson.slaves.NodeProperty;",
+      "import hudson.slaves.NodePropertyDescriptor;",
+      "import hudson.util.DescribableList;",
+      "import groovy.json.JsonOutput;",
+      "",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "def result = [:];",
+      "DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = instance.getGlobalNodeProperties();",
+      "List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class);",
+      "envVarsNodePropertyList.each { env ->",
+      "    env.getEnvVars().each { data ->",
+      "        result[data.key] = data.value",
+      "    }",
+      "}",
+      "println JsonOutput.toJson(result)"
+    ],
+    "description": "getGlobalVars",
+    "hidden": true
+  },
+  "createGlobalVars": {
+    "prefix": "createGlobalVars",
+    "body": [
+      "import hudson.EnvVars;",
+      "import hudson.slaves.EnvironmentVariablesNodeProperty;",
+      "import hudson.slaves.NodeProperty;",
+      "import hudson.slaves.NodePropertyDescriptor;",
+      "import hudson.util.DescribableList;",
+      "import groovy.json.JsonOutput;",
+      "",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = instance.getGlobalNodeProperties();",
+      "List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class);",
+      "",
+      "EnvVars envVars = null;",
+      "if (envVarsNodePropertyList == null || envVarsNodePropertyList.size() == 0) {",
+      "    EnvironmentVariablesNodeProperty newEnvVarsNodeProperty = new hudson.slaves.EnvironmentVariablesNodeProperty();",
+      "    globalNodeProperties.add(newEnvVarsNodeProperty);",
+      "    envVars = newEnvVarsNodeProperty.getEnvVars();",
+      "} else {",
+      "    envVars = envVarsNodePropertyList.get(0).getEnvVars();",
+      "}",
+      "def text = new String('__ENV_VAL__'.getBytes('iso-8859-1'),'utf-8');",
+      "envVars.put('__ENV_KEY__', text);"
+    ],
+    "description": "createGlobalVars",
+    "hidden": true
+  },
+  "deleteGlobalVars": {
+    "prefix": "deleteGlobalVars",
+    "body": [
+      "import hudson.EnvVars;",
+      "import hudson.slaves.EnvironmentVariablesNodeProperty;",
+      "import hudson.slaves.NodeProperty;",
+      "import hudson.slaves.NodePropertyDescriptor;",
+      "import hudson.util.DescribableList;",
+      "import groovy.json.JsonOutput;",
+      "",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = instance.getGlobalNodeProperties();",
+      "List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class);",
+      "",
+      "EnvVars envVars = null;",
+      "if (envVarsNodePropertyList == null || envVarsNodePropertyList.size() == 0) {",
+      "    EnvironmentVariablesNodeProperty newEnvVarsNodeProperty = new hudson.slaves.EnvironmentVariablesNodeProperty();",
+      "    globalNodeProperties.add(newEnvVarsNodeProperty);",
+      "    envVars = newEnvVarsNodeProperty.getEnvVars();",
+      "} else {",
+      "    envVars = envVarsNodePropertyList.get(0).getEnvVars();",
+      "}"
+    ],
+    "description": "deleteGlobalVars",
     "hidden": true
   }
 }

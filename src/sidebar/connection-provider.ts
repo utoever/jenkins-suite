@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import { WebSocketClient } from '../api/ws';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
+import { executeScript } from '../svc/script-svc';
 import { JenkinsUser, JobsModel, ViewsModel } from '../types/model';
 import { switchConnection } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
@@ -265,25 +266,8 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                 openLinkBrowser(job.url);
             }),
             vscode.commands.registerCommand('utocode.executeScript', async () => {
-                const text = getSelectionText();
-                if (!text) {
-                    showInfoMessageWithTimeout(vscode.l10n.t('Script is empty'));
-                    return;
-                }
-
-                try {
-                    const result = await this._executor?.executeScript(text);
-                    if (result) {
-                        if (result === '') {
-                            showInfoMessageWithTimeout('Execute successfully', 5000);
-                        } else {
-                            logger.warn(result);
-                            showInfoMessageWithTimeout(result);
-                        }
-                        console.log(result);
-                    }
-                } catch (error: any) {
-                    logger.error(error.message);
+                if (this._executor) {
+                    executeScript(this._executor);
                 }
             }),
         );

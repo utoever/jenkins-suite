@@ -219,6 +219,43 @@ export class Executor {
         return data && await this.executeScript(data);
     }
 
+    async getGlobalVar() {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('getGlobalVars');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n');
+        }
+
+        console.log(`getGlobalVars`);
+        const result = data && await this.executeScript(data);
+        return result;
+    }
+
+    async createGlobalVar(key: string, val: string) {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('createGlobalVars');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__ENV_KEY__', key)
+                .replace('__ENV_VAL__', val);
+        }
+
+        console.log(`createGlobalVars:: key <${key}> val <${val}>`);
+        const result = data && await this.executeScript(data);
+        return result;
+    }
+
+    async deleteGlobalVar(key: string) {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('deleteGlobalVars');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__ENV_KEY__', key);
+        }
+
+        console.log(`deleteGlobalVars:: key <${key}>`);
+        const result = data && await this.executeScript(data);
+        return result;
+    }
+
     async getSystemMessage(): Promise<string> {
         const data = 'def jenkins = Jenkins.getInstanceOrNull();jenkins.getSystemMessage()';
         const result = await this.executeScript(data);
@@ -256,7 +293,7 @@ export class Executor {
             data = snippetItem.body.join('\n').replace('__USERNAME__', username);
         }
 
-        logger.info(`isAdmin:: username <${username}>`);
+        logger.debug(`isAdmin:: username <${username}>`);
         return data && await this.executeScript(data);
     }
 
@@ -399,12 +436,16 @@ export class Executor {
     }
 
     async executeScript(text: string): Promise<string> {
-        logger.debug(text);
+        // logger.debug(text);
         const body = {
             script: text
         };
         const result = await this._jenkins._postFormEncoded<string>('scriptText', body);
-        return result ? result.trim() : result;
+        return result && typeof result === 'string' ? result.trim() : result;
+    }
+
+    async executeScriptObject(text: string): Promise<any> {
+        return this.executeScript(text);
     }
 
     async restart(): Promise<string> {
