@@ -270,7 +270,8 @@
       "    envVars = newEnvVarsNodeProperty.getEnvVars();",
       "} else {",
       "    envVars = envVarsNodePropertyList.get(0).getEnvVars();",
-      "}"
+      "}",
+      "envVars.remove('__ENV_KEY__')"
     ],
     "description": "deleteGlobalVars",
     "hidden": true
