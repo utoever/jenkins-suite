@@ -210,7 +210,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.buildJob', async (job: JobsModel) => {
                 const mesg = await this.executor?.buildJobWithParameter(job, JenkinsConfiguration.buildDelay);
-                console.log(`buildJob <${mesg}>`);
+                // console.log(`buildJob <${mesg}>`);
                 setTimeout(() => {
                     notifyMessageWithTimeout(mesg);
                     this.buildsProvider.jobs = job;

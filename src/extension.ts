@@ -52,7 +52,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.languages.registerCodeLensProvider(xmlLanguages, xmlLensProvider)
 	);
 
-	// const scriptProvider = new ScriptProvider(context);
+	// const dashboardProvider = new DashboardProvider(context);
 	showProjectView(projectProvider);
 	function registerCommand(cmd: string, callback: () => void) {
 		const command = vscode.commands.registerCommand(cmd, callback);

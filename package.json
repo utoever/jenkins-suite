@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.3.3",
+  "version": "0.3.5",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -50,6 +50,12 @@
   "extensionDependencies": [],
   "main": "./dist/extension.js",
   "l10n": "./l10n",
+  "importSort": {
+    ".ts, .tsx, .js, .jsx": {
+      "style": "absolute",
+      "parser": "typescript"
+    }
+  },
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -673,6 +679,11 @@
       {
         "command": "utocode.executeQuick",
         "title": "%executeQuick.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.showDashboard",
+        "title": "Show Dashboard",
         "category": "jenkinssuite"
       },
       {
@@ -1459,12 +1470,16 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
     "ajv": "^8.12.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.8",
     "formdata-node": "^5.0.1",
     "html-entities": "^2.4.0",
     "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "ws": "^8.13.0",
     "xml-js": "^1.6.11"
   }
