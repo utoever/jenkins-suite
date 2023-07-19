@@ -211,7 +211,6 @@ export interface Computers {
     totalExecutors: number
 }
 
-
 export interface Computer {
     _class: string
     actions: any
@@ -280,6 +279,35 @@ export interface ProjectModel {
     models?: {
         [key: string]: JobsModel
     }
+}
+
+export interface FeedEntry {
+    title: string;
+    link: {
+        rel: string;
+        type: string;
+        href: string;
+    };
+    id: string;
+    published: string;
+    updated: string;
+}
+
+export interface JenkinsFeed {
+    feed: {
+        title: string;
+        link: {
+            rel: string;
+            type: string;
+            href: string;
+        };
+        updated: string;
+        author: {
+            name: string;
+        };
+        id: string;
+        entry: FeedEntry[];
+    };
 }
 
 export default buildJobModelType;

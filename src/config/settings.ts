@@ -163,6 +163,15 @@ export default class JenkinsConfiguration {
             3;
     }
 
+    public static get reservationDelaySeconds(): number {
+        const key = 'reservation.delay-seconds';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<number>(key)
+            ??
+            vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<number>(key)?.defaultValue
+            ??
+            15;
+    }
+
     public static get limitBuilds(): number {
         const key = 'limit.builds';
         return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<number>(key)

@@ -119,6 +119,7 @@
   "snippet.create-folder.description": "Create folder with snippet",
   "script.next-window.enabled.description": "Specify the next windows of the snippet file you want to execute",
   "build.delay.description": "Set Build Delay Seconds. Default 3 seconds. Range 1 ~ 99",
+  "reservation.delay-seconds.description": "Set Reservation Delay Seconds [Default 15 seconds]",
   "limit.builds.description": "Choose the number you want to show on Builds View",
   "limit.history.description": "Choose the number you want to show on History View",
   "property.servers.description": "Jenkins Configuration",

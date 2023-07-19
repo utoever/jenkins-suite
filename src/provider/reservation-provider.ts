@@ -109,6 +109,29 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
             showInfoMessageWithTimeout(vscode.l10n.t('The input time is {0} ~ {1} minutes', 3, 120));
             return;
         }
+        this.registerReservation(job, delayInMinutes * 60);
+    }
+
+    public async addMultiReservation(jobs: JobsModel[]) {
+        let delayInMinutesStr = await vscode.window.showInputBox({
+            prompt: 'Enter the time you want it to run [3 ~ 120]',
+            value: '5'
+        });
+        if (!delayInMinutesStr) {
+            return;
+        }
+
+        const delayInMinutes = Number.parseInt(delayInMinutesStr);
+        if (delayInMinutes < 3 || delayInMinutes > 120) {
+            showInfoMessageWithTimeout(vscode.l10n.t('The input time is {0} ~ {1} minutes', 3, 120));
+            return;
+        }
+        for (let job of jobs) {
+            this.registerReservation(job, delayInMinutes * 60);
+        }
+    }
+
+    async registerReservation(job: JobsModel, delayInSeconds: number = 60) {
         const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
         const formParams = new Map<string, string>();
         let flag: boolean = true;
@@ -126,16 +149,18 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
                 });
 
                 if (result) {
-                    // formData.append(param.name, result);
                     formParams.set(param.name, result);
                 } else {
                     flag = false;
                     break;
                 }
             }
+            if (formParams.size === 0) {
+                formParams.set('_', job.url);
+            }
         }
         if (flag) {
-            this.reservationScheduler.scheduleAction(job, delayInMinutes, formParams);
+            this.reservationScheduler.scheduleAction(job, delayInSeconds, formParams);
             this.refresh();
         } else {
             showInfoMessageWithTimeout('Cancelled by user');

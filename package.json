@@ -167,6 +167,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.runAddMultiReservation",
+        "title": "%runAddMultiReservation.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.addReservation",
         "title": "%addReservation.title%",
         "category": "jenkinssuite"
@@ -1076,6 +1081,11 @@
           "default": 3,
           "description": "%build.delay.description%"
         },
+        "jenkinssuite.reservation.delay-seconds": {
+          "type": "number",
+          "default": 15,
+          "description": "%reservation.delay-seconds.description%"
+        },
         "jenkinssuite.limit.builds": {
           "type": "number",
           "default": "20",
@@ -1353,6 +1363,11 @@
         "command": "utocode.runAddReservation",
         "key": "alt+7",
         "mac": "cmd+7"
+      },
+      {
+        "command": "utocode.runAddMultiReservation",
+        "key": "alt+8",
+        "mac": "cmd+8"
       },
       {
         "command": "utocode.validateJenkins",

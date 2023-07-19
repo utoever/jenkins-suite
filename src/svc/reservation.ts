@@ -13,17 +13,17 @@ export class ReservationScheduler {
     constructor(private readonly reservationProvider: ReservationProvider) {
     }
 
-    public scheduleAction(job: JobsModel, delayInMinutes: number, formParam: Map<string, any>) {
+    public scheduleAction(job: JobsModel, delayInSeconds: number, formParam: Map<string, any>) {
         if (this._reservationModel.length >= this._max) {
             console.log('Maximum number of reservations reached');
             return;
         }
 
-        const delayInMilliseconds = delayInMinutes * 60 * 1000;
+        const delayInMilliseconds = delayInSeconds * 1000;
         const reservationJobModel: ReservationJobModel = {
             id: job.name + '-' + this.generateId(),
             jobModel: job,
-            delayInMinutes: delayInMinutes,
+            delayInMinutes: delayInSeconds,
             runTime: new Date().getTime() + delayInMilliseconds,
             // formData: formData,
             formParams: formParam

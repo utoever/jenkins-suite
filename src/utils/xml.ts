@@ -12,6 +12,36 @@ export function parseXml(xmlString: string): any {
     return xml2js(xmlString, options);
 }
 
+export function parseXmlData(xmlString: string): any {
+    function nativeType(value: any) {
+        var nValue = Number(value);
+        if (!isNaN(nValue)) {
+            return nValue;
+        }
+        var bValue = value.toLowerCase();
+        if (bValue === 'true') {
+            return true;
+        } else if (bValue === 'false') {
+            return false;
+        }
+        return value;
+    }
+
+    const removeJsonTextAttribute = function (value: any, parentElement: any) {
+        try {
+            var keyNo = Object.keys(parentElement._parent).length;
+            var keyName = Object.keys(parentElement._parent)[keyNo - 1];
+            parentElement._parent[keyName] = nativeType(value);
+        } catch (e) { }
+    };
+    const options = {
+        compact: true,
+        textFn: removeJsonTextAttribute
+    };
+
+    return xml2js(xmlString, options);
+}
+
 export interface JenkinsPipeline {
 }
 

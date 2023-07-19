@@ -246,9 +246,36 @@ export class JenkinsBatch {
     async deleteGlobalVar(...envKeys: string[]) {
         const results = [];
         for (const envKey of envKeys) {
-            logger.info(`Deleting  Global Var: ${envKey}`);
+            logger.info(`Deleting Global Var: ${envKey}`);
             const result = await this.executor.deleteGlobalVar(envKey);
             results.push(`globalVar <${envKey}>: ${result ? 'Success' : 'Failed'}`);
+        }
+        return results;
+    }
+
+    async getRssAll(...args: string[]) {
+        const results = [];
+        logger.info(`Get Rss All`);
+        const result = await this.executor.getRssAll();
+        try {
+            const entries = result.feed.entry;
+            let count = entries.length;
+            if (args && args.length > 0 && args.length < entries.length) {
+                count = args.length;
+            }
+            results.push(`* Result: ${count}\n`);
+            if (args && args.length > 0) {
+                for (let arg of args) {
+                    const idx = Number.parseInt(arg);
+                    results.push(JSON.stringify(entries[idx], null, 2));
+                }
+            } else {
+                for (let entry of entries) {
+                    results.push(JSON.stringify(entry, null, 2));
+                }
+            }
+        } catch (error: any) {
+            logger.error(error.message);
         }
         return results;
     }

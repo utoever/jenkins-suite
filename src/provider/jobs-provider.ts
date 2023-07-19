@@ -3,7 +3,6 @@ import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
 import { Constants } from '../svc/constants';
-import { JenkinsBatch } from '../svc/jenkins-batch';
 import { executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
@@ -176,6 +175,39 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     }
                 });
             }),
+            vscode.commands.registerCommand('utocode.runAddMultiReservation', async () => {
+                const items = this.getJobsWithViewAsModel();
+
+                await vscode.window.showQuickPick(items, {
+                    title: vscode.l10n.t("Reservation"),
+                    placeHolder: vscode.l10n.t("Select to switch only job"),
+                    canPickMany: true
+                }).then(async (selectedItems) => {
+                    if (selectedItems) {
+                        const delayInSeconds = JenkinsConfiguration.reservationDelaySeconds;
+                        const delayStr = await vscode.window.showInputBox({
+                            title: 'Delay Seconds',
+                            prompt: 'Enter Delay Seconds',
+                            value: delayInSeconds.toString()
+                        });
+                        if (!delayStr) {
+                            return;
+                        }
+                        let delay;
+                        try {
+                            delay = Number.parseInt(delayStr);
+                        } catch (error: any) {
+                            delay = delayInSeconds;
+                        }
+
+                        let idx = 1;
+                        for (let selectedItem of selectedItems) {
+                            this.reservationProvider.registerReservation(selectedItem.model!, delay * idx);
+                            idx += 1;
+                        }
+                    }
+                });
+            }),
             vscode.commands.registerCommand('utocode.buildJob', async (job: JobsModel) => {
                 const mesg = await this.executor?.buildJobWithParameter(job, JenkinsConfiguration.buildDelay);
                 console.log(`buildJob <${mesg}>`);
@@ -338,40 +370,47 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         }
 
         const items: ModelQuickPick<JobsModel>[] = [];
-        let allViewModel;
-        if (this._view.name === 'all') {
-            const views = (await this._executor.getInfo()).views;
-            for (let view of views) {
-                const viewModel = await this.executor?.getViewsWithDetail(view.name, true);
-                if (!viewModel) {
-                    continue;
-                }
-                viewModel.jobs.filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
-                    items.push({
-                        label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
-                        detail: view.name === 'all' ? '' : view.name,
-                        description: job.jobDetail?.description ?? job.description,
-                        model: job
-                    });
+        const viewname = this.view.name ?? (await this._executor.getInfo()).primaryView.name;
+        let allViewModel = await this.executor?.getViewsWithDetail(viewname, true);
+        if (allViewModel?.jobs) {
+            allViewModel.jobs.filter(job => job.jobDetail?.buildable && job._class !== JobModelType.folder.toString()).forEach(job => {
+                items.push({
+                    label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
+                    description: job.jobDetail?.description,
+                    model: job
                 });
 
-                items.push({
-                    label: '',
-                    kind: vscode.QuickPickItemKind.Separator
-                });
-            }
-        } else {
-            allViewModel = await this.executor?.getViewsWithDetail(this._view.name, true);
-            if (allViewModel?.jobs) {
-                allViewModel.jobs.filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
+                if (items.length % 5 === 0) {
                     items.push({
-                        label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
-                        description: job.jobDetail?.description,
-                        model: job
+                        label: '',
+                        kind: vscode.QuickPickItemKind.Separator
                     });
-                });
-            }
+                }
+            });
         }
+
+        // let allViewModel;
+        // if (this._view.name === 'all') {
+        //     const views = (await this._executor.getInfo()).views;
+        //     for (let view of views) {
+        //         const viewModel = await this.executor?.getViewsWithDetail(view.name, true);
+        //         if (!viewModel) {
+        //             continue;
+        //         }
+        //         viewModel.jobs.filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
+        //             items.push({
+        //                 label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
+        //                 detail: view.name === 'all' ? '' : view.name,
+        //                 description: job.jobDetail?.description ?? job.description,
+        //                 model: job
+        //             });
+        //         });
+        //         items.push({
+        //             label: '',
+        //             kind: vscode.QuickPickItemKind.Separator
+        //         });
+        //     }
+        // }
 
         return items;
     }

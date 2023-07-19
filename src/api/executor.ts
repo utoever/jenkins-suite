@@ -7,10 +7,11 @@ import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { Constants } from '../svc/constants';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
-import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsInfo, JenkinsUsers, JobModelType, JobProperty, JobsModel } from "../types/model";
+import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsFeed, JenkinsInfo, JenkinsUsers, JobModelType, JobProperty, JobsModel } from "../types/model";
 import { mapToUrlParams } from '../utils/html';
 import logger from '../utils/logger';
 import { getParameterDefinition } from '../utils/model-utils';
+import { parseXml, parseXmlData } from '../utils/xml';
 import { Jenkins } from "./jenkins";
 
 export class Executor {
@@ -353,7 +354,7 @@ export class Executor {
 
     async getBuild(job: JobsModel, buildNumber: number): Promise<BuildDetailStatus> {
         const uri = this.extractUrl(job.url);
-        console.log(`uri <${uri}>`);
+        // console.log(`uri <${uri}>`);
         return await this._jenkins._get<BuildDetailStatus>(
             `${uri}/${buildNumber}/api/json`
         );
@@ -367,7 +368,6 @@ export class Executor {
         }
 
         if (formData.size > 0) {
-            console.log(formData);
             return await this._jenkins._postFormEncoded<string>(
                 `${uri}/buildWithParameters?delay=${delay}sec&${mapToUrlParams(formData)}`
             );
@@ -414,6 +414,9 @@ export class Executor {
             }
             if (!flag) {
                 return 'Cancelled by user';
+            }
+            if (formData.size === 0) {
+                formData.set('_', uri);
             }
         }
         return await this.buildJobParam(uri, formData, delay);
@@ -619,6 +622,14 @@ export class Executor {
         return await this._jenkins._post<string>(
             `${uri}`
         );
+    }
+
+    async getRssAll() {
+        const result = await this._jenkins._get<string>(
+            `rssAll`
+        );
+        const feed = parseXmlData(result) as JenkinsFeed;
+        return feed;
     }
 
     async validateJenkinsfile(content: string): Promise<string> {
