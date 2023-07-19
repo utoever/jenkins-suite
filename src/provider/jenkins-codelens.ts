@@ -11,7 +11,7 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
     }
 
     public provideCodeLenses(document: vscode.TextDocument, _token: vscode.CancellationToken) {
-        if (document.languageId === 'jenkins') {
+        if (document.languageId === 'jenkins' || document.languageId === 'jkssh') {
             const text = document.getText();
 
             if (text) {

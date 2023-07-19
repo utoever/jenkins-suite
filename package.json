@@ -1414,13 +1414,23 @@
         "id": "jenkins",
         "extensions": [
           ".groovy",
-          ".jenkins",
           "Jenkinsfile"
         ],
         "aliases": [
           "Jenkins"
         ],
         "configuration": "./languages/jenkins-language-configuration.json"
+      },
+      {
+        "id": "jkssh",
+        "aliases": [
+          "Jenkins Shell",
+          "JKSSH"
+        ],
+        "extensions": [
+          ".jkssh"
+        ],
+        "configuration": "./languages/jks-language-configuration.json"
       }
     ],
     "grammars": [
@@ -1428,6 +1438,17 @@
         "language": "jenkins",
         "scopeName": "source.jenkins",
         "path": "./syntaxes/jenkins.tmGrammar.json"
+      },
+      {
+        "language": "jkssh",
+        "scopeName": "source.jkssh",
+        "path": "./syntaxes/jkssh.tmGrammar.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "jkssh",
+        "path": "./snippets/jkssh.json"
       }
     ]
   },

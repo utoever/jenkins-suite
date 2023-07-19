@@ -44,7 +44,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand("utocode.welcome", () => {
 			vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `utocode.jenkinssuite#utocode.welcome`, false);
 		}),
-		vscode.languages.registerCodeLensProvider(['jenkins', 'groovy'], new JenkinsCodeLensProvider(context)),
+		vscode.languages.registerCodeLensProvider(['jenkins', 'jkssh', 'groovy'], new JenkinsCodeLensProvider(context)),
 		vscode.languages.registerCodeLensProvider(['xml'], new XmlCodeLensProvider(context))
 	);
 

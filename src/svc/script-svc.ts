@@ -13,7 +13,7 @@ export async function executeQuick(_executor: Executor) {
         const languageIds = document.languageId;
         // logger.debug(`language <${languageIds}>`);
 
-        if (languageIds === 'jenkins') {
+        if (languageIds === 'jenkins' || languageIds === 'jkssh') {
             const text = getSelectionText();
             if (text.startsWith('#!jenkins')) {
                 const jenkinsBatch = new JenkinsBatch(_executor!);
@@ -43,7 +43,7 @@ export async function executeQuick(_executor: Executor) {
         } else if (languageIds === 'xml') {
             await vscode.commands.executeCommand('utocode.withJob');
         } else {
-            showInfoMessageWithTimeout(vscode.l10n.t('Language Mode {0}, {1} is supported. Try changing to a different mode', 'xml', 'jenkins'));
+            showInfoMessageWithTimeout(vscode.l10n.t('Language Mode {0}, {1}, {2} is supported. Try changing to a different mode', 'xml', 'jenkins', 'groovy'));
         }
     }
 }

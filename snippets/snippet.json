@@ -24,7 +24,7 @@
       ""
     ],
     "description": "Create Jenkins Batch Script",
-    "language": "jenkins",
+    "language": "jkssh",
     "type": "system"
   },
   "C_DSL_VIEW_ALL": {
