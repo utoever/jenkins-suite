@@ -3,6 +3,10 @@ import { CodeLens, window } from 'vscode';
 
 export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
 
+    private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
+
+    public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
+
     public constructor(context: vscode.ExtensionContext) {
     }
 

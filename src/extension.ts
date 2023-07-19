@@ -34,10 +34,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider("utocode.views.reservation", reservationProvider);
 	vscode.window.registerTreeDataProvider("utocode.views.snippets", snippetProvider);
 
-	const jenkinsLensProvider = new JenkinsCodeLensProvider(context);
-	const jenkinsLanguages = ['jenkins', 'groovy'];
-	const xmlLensProvider = new XmlCodeLensProvider(context);
-	const xmlLanguages = ['xml'];
 	context.subscriptions.push(
 		vscode.window.createTreeView('jenkinsProject', {
 			treeDataProvider: projectProvider
@@ -48,8 +44,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand("utocode.welcome", () => {
 			vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `utocode.jenkinssuite#utocode.welcome`, false);
 		}),
-		vscode.languages.registerCodeLensProvider(jenkinsLanguages, jenkinsLensProvider),
-		vscode.languages.registerCodeLensProvider(xmlLanguages, xmlLensProvider)
+		vscode.languages.registerCodeLensProvider(['jenkins', 'groovy'], new JenkinsCodeLensProvider(context)),
+		vscode.languages.registerCodeLensProvider(['xml'], new XmlCodeLensProvider(context))
 	);
 
 	// const scriptProvider = new ScriptProvider(context);
