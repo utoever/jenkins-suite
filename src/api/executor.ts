@@ -359,28 +359,14 @@ export class Executor {
         );
     };
 
-    async buildJob(name: string, delay: number = 3): Promise<string> {
-        if (delay < 1) {
-            delay = 1;
-        } else if (delay > 99) {
-            delay = 99;
-        }
-        return await this._jenkins._post<string>(
-            `job/${name}/build?delay=${delay}sec`
-        );
-    }
-
-    async buildJobWithForm(job: JobsModel, formData: Map<string, string>, delay: number = 3): Promise<string> {
-        // let flag: boolean = true;
-        const uri = this.extractUrl(job.url);
+    async buildJobParam(uri: string, formData: Map<string, string>, delay: number = 3): Promise<string> {
         if (delay < 1) {
             delay = 1;
         } else if (delay > 99) {
             delay = 99;
         }
 
-        const jobParams = getParameterDefinition(job.jobDetail ?? undefined);
-        if (jobParams && jobParams.length > 0) {
+        if (formData.size > 0) {
             console.log(formData);
             return await this._jenkins._postFormEncoded<string>(
                 `${uri}/buildWithParameters?delay=${delay}sec&${mapToUrlParams(formData)}`
@@ -390,6 +376,11 @@ export class Executor {
                 `${uri}/build?delay=${delay}sec`
             );
         }
+    }
+
+    async buildJobWithForm(job: JobsModel, formData: Map<string, string>, delay: number = 3): Promise<string> {
+        const uri = this.extractUrl(job.url);
+        return this.buildJobParam(uri, formData, delay);
     }
 
     async buildJobWithParameter(job: JobsModel, delay: number = 3): Promise<string> {
@@ -424,15 +415,8 @@ export class Executor {
             if (!flag) {
                 return 'Cancelled by user';
             }
-
-            return await this._jenkins._postFormEncoded<string>(
-                `${uri}/buildWithParameters?delay=${delay}sec&${mapToUrlParams(formData)}`
-            );
-        } else {
-            return await this._jenkins._post<string>(
-                `${uri}/build?delay=${delay}sec`
-            );
         }
+        return await this.buildJobParam(uri, formData, delay);
     }
 
     async executeScript(text: string): Promise<string> {
@@ -603,6 +587,10 @@ export class Executor {
         //     throw new Error(vscode.l10n.t('Job <{0}> is exist', destName));
         // }
 
+        if (newJobName === '/') {
+            newJobName = '';
+        }
+
         const result = await this._jenkins._post<string>(
             `${uri}/move/move?destination=/${newJobName}`
         );
@@ -634,7 +622,6 @@ export class Executor {
     }
 
     async validateJenkinsfile(content: string): Promise<string> {
-        // console.log(`validateJenkinsfile:: content <${content}>`);
         const formData = new FormData();
         const html = decode(content);
         formData.append('jenkinsfile', html);

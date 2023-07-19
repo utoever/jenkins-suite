@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
@@ -7,8 +6,7 @@ import buildJobModelType, { BuildDetailStatus, BuildStatus, CauseParameter, JobM
 import { getCauseAction, getParameterAction } from '../types/model-util';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { formatDurationTime, getLocalDate } from '../utils/datetime';
-import { getSelectionText, printEditorWithNew } from '../utils/editor';
-import { notifyMessageWithTimeout } from '../utils/vsc';
+import { printEditorWithNew } from '../utils/editor';
 
 export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 

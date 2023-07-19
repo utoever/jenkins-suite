@@ -1,17 +1,15 @@
 import * as vscode from 'vscode';
-import JenkinsConfiguration from './config/settings';
+import { BuildsProvider } from './provider/builds-provider';
+import { ConnectionProvider } from './provider/connection-provider';
 import { JenkinsCodeLensProvider } from './provider/jenkins-codelens';
-import { ScriptProvider } from './provider/script-provider';
+import { JobsProvider } from './provider/jobs-provider';
+import { NotifyProvider } from './provider/notify-provider';
+import { ProjectProvider } from './provider/project-provider';
+import { ReservationProvider } from './provider/reservation-provider';
+import { SnippetProvider } from './provider/snippet-provider';
+import { ViewsProvider } from './provider/views-provider';
 import { XmlCodeLensProvider } from './provider/xml-codelens';
-import { BuildsProvider } from './sidebar/builds-provider';
-import { ConnectionProvider } from './sidebar/connection-provider';
-import { JobsProvider } from './sidebar/jobs-provider';
-import { NotifyProvider } from './sidebar/notify-provider';
-import { ProjectProvider } from './sidebar/project-provider';
-import { ReservationProvider } from './sidebar/reservation-provider';
-import { SnippetProvider } from './sidebar/snippet-provider';
-import { ViewsProvider } from './sidebar/views-provider';
-import { getConfigPath, readFileUriAsProject } from './utils/file';
+import { getConfigPath } from './utils/file';
 import { isRemoteUri } from './utils/remote';
 import { vscExtension } from './vsc-ns';
 

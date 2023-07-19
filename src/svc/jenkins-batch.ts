@@ -13,7 +13,7 @@ export class JenkinsBatch {
     async execute(text: string) {
         const commands = text.split('\n');
         let ignoreErrors = false;
-        const results: string[] = [];
+        let results: string[] = [];
         for (const lineCmdOrg of commands) {
             try {
                 let lineCmd = lineCmdOrg.trim();
@@ -35,24 +35,9 @@ export class JenkinsBatch {
                     cmdString = lineCmd;
                 }
 
-                const cmds = cmdString.trim().split(' ').filter(cmd => cmd);
-                if (cmds[0].indexOf('-') > 0) {
-                    cmds[0] = cmds[0].replace(/-/g, '_');
-                }
-                const cmd = _.camelCase(cmds[0]);
-                if (typeof this[cmd] === 'function') {
-                    log(`execute: ${cmd}`);
-                    const result: string | string[] = await (this[cmd] as Function)(...cmds.slice(1));
-                    results.push(`* ${cmds[0].toUpperCase()}\n`);
-                    if (Array.isArray(result)) {
-                        results.push(...result);
-                    } else {
-                        results.push(result);
-                    }
-                    results.push('\n');
-                } else {
-                    results.push(`Command ${cmd} is not supported`);
-                    logger.warn(`Command ${cmd} is not supported`);
+                for (let part of cmdString.split(';')) {
+                    const partResult = await this.executeInternal(part);
+                    results = [...results, ...partResult];
                 }
             } catch (error: any) {
                 logger.error(error.message);
@@ -62,6 +47,30 @@ export class JenkinsBatch {
             }
         }
         return results.join('\n');
+    }
+
+    async executeInternal(cmdString: string): Promise<string[]> {
+        const results: string[] = [];
+        const cmds = cmdString.trim().split(' ').filter(cmd => cmd);
+        if (cmds[0].indexOf('-') > 0) {
+            cmds[0] = cmds[0].replace(/-/g, '_');
+        }
+        const cmd = _.camelCase(cmds[0]);
+        if (typeof this[cmd] === 'function') {
+            log(`execute: ${cmd}`);
+            const result: string | string[] = await (this[cmd] as Function)(...cmds.slice(1));
+            results.push(`* ${cmds[0].toUpperCase()}\n`);
+            if (Array.isArray(result)) {
+                results.push(...result);
+            } else {
+                results.push(result);
+            }
+            results.push('\n');
+        } else {
+            results.push(`Command ${cmd} is not supported`);
+            logger.warn(`Command ${cmd} is not supported`);
+        }
+        return results;
     }
 
     async createUser(username: string, password: string) {
@@ -135,10 +144,27 @@ export class JenkinsBatch {
         return results;
     }
 
+    async buildJob(uri: string, ...args: string[]) {
+        const results = [];
+        logger.info(`Build Job: ${uri}`);
+        const formParams = new Map<string, string>();
+        if (args && args.length > 0) {
+            args.forEach(arg => {
+                const param = arg.split('=');
+                formParams.set(param[0], param[1]);
+            });
+        } else {
+            formParams.set('_', uri);
+        }
+        const result = await this.executor.buildJobParam(this.assistUri(uri), formParams);
+        results.push(`job <${uri}>: ${result.includes('status code') ? 'Failed' : 'Success'}`);
+        return results;
+    }
+
     async renameJob(uri: string, newName: string) {
         const results = [];
         logger.info(`Rename Job: ${uri}`);
-        const result = await this.executor.renameJob(uri, newName);
+        const result = await this.executor.renameJob(this.assistUri(uri), newName);
         results.push(`job <${uri}>: ${result ? 'Success' : 'Failed'}`);
         return results;
     }
@@ -146,7 +172,7 @@ export class JenkinsBatch {
     async moveJob(uri: string, newName: string) {
         const results = [];
         logger.info(`Move Job: ${uri}`);
-        const result = await this.executor.moveJob(uri, newName);
+        const result = await this.executor.moveJob(this.assistUri(uri), newName);
         results.push(`job <${uri}>: ${result ? 'Success' : 'Failed'}`);
         return results;
     }
@@ -155,7 +181,7 @@ export class JenkinsBatch {
         const results = [];
         for (const folder of folders) {
             logger.info(`Deleting folder: ${folder}`);
-            const result = await this.executor.deleteJobWithUri(folder);
+            const result = await this.executor.deleteJobWithUri(this.assistUri(folder));
             results.push(`folder <${folder}>: ${result ? 'Success' : 'Failed'}`);
         }
         return results;
@@ -165,7 +191,7 @@ export class JenkinsBatch {
         const results = [];
         for (const job of jobs) {
             logger.info(`Deleting job: ${job}`);
-            const result = await this.executor.deleteJobWithUri(job);
+            const result = await this.executor.deleteJobWithUri(this.assistUri(job));
             results.push(`job <${job}>: ${result ? 'Success' : 'Failed'}`);
         }
         return results;
@@ -209,6 +235,39 @@ export class JenkinsBatch {
             results.push(`globalVar <${envKey}>: ${result ? 'Success' : 'Failed'}`);
         }
         return results;
+    }
+
+    async sleep(timeout: string, ...args: string[]) {
+        let seconds;
+        try {
+            seconds = Number.parseInt(timeout) * 1000;
+        } catch (error) {
+            seconds = 10000;
+        }
+        return this.lazyFunction(seconds, ...args);
+    }
+
+    async lazyFunction(timeout: number, ...args: string[]): Promise<string[]> {
+        return new Promise((resolve) => {
+            setTimeout(async () => {
+                try {
+                    const result = await this.executeInternal(args.join(' '));
+                    resolve(result);
+                } catch (error: any) {
+                    logger.error(error.message);
+                }
+            }, timeout);
+        });
+    }
+
+    assistUri(uri: string) {
+        let safeUri;
+        if (uri.startsWith('job')) {
+            safeUri = uri;
+        } else {
+            safeUri = `job/${uri}`;
+        }
+        return safeUri;
     }
 
 }

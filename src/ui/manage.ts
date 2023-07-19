@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from "../config/settings";
-import { ConnectionProvider } from '../sidebar/connection-provider';
-import { JobsProvider } from '../sidebar/jobs-provider';
+import { ConnectionProvider } from '../provider/connection-provider';
+import { JobsProvider } from '../provider/jobs-provider';
 import { BallColor } from '../types/jenkins-types';
 import { JobModelType, JobsModel, ModelQuickPick } from '../types/model';
 import { showInfoMessageWithTimeout } from "./ui";

@@ -1,6 +1,5 @@
-import FormData from 'form-data';
 import { Executor } from '../api/executor';
-import { ReservationProvider } from '../sidebar/reservation-provider';
+import { ReservationProvider } from '../provider/reservation-provider';
 import { JobsModel } from '../types/model';
 
 export class ReservationScheduler {

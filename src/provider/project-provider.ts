@@ -185,6 +185,16 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
         text.appendMarkdown('\n---\n');
         text.appendMarkdown(`* name: __${projectModel.name}__\n`);
         text.appendMarkdown(`* URL: *${projectModel.server!.url}*\n`);
+
+        text.appendMarkdown('\n---\n');
+        text.appendMarkdown(`## Execute Commands:\n`);
+        if (projectModel.batchCmd) {
+            projectModel.batchCmd.forEach(cmd => {
+                text.appendMarkdown(`* ${cmd}\n`);
+            });
+        } else {
+            text.appendMarkdown('* None\n');
+        }
         return text;
     }
 

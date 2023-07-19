@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import WebSocket from 'ws';
-import { BuildsProvider } from '../sidebar/builds-provider';
-import { NotifyProvider } from '../sidebar/notify-provider';
+import { BuildsProvider } from '../provider/builds-provider';
+import { NotifyProvider } from '../provider/notify-provider';
 import { Result } from '../types/jenkins-types';
 import { WsTalkMessage } from '../types/model';
 import { getLocalDate } from '../utils/datetime';
