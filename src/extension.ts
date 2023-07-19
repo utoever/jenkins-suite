@@ -35,7 +35,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider("utocode.views.snippets", snippetProvider);
 
 	const jenkinsLensProvider = new JenkinsCodeLensProvider(context);
-	const jenkinsLanguages = ['jenkins'];
+	const jenkinsLanguages = ['jenkins', 'groovy'];
 	const xmlLensProvider = new XmlCodeLensProvider(context);
 	const xmlLanguages = ['xml'];
 	context.subscriptions.push(

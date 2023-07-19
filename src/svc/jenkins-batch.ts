@@ -205,12 +205,16 @@ export class JenkinsBatch {
         return results;
     }
 
-    async createCredentialUser(username: string, password: string) {
+    async createCredUser(username: string, password: string) {
         const results = [];
         logger.info(`Creating Credential User: ${username}`);
         const result = await this.executor.createCredential(username, password, 'CredentialUser');
         results.push(`createSecretText <${username}>: ${result === '' ? 'Success' : 'Failed'}`);
         return results;
+    }
+
+    async createCredentialUser(username: string, password: string) {
+        return this.createCredUser(username, password);
     }
 
     async getGlobalVar() {
