@@ -1,8 +1,7 @@
 {
-  "scopeName": "source.jenkins",
-  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "fileTypes": ["groovy"],
   "name": "Jenkins",
+  "scopeName": "source.jenkins",
+  "fileTypes": ["groovy"],
   "patterns": [
     { "include": "#keywords" },
     { "include": "#doubleQuoteStrings" },

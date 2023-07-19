@@ -46,7 +46,7 @@
     "prefix": "par",
     "body": [
       "parameters {",
-      "    hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
+      "    // hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
       "    $1",
       "}",
       ""
@@ -54,34 +54,34 @@
     "description": "Parameter"
   },
   "string parameter": {
-    "prefix": "stp",
+    "prefix": "past",
     "body": [
-      "    string(name: '$1', defaultValue: '$2', description: '$3')",
-      "    $4",
+      "string(name: '$1', defaultValue: '$2', description: '$3')",
+      "$4",
       ""
     ],
-    "description": "String Parameter"
+    "description": "Parameter String"
   },
   "choice parameter": {
-    "prefix": "chp",
+    "prefix": "pach",
     "body": [
-      "    choice(",
-      "        name: '$1',",
-      "        choices: ['$2'],",
-      "        description: '$3'",
-      "    )",
+      "choice(",
+      "    name: '$1',",
+      "    choices: ['$2'],",
+      "    description: '$3'",
+      ")",
       ""
     ],
-    "description": "Choice Parameter"
+    "description": "Parameter Choice"
   },
   "stage": {
-    "prefix": "st",
+    "prefix": "sta",
     "body": [
-      "    stage('$1') {",
-      "        steps {",
-      "            $2",
-      "        }",
+      "stage('$1') {",
+      "    steps {",
+      "        $2",
       "    }",
+      "}",
       ""
     ],
     "description": "Stage"
@@ -90,10 +90,10 @@
     "prefix": "gsc",
     "body": [
       "git branch: '$1', credentialsId: '$2', url: '$3'",
-      "    script {",
-      "        env.GIT_COMMIT_MSG = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()",
-      "        env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%cn ${GIT_COMMIT}', returnStdout: true).trim()",
-      "    }",
+      "script {",
+      "    env.GIT_COMMIT_MSG = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()",
+      "    env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%cn ${GIT_COMMIT}', returnStdout: true).trim()",
+      "}",
       ""
     ],
     "description": "Git SCM"
@@ -103,9 +103,28 @@
     "body": [
       "sh \"\"\"",
       "    mvn clean package $1",
-      "    \"\"\"",
+      "    $2",
+      "\"\"\"",
       ""
     ],
     "description": "Maven Clean Package"
+  },
+  "post": {
+    "prefix": "post",
+    "body": [
+      "post {",
+      "    success {",
+      "        script {",
+      "            $1",
+      "        }",
+      "    }",
+      "    failure {",
+      "        script {",
+      "            ",
+      "        }",
+      "    }",
+      "}"
+    ],
+    "description": "Pipeline Post"
   }
 }

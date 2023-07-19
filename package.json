@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -1413,7 +1413,6 @@
       {
         "id": "jenkins",
         "extensions": [
-          ".groovy",
           "Jenkinsfile"
         ],
         "aliases": [
@@ -1446,6 +1445,10 @@
       }
     ],
     "snippets": [
+      {
+        "language": "jenkins",
+        "path": "./snippets/jenkins.json"
+      },
       {
         "language": "jkssh",
         "path": "./snippets/jkssh.json"
