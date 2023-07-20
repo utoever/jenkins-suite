@@ -1,15 +1,20 @@
 {
   "pipeline": {
-    "prefix": "pipe",
+    "prefix": ["pipe", "pp"],
     "body": [
       "pipeline {",
       "",
       "    agent any",
       "",
+      "    options {",
+      "        timeout(time: 20, unit: 'MINUTES')",
+      "        buildDiscarder(logRotator(numToKeepStr: '15'))",
+      "    }",
+      "",
       "    parameters {",
-      "        hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
-      "        hidden defaultValue: 'https://_YOUR_HOME_/actuator/info', description: 'Go Management', name: 'manage.url'",
-      "        hidden defaultValue: 'https://_YOUR_HOME_/swagger-ui/index.html', description: 'Go Swagger', name: 'swagger.url'",
+      "        // hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
+      "        // hidden defaultValue: 'https://_YOUR_HOME_/actuator/info', description: 'Go Management', name: 'manage.url'",
+      "        // hidden defaultValue: 'https://_YOUR_HOME_/swagger-ui/index.html', description: 'Go Swagger', name: 'swagger.url'",
       "    }",
       "",
       "    // triggers {",
@@ -40,10 +45,20 @@
       "}",
       ""
     ],
-    "description": "Parameter"
+    "description": "Environment"
+  },
+  "when": {
+    "prefix": "when",
+    "body": [
+      "when {",
+      "    expression { $1 == '$2' }",
+      "}",
+      ""
+    ],
+    "description": "When"
   },
   "parameter": {
-    "prefix": "par",
+    "prefix": ["par", "param"],
     "body": [
       "parameters {",
       "    // hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
@@ -54,28 +69,27 @@
     "description": "Parameter"
   },
   "string parameter": {
-    "prefix": "past",
+    "prefix": ["past", "stp"],
     "body": [
       "string(name: '$1', defaultValue: '$2', description: '$3')",
-      "$4",
-      ""
+      "$4"
     ],
     "description": "Parameter String"
   },
   "choice parameter": {
-    "prefix": "pach",
+    "prefix": ["pach", "chp"],
     "body": [
       "choice(",
       "    name: '$1',",
-      "    choices: ['$2'],",
-      "    description: '$3'",
+      "    choices: ['${2|yes,no,YES,NO,true,false|}', '${3|yes,no,YES,NO,true,false|}'],",
+      "    description: '$4'",
       ")",
       ""
     ],
     "description": "Parameter Choice"
   },
   "stage": {
-    "prefix": "sta",
+    "prefix": ["sta", "stg"],
     "body": [
       "stage('$1') {",
       "    steps {",
@@ -87,27 +101,23 @@
     "description": "Stage"
   },
   "gitScm": {
-    "prefix": "gsc",
+    "prefix": "git",
     "body": [
-      "git branch: '$1', credentialsId: '$2', url: '$3'",
-      "script {",
-      "    env.GIT_COMMIT_MSG = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()",
-      "    env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%cn ${GIT_COMMIT}', returnStdout: true).trim()",
-      "}",
-      ""
+      "git branch: '${1|main,dev,stg|}', credentialsId: '$2-git', url: '$3'",
+      "$4"
     ],
     "description": "Git SCM"
   },
-  "mvncp": {
-    "prefix": "mvncp",
+  "maven": {
+    "prefix": "mvn",
     "body": [
       "sh \"\"\"",
-      "    mvn clean package $1",
-      "    $2",
+      "    mvn clean ${1|package,compile,deploy|} $2",
+      "    $3",
       "\"\"\"",
       ""
     ],
-    "description": "Maven Clean Package"
+    "description": "Maven Goal"
   },
   "post": {
     "prefix": "post",

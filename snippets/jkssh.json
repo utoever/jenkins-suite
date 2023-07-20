@@ -1,12 +1,12 @@
 {
   "user": {
     "prefix": "user",
-    "body": ["${1|create,delete|}-user $2", ""],
+    "body": ["${1|create,delete|}-user ${2:username}", ""],
     "description": "Create or Delete user"
   },
   "view": {
     "prefix": "view",
-    "body": ["${1|create,delete|}-view $2", ""],
+    "body": ["${1|create,delete|}-view ${2:view}", ""],
     "description": "Create or Delete view"
   },
   "create": {
@@ -21,27 +21,32 @@
   },
   "job": {
     "prefix": "jo",
-    "body": ["${1|build,rename,move,delete|}-job job/$2", ""],
+    "body": ["${1|build,rename,move,delete|}-job job/${2:job}", ""],
     "description": "build, rename, move, delete etc"
   },
   "create pipeline": {
     "prefix": "cp",
-    "body": ["create-pipeline $1", ""],
+    "body": ["create-pipeline ${1:job}", ""],
     "description": "create pipeline"
   },
   "create folder": {
     "prefix": "cf",
-    "body": ["create-folder $1", ""],
+    "body": ["create-folder ${1:folderName}", ""],
     "description": "create folder etc"
   },
   "delete job": {
     "prefix": "dj",
-    "body": ["delete-job $1", ""],
+    "body": ["delete-job ${1:job}", ""],
     "description": "Delete Job (Job, Folder etc)"
   },
   "global-var": {
-    "prefix": "gv",
-    "body": ["${1|get,create,change,delete|}-global-var $2", ""],
-    "description": "build, rename, move, delete etc"
+    "prefix": ["gv", "glv"],
+    "body": ["${1|create,change,delete|}-global-var ${2:username} ${3:password}"],
+    "description": "Create or delete Global Variable"
+  },
+  "get-global-var": {
+    "prefix": ["ggv"],
+    "body": ["get-global-var"],
+    "description": "Get Global Variable"
   }
 }
