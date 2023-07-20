@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { JenkinsPipelineSymbolProvider } from './provider/JenkinsPipelineSymbolProvider';
+import { JksshHoverProvider } from './provider/JksshHoverProvider';
 import { BuildsProvider } from './provider/builds-provider';
 import { ConnectionProvider } from './provider/connection-provider';
 import { JenkinsCodeLensProvider } from './provider/jenkins-codelens';
@@ -34,6 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider("utocode.views.reservation", reservationProvider);
 	vscode.window.registerTreeDataProvider("utocode.views.snippets", snippetProvider);
 
+	const symbolProvider = new JenkinsPipelineSymbolProvider();
 	context.subscriptions.push(
 		vscode.window.createTreeView('jenkinsProject', {
 			treeDataProvider: projectProvider
@@ -45,7 +48,22 @@ export async function activate(context: vscode.ExtensionContext) {
 			vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `utocode.jenkinssuite#utocode.welcome`, false);
 		}),
 		vscode.languages.registerCodeLensProvider(['jenkins', 'jkssh', 'groovy'], new JenkinsCodeLensProvider(context)),
-		vscode.languages.registerCodeLensProvider(['xml'], new XmlCodeLensProvider(context))
+		vscode.languages.registerCodeLensProvider(['xml'], new XmlCodeLensProvider(context)),
+		vscode.languages.registerDocumentSymbolProvider(
+			{ language: 'jenkins', scheme: 'file' },
+			symbolProvider
+		),
+		vscode.languages.registerHoverProvider(
+			{ language: 'jkssh', scheme: 'file' },
+			new JksshHoverProvider()
+		)
+	);
+
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeTextDocument((e) => {
+			if (vscode.window.activeTextEditor?.document === e.document) {
+			}
+		})
 	);
 
 	// const scriptProvider = new ScriptProvider(context);
