@@ -1,5 +1,16 @@
 # Change Log
 
+### [0.5.0] - 2023-07-20
+
+- A few bug fixes
+- Add Jenkins Shell Language Mode [JKSSH]
+- Add Batch Command
+- Add Multi Reservation (Alt+8)
+
+### [0.3.5] - 2023-07-19
+
+- A few bug fixes
+
 ### [0.3.3] - 2023-07-18
 
 - A few bug fixes

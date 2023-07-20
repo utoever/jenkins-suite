@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.3.6",
+  "version": "0.5.0",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/logo.png",
@@ -89,7 +89,8 @@
         {
           "id": "utocode.views.reservation",
           "name": "%views.reservation.title%",
-          "visibility": "collapsed"
+          "visibility": "collapsed",
+          "when": "config.jenkinssuite.views.reservation.enabled"
         },
         {
           "id": "utocode.views.notify",
@@ -487,6 +488,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.buildProjectAll",
+        "title": "%buildProjectAll.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.buildProjectJob",
         "title": "%buildProjectJob.title%",
         "category": "jenkinssuite"
@@ -689,17 +695,22 @@
     "menus": {
       "view/item/context": [
         {
-          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv/ && !(viewItem =~ /^.*project_srv_conn/)",
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv.*/ && !(viewItem =~ /^.*project_srv_conn/)",
           "command": "utocode.connectProjectServer",
           "group": "1_jenkinssuite_actions@10"
         },
         {
-          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv_conn/",
-          "command": "utocode.disconnectProjectServer",
-          "group": "1_jenkinssuite_actions@10"
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv_conn.*/ && viewItem =~ /^.*_batch.*/",
+          "command": "utocode.buildProjectAll",
+          "group": "1_jenkinssuite_actions@20"
         },
         {
-          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job/",
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv_conn.*/",
+          "command": "utocode.disconnectProjectServer",
+          "group": "1_jenkinssuite_actions@90"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job.*/",
           "command": "utocode.buildProjectJob",
           "group": "1_jenkinssuite_actions@10"
         },
@@ -709,14 +720,14 @@
           "group": "inline@90"
         },
         {
-          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job/",
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job.*/",
           "command": "utocode.openLink#projectJob",
           "group": "inline@90"
         },
         {
-          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_build/",
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_build.*/",
           "command": "utocode.openLink#projectBuild",
-          "group": "inline@90"
+          "group": "inline@10"
         },
         {
           "when": "view == 'utocode.views.connection' && viewItem =~ /^.*sparrow.*/",
@@ -1055,6 +1066,11 @@
           "type": "boolean",
           "default": "false",
           "description": "%plugin.categorized.enabled.description%"
+        },
+        "jenkinssuite.batch.job-name.suffix": {
+          "type": "string",
+          "default": "_JKSSH",
+          "description": "%batch.job-name.suffix.description%"
         },
         "jenkinssuite.snippet.custom-file": {
           "type": "string",
@@ -1427,7 +1443,8 @@
           "JKSSH"
         ],
         "extensions": [
-          ".jkssh"
+          ".jkssh",
+          ".jenkins"
         ],
         "configuration": "./languages/jks-language-configuration.json"
       }

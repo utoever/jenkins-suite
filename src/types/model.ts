@@ -273,7 +273,7 @@ export type ProjectModels = {
 export interface ProjectModel {
     name?: string
     applications: string[]
-    batchCmd?: string[]
+    buildProject?: string[]
     server: JenkinsServer | undefined
     description?: string
     models?: {

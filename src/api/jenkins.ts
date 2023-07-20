@@ -57,8 +57,7 @@ export class Jenkins {
     _get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
         console.log(`_get:: url <${url}>`);
         const response = await this.client.get<Response<T>>(url, config);
-        console.log(`response <${response.data}>`);
-
+        // console.log(`response <${response.data}>`);
         return response.data;
     };
 
@@ -86,7 +85,7 @@ export class Jenkins {
             console.log(`response <${response}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`>> Error <${error.message}>`);
+            logger.error(`_post:: Error <${error.message}>`);
             return error.message;
         }
     };
@@ -110,7 +109,7 @@ export class Jenkins {
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`>> Error <${error.message}>`);
+            logger.error(`_postForm:: Error <${error.message}>`);
             return error.message;
         }
     };
@@ -133,7 +132,7 @@ export class Jenkins {
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`>> Error <${error.message}>`);
+            logger.error(`_postFormEncoded:: Error <${error.message}>`);
             return error.message;
         }
     };
@@ -157,7 +156,7 @@ export class Jenkins {
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`>> Error <${error.message}>`);
+            logger.error(`_postJson:: Error <${error.message}>`);
             return error.message;
         }
     };
@@ -197,7 +196,7 @@ export class Jenkins {
             console.log(`response <${response.headers ?? response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`>> Error <${error.message}>`);
+            logger.error(`_create:: Error <${error.message}>`);
             return error.message;
         }
     };

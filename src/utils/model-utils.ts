@@ -13,6 +13,20 @@ export function getParameterDefinition(build: BuildsModel | undefined): JobPrope
     }
 }
 
+export function getHiddenParameters(build: BuildsModel | undefined): JobProperty[] {
+    if (build) {
+        return build.property.filter(val => val._class === DefinitionPropertyType.parametersDefinitionProperty.toString() && isHiddenParameter(val.parameterDefinitions));
+    } else {
+        return [];
+    }
+}
+
+export function isJenkinsBatch(build: BuildsModel | undefined) {
+    const jobParams = getHiddenParameters(build);
+    const batchParam = getJobParamDefinitions(jobParams)?.filter(param => param.name === 'jenkins.batch');
+    return batchParam && (batchParam[0].defaultParameterValue.value === 'true' || batchParam[0].defaultParameterValue.value === 'yes');
+}
+
 export function getIconPathByClass(classname: string) {
     let iconPath: string | vscode.ThemeIcon;
     if (classname === JobModelType.workflowMultiBranchProject) {
@@ -107,6 +121,10 @@ export async function makeJobTreeItems(jobsModel: JobsModel, executor: Executor,
         };
     }
     return treeItem;
+}
+
+export function isHiddenParameter(paramAction: JobParamDefinition[]) {
+    return paramAction?.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
 }
 
 export function makeToolTipJob(jobModel: JobsModel) {

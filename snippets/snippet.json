@@ -685,7 +685,18 @@
   },
   "C_SETTING_JENKINSRC": {
     "prefix": "C_SETTING_JENKINSRC",
-    "body": ["{", "    \"Local\": {", "        \"applications\": [", "            \"job/demo1\"", "        ],", "        \"description\": \"Demo Project\"", "    }", "}"],
+    "body": [
+      "{",
+      "    \"Local\": {",
+      "        \"applications\": [",
+      "            \"job/demo1\"",
+      "        ],",
+      "        \"buildProject\": [",
+      "        ],",
+      "        \"description\": \"Demo Project\"",
+      "    }",
+      "}"
+    ],
     "description": "Create .jenkinsrc.json File",
     "hidden": true,
     "type": "system"

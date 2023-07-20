@@ -310,6 +310,12 @@ export class Executor {
         );
     };
 
+    async getConfigJobUri(uri: string): Promise<any> {
+        return await this._jenkins._get<any>(
+            `${uri}/config.xml`
+        );
+    };
+
     async getJobAsView(job: BaseJobModel): Promise<AllViewModel> {
         const uri = this.extractUrl(job.url);
         console.log(`getJobAsView: uri <${uri}>`);
@@ -361,20 +367,25 @@ export class Executor {
     };
 
     async buildJobParam(uri: string, formData: Map<string, string>, delay: number = 3): Promise<string> {
-        if (delay < 1) {
-            delay = 1;
-        } else if (delay > 99) {
-            delay = 99;
-        }
+        try {
+            if (delay < 1) {
+                delay = 1;
+            } else if (delay > 99) {
+                delay = 99;
+            }
 
-        if (formData.size > 0) {
-            return await this._jenkins._postFormEncoded<string>(
-                `${uri}/buildWithParameters?delay=${delay}sec&${mapToUrlParams(formData)}`
-            );
-        } else {
-            return await this._jenkins._post<string>(
-                `${uri}/build?delay=${delay}sec`
-            );
+            if (formData && formData.size > 0) {
+                return await this._jenkins._postFormEncoded<string>(
+                    `${uri}/buildWithParameters?delay=${delay}sec&${mapToUrlParams(formData)}`
+                );
+            } else {
+                return await this._jenkins._post<string>(
+                    `${uri}/build?delay=${delay}sec`
+                );
+            }
+        } catch (error: any) {
+            logger.error(`build: ${error.message}`);
+            throw error;
         }
     }
 

@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
+import { Jenkins } from '../api/jenkins';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
 import { Constants } from '../svc/constants';
+import { JenkinsBatch } from '../svc/jenkins-batch';
 import { executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
@@ -12,10 +14,10 @@ import { getFolderAsModel, runJobAll } from '../ui/manage';
 import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithTimeout } from '../ui/ui';
 import { clearEditor, getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
-import { getParameterDefinition, makeJobTreeItems } from '../utils/model-utils';
+import { getParameterDefinition, isJenkinsBatch, makeJobTreeItems } from '../utils/model-utils';
 import { inferFileExtension } from '../utils/util';
 import { notifyMessageWithTimeout, showErrorMessage } from '../utils/vsc';
-import { FlowDefinition, parseXml } from '../utils/xml';
+import { FlowDefinition, Project, ProjectJob, parseXml, parseXmlData } from '../utils/xml';
 import { BuildsProvider } from './builds-provider';
 import { ReservationProvider } from './reservation-provider';
 
@@ -200,7 +202,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                             delay = delayInSeconds;
                         }
 
-                        let idx = 1;
+                        let idx = 0;
                         for (let selectedItem of selectedItems) {
                             this.reservationProvider.registerReservation(selectedItem.model!, delay * idx);
                             idx += 1;
@@ -209,12 +211,27 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 });
             }),
             vscode.commands.registerCommand('utocode.buildJob', async (job: JobsModel) => {
-                const mesg = await this.executor?.buildJobWithParameter(job, JenkinsConfiguration.buildDelay);
-                console.log(`buildJob <${mesg}>`);
-                setTimeout(() => {
-                    notifyMessageWithTimeout(mesg);
-                    this.buildsProvider.jobs = job;
-                }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
+                const suffix = JenkinsConfiguration.batchJobNameSuffix;
+                const isBatch = job.name.endsWith(suffix); // || isJenkinsBatch(job.jobDetail);
+                if (isBatch) {
+                    try {
+                        const text = await this.executor?.getConfigJob(job);
+                        const xmlData = parseXmlData(text) as ProjectJob;
+                        const commands = xmlData.project.builders?.['hudson.tasks.Shell'];
+                        const jenkinsBatch = new JenkinsBatch(this._executor!);
+                        const result = await jenkinsBatch.execute(commands.command);
+                        // logger.info(`Result:::\n${result}`);
+                    } catch (error: any) {
+                        logger.error(error.message);
+                    }
+                } else {
+                    const mesg = await this.executor?.buildJobWithParameter(job, JenkinsConfiguration.buildDelay);
+                    // console.log(`buildJob <${mesg}>`);
+                    setTimeout(() => {
+                        notifyMessageWithTimeout(mesg);
+                        this.buildsProvider.jobs = job;
+                    }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
+                }
             }),
             vscode.commands.registerCommand('utocode.deleteJob', async (job: JobsModel) => {
                 let mesg = await this.executor?.deleteJob(job.url);

@@ -19,7 +19,7 @@ export class ReservationScheduler {
             return;
         }
 
-        const delayInMilliseconds = delayInSeconds * 1000;
+        const delayInMilliseconds = delayInSeconds < 2 ? 2 : delayInSeconds * 1000;
         const reservationJobModel: ReservationJobModel = {
             id: job.name + '-' + this.generateId(),
             jobModel: job,

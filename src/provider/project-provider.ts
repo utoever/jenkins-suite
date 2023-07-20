@@ -3,11 +3,14 @@ import path from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
+import { Constants } from '../svc/constants';
+import { JenkinsBatch } from '../svc/jenkins-batch';
 import { SnippetSvc } from '../svc/snippet';
 import { BuildStatus, JobsModel, ProjectModel, ProjectModels } from '../types/model';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 import { getConfigPath, readFileUriAsProject, writeFileSync } from '../utils/file';
 import logger from '../utils/logger';
+import { ProjectJob, parseXmlData } from '../utils/xml';
 
 export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | JobsModel | BuildStatus> {
 
@@ -82,7 +85,23 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
                 const mesg = await this.executor?.buildJobWithParameter(job, JenkinsConfiguration.buildDelay);
                 setTimeout(() => {
                     this.refresh();
-                }, 3300);
+                }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
+            }),
+            vscode.commands.registerCommand('utocode.buildProjectAll', async (projectModel: ProjectModel) => {
+                let buildProject = projectModel.buildProject;
+                if (buildProject) {
+                    const jenkinsBatch = new JenkinsBatch(this._executor!);
+                    const suffix = JenkinsConfiguration.batchJobNameSuffix;
+                    if (buildProject.length === 1 && buildProject[0].split(' ')[1].endsWith(suffix)) {
+                        const cmds = buildProject[0].split(' ');
+                        const text = await this.executor?.getConfigJobUri(cmds[1]);
+                        const xmlData = parseXmlData(text) as ProjectJob;
+                        const commands = xmlData.project.builders?.['hudson.tasks.Shell'];
+                        buildProject = commands.command.split('\n');
+                    }
+                    const result = await jenkinsBatch.execute(buildProject);
+                    // logger.info(`Result:::\n${result}`);
+                }
             }),
             vscode.commands.registerCommand('utocode.openLink#projectServer', (projectModel: ProjectModel) => {
                 openLinkBrowser(projectModel.server!.url);
@@ -168,10 +187,12 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
                 status = 'red';
             }
         }
+
+        const batchCmd = this._projectModels && element && this._projectModels[element.name!].buildProject;
         return {
             label: element.name || '_EMPTY_',
             collapsibleState: this._executor ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-            contextValue: 'project_srv' + (status === 'blue' ? '_conn' : ''),
+            contextValue: 'project_srv' + (status === 'blue' ? '_conn' : '') + (batchCmd ? '_batch' : ''),
             iconPath: this.context.asAbsolutePath(`resources/job/${status}.png`),
             tooltip: this.makeProjectToolTip(element)
         };
@@ -187,9 +208,9 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
         text.appendMarkdown(`* URL: *${projectModel.server!.url}*\n`);
 
         text.appendMarkdown('\n---\n');
-        text.appendMarkdown(`## Execute Commands:\n`);
-        if (projectModel.batchCmd) {
-            projectModel.batchCmd.forEach(cmd => {
+        text.appendMarkdown(`## Project:\n`);
+        if (projectModel.buildProject) {
+            projectModel.buildProject.forEach(cmd => {
                 text.appendMarkdown(`* ${cmd}\n`);
             });
         } else {

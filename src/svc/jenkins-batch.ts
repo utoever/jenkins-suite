@@ -10,8 +10,14 @@ export class JenkinsBatch {
     constructor(private readonly executor: Executor) {
     }
 
-    async execute(text: string) {
-        const commands = text.split('\n');
+    async execute(text: string | string[]) {
+        let commands;
+        if (Array.isArray(text)) {
+            commands = text;
+        } else {
+            commands = text.split('\n');
+        }
+
         let ignoreErrors = false;
         let results: string[] = [];
         for (const lineCmdOrg of commands) {
@@ -59,7 +65,7 @@ export class JenkinsBatch {
         if (typeof this[cmd] === 'function') {
             log(`execute: ${cmd}`);
             const result: string | string[] = await (this[cmd] as Function)(...cmds.slice(1));
-            results.push(`* ${cmds[0].toUpperCase()}\n`);
+            results.push(`* ${cmds[0].toUpperCase()}`);
             if (Array.isArray(result)) {
                 results.push(...result);
             } else {
@@ -298,13 +304,19 @@ export class JenkinsBatch {
         return new Promise((resolve) => {
             setTimeout(async () => {
                 try {
-                    const result = await this.executeInternal(args.join(' '));
-                    resolve(result);
+                    if (args && args.length > 0) {
+                        const result = await this.executeInternal(args.join(' '));
+                        return resolve(result);
+                    }
+                    return resolve([]);
                 } catch (error: any) {
                     logger.error(error.message);
                 }
             }, timeout);
         });
+    }
+
+    async nothing(...args: string[]) {
     }
 
     assistUri(uri: string) {

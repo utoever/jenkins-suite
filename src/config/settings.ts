@@ -111,6 +111,15 @@ export default class JenkinsConfiguration {
         vscode.workspace.getConfiguration().update(JenkinsConfiguration.rootName + '.' + primaryKey, name, vscode.ConfigurationTarget.Global);
     }
 
+    public static get batchJobNameSuffix(): string {
+        const key = 'batch.job-name.suffix';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<string>(key)
+            ??
+            vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<string>(key)?.defaultValue
+            ??
+            '_JKSSH';
+    }
+
     public static get categorizedEnabled(): boolean {
         const key = 'plugin.categorized.enabled';
         return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<boolean>(key)

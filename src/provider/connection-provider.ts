@@ -384,7 +384,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
             this._executor = new Executor(this.context, server);
             await this._executor.initialized();
             this._currentServer = server;
-            logger.info(`* jenkins <${this._currentServer.name}> url <${server.url}>`);
+            logger.info(`* Connected <${this._currentServer.name}> url <${server.url}>`);
         } catch (error: any) {
             logger.error(error.message);
             vscode.window.showErrorMessage(vscode.l10n.t('The connection to the {0} server failed', server.name));

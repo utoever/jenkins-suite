@@ -22,35 +22,41 @@ For more information, please visit the following site.
 ## Features
 
 * Connection [SwitchConnection (Alt+1)]
-  * connect / disconnect / Connect SSH / Create User / Change Executor / Create Secret Text / Create Username with password
+  * Connect / Disconnect
+  * Connect SSH / Connect SSH with External
+  * Create User / Set Default / Change Executor / Create Secret Text / Create Username with password / System Message
 
   ![SwitchConnection](images/guide/guide1.png)
 
 * View [SwitchView (Alt+2)]
   * List
-  * Create View
+  * Create or Config View
 
   ![SwitchView](images/guide/guide2.png)
 
 * Job [SwitchBuild (Alt+3) RunJob (Alt+4) RunFolder (Alt+6)]
 
-  * Job: List / Create / Build
-  * Configuration: Get / Update
+  * List / Create / Build
+  * __Add Reservation__
+  * Rename / Copy / Move / Delete / Copy URI / Enabled / Disabled
+  * Configuration: Create or Update
   * Open Job in Web Browser
 
   ![Job](images/guide/guide9.png)
 
 * Build History [SwitchBuild (Alt+5)]
-  * View Log
+  * View Console Log
   * Open Log in Web Browser
 
   ![SwitchBuild](images/guide/guide4.png)
+
+* __Reservation__ [Add Schedule (Alt+7), Add Multi Schedule (Alt+8)]
 
 * Generate Job Code (Ctrl+Alt+Insert)
 
   ![Generate Job Code](images/guide/guide5.png)
 
-* Generate Code From Snippet
+* Generate Custom Code (Ctrl+Shift+Insert)
 
   ![Generate Code](images/guide/guide6.png)
 
@@ -146,23 +152,28 @@ For more information, please visit the following site.
 
 ## Jenkins Batch Script
 
-* Change Language Mode [Jenkins]
+* Change _Jenkins Shell_ [JKSSH] Language Mode after editor open
 * The script file must start with __"#!jenkins"__
 
 ```sh
 #!jenkins
 
-create-user     dev1 dev1234               # create user (account: dev1, password: dev1234)
-create-user     dev2 dev1234               # create user (account: dev2, password: dev1234)
-create-views    simple-view1 simple-view2  # create simple-view1, simple-view2 with Regex [a-zA-z].*
-create-view     custom-view1 .*-link       # create View with regex ".*-link"
-create-folder   my-folder                  # create folder
+create-user     dev1 dev1234                # create user (account: dev1, password: dev1234)
+create-user     dev2 dev1234                # create user
+create-views    demo-view1 demo-view2       # create demo-view1, demo-view2 with Default Regex [a-zA-z].*
+create-view     link-view1 .*-link          # create View with regex ".*-link"
+create-folder   my-folder                   # create folder
 
 create-pipeline dev-web
 create-shortcut home-link  https://jenkinssuite.github.io
 
+# create-global-var  GIT_SERVER http://192.168.0.1
+# create-global-var  env        dev
+# create-cred-User   user-git   git1234     # http://{JENKINS_SERVER}/jenkins/manage/credentials/
+# create-secret-text user-git   git1234     # http://{JENKINS_SERVER}/jenkins/manage/credentials/
+
 # delete-user dev2
-# delete-view simple-view2
+# delete-view demo-view2
 # delete-job  job/dev-web
 ```
 

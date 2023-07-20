@@ -78,6 +78,22 @@ export interface Project {
     properties: [any]
 }
 
+export interface ProjectJob {
+    project: {
+        actions: any
+        description: string
+        keepDependencies: boolean
+        properties: [any]
+        concurrentBuild: boolean
+        builders: {
+            'hudson.tasks.Shell': {
+                command: string,
+                configuredLocalRules: any
+            }
+        }
+    }
+}
+
 export interface JenkinsView {
 }
 
