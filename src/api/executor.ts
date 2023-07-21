@@ -322,6 +322,45 @@ export class Executor {
         return data && await this.executeScript(data);
     }
 
+    async getLogRotator(jobName: string) {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('get_log_rotator');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__JOB_NAME__', jobName);
+        }
+
+        logger.debug(`getLogRotator:: jobName <${jobName}>`);
+        return data && await this.executeScript(data);
+    }
+
+    async setLogRotator(jobName: string, maxCount: string) {
+        if (maxCount === '0' || maxCount === '') {
+            const result = this.deleteLogRotator(jobName);
+            return 0;
+        } else {
+            const snippetItem = await this.snippetSvc.invokeSnippetJenkins('set_log_rotator');
+            let data: string | undefined;
+            if (snippetItem && snippetItem.body) {
+                data = snippetItem.body.join('\n').replace('__JOB_NAME__', jobName)
+                    .replace('__MAX_COUNT__', maxCount);
+            }
+
+            logger.debug(`setLogRotator:: jobName <${jobName}>`);
+            return data && await this.executeScript(data);
+        }
+    }
+
+    async deleteLogRotator(jobName: string) {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('delete_log_rotator');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__JOB_NAME__', jobName);
+        }
+
+        logger.debug(`deleteLogRotator:: jobName <${jobName}>`);
+        return data && await this.executeScript(data);
+    }
+
     //
     // Job
     //

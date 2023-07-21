@@ -48,5 +48,10 @@
     "prefix": ["ggv"],
     "body": ["get-global-var"],
     "description": "Get Global Variable"
+  },
+  "log": {
+    "prefix": "log",
+    "body": ["${1|get,set,delete|}-log-rotator ${2:jobName}", "$0"],
+    "description": "Get, Set or Delete log-rotator"
   }
 }

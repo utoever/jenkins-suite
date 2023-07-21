@@ -263,6 +263,30 @@ export class JenkinsBatch {
         return results;
     }
 
+    async getLogRotator(jobName: string) {
+        const results: string[] = [];
+        logger.info(`Get Log Rotator: ${jobName}`);
+        const result = await this.executor.getLogRotator(jobName);
+        results.push(`getLogRotator <${jobName}>: ${result ? result : 'Failed'}`);
+        return results;
+    }
+
+    async setLogRotator(jobName: string, maxCount: string) {
+        const results: string[] = [];
+        logger.info(`Set Log Rotator: ${jobName}`);
+        const result = await this.executor.setLogRotator(jobName, maxCount);
+        results.push(`setLogRotator <${jobName}>: ${result ? 'Success' : 'Failed'}`);
+        return results;
+    }
+
+    async deleteLogRotator(jobName: string) {
+        const results: string[] = [];
+        logger.info(`Delete Log Rotator: ${jobName}`);
+        const result = await this.executor.deleteLogRotator(jobName);
+        results.push(`deleteLogRotator <${jobName}>: ${result ? 'Success' : 'Failed'}`);
+        return results;
+    }
+
     async getRssAll(...args: string[]) {
         const results = [];
         logger.info(`Get Rss All`);

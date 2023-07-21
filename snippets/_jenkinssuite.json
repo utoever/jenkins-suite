@@ -347,5 +347,77 @@
     ],
     "description": "delete_job_param",
     "hidden": true
+  },
+  "get_log_rotator": {
+    "prefix": "get_log_rotator",
+    "body": [
+      "#!groovy",
+      "import hudson.tasks.LogRotator;",
+      "",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "def jobName = '__JOB_NAME__'",
+      "def job = Jenkins.instance.getItemByFullName(jobName)",
+      "",
+      "if (job == null) {",
+      "    println \"Job '${jobName}' not found.\"",
+      "} else {",
+      "    def discarderProperty = job.getProperty(BuildDiscarderProperty.class)",
+      "    // println discarderProperty",
+      "    return (discarderProperty != null && discarderProperty.strategy != null) ? discarderProperty.strategy.numToKeep : 0;",
+      "}"
+    ],
+    "description": "get_log_rotator",
+    "hidden": true
+  },
+  "set_log_rotator": {
+    "prefix": "set_log_rotator",
+    "body": [
+      "#!groovy",
+      "import hudson.tasks.LogRotator;",
+      "",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "def jobName = '__JOB_NAME__'",
+      "def job = Jenkins.instance.getItemByFullName(jobName)",
+      "",
+      "if (job == null) {",
+      "    println \"Job '${jobName}' not found.\"",
+      "} else {",
+      "    def discarderProperty = job.getProperty(BuildDiscarderProperty.class)",
+      "    // println discarderProperty",
+      "    if (discarderProperty != null) {",
+      "        job.removeProperty(BuildDiscarderProperty.class)",
+      "    }",
+      "    discarderProperty = new BuildDiscarderProperty(new LogRotator(-1, __MAX_COUNT__, -1, -1))",
+      "    job.addProperty(discarderProperty)",
+      "    job.save()",
+      "    return \"${count}\"",
+      "}"
+    ],
+    "description": "set_log_rotator",
+    "hidden": true
+  },
+  "delete_log_rotator": {
+    "prefix": "delete_log_rotator",
+    "body": [
+      "#!groovy",
+      "import hudson.tasks.LogRotator;",
+      "",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "def jobName = '__JOB_NAME__'",
+      "def job = Jenkins.instance.getItemByFullName(jobName)",
+      "",
+      "if (job == null) {",
+      "    println \"Job '${jobName}' not found.\"",
+      "} else {",
+      "    def discarderProperty = job.getProperty(BuildDiscarderProperty.class)",
+      "    if (discarderProperty != null) {",
+      "        job.removeProperty(BuildDiscarderProperty.class)",
+      "    }",
+      "    job.save()",
+      "    return 'true'",
+      "}"
+    ],
+    "description": "delete_log_rotator",
+    "hidden": true
   }
 }

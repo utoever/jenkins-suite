@@ -156,6 +156,37 @@ export class JksshHoverProvider implements vscode.HoverProvider {
                     '### snippet: del, gv, glv',
                 description: 'Deletes a global variable',
             },
+            'getLogRotator': {
+                content: 'Get Log Rotator\n' +
+                    '\n---\n' +
+                    '### get-log-rotator {jobName}\n' +
+                    '\n---\n' +
+                    '* _jobName_: Only Job Name\n' +
+                    '\n---\n' +
+                    '### snippet: log',
+                description: 'Get count of the log Rotator',
+            },
+            'setLogRotator': {
+                content: 'Set Log Rotator\n' +
+                    '\n---\n' +
+                    '### set-log-rotator {jobName} {maxCount}\n' +
+                    '\n---\n' +
+                    '* _jobName_: Only Job Name\n' +
+                    '* _maxCount_: if not empty, only up to this number of build records are kept\n' +
+                    '\n---\n' +
+                    '### snippet: log',
+                description: 'Set count of the log Rotator',
+            },
+            'deleteLogRotator': {
+                content: 'Delete Log Rotator\n' +
+                    '\n---\n' +
+                    '### delete-log-rotator {jobName}\n' +
+                    '\n---\n' +
+                    '* _jobName_: Only Job Name\n' +
+                    '\n---\n' +
+                    '### snippet: log',
+                description: 'Deletes a log Rotator',
+            },
         };
 
         const keywordInfo = hoverInfo[_.camelCase(word)];
