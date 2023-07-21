@@ -4,7 +4,7 @@ import JenkinsConfiguration from '../config/settings';
 import { notifyUIUserMessage, refreshView, showInfoMessageWithTimeout } from "../ui/ui";
 import { getSelectionText, printEditor, printEditorWithNew, saveCurrentEditor } from "../utils/editor";
 import logger from '../utils/logger';
-import { JenkinsBatch } from './jenkins-batch';
+import { JenkinsShell } from './jenkins-shell';
 
 export async function executeQuick(_executor: Executor) {
     const activeEditor = vscode.window.activeTextEditor;
@@ -16,9 +16,9 @@ export async function executeQuick(_executor: Executor) {
         if (languageIds === 'jenkins' || languageIds === 'jkssh') {
             const text = getSelectionText();
             if (text.startsWith('#!jenkins')) {
-                const jenkinsBatch = new JenkinsBatch(_executor!);
+                const jksShell = new JenkinsShell(_executor!);
                 await notifyUIUserMessage('Processing', false);
-                const results = await jenkinsBatch.execute(text);
+                const results = await jksShell.execute(text);
 
                 const scriptNextWindowEnabled = JenkinsConfiguration.scriptNextWindowEnabled;
                 if (scriptNextWindowEnabled) {

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Project, isJenkinsPipeline, isJenkinsView, parseXml } from '../utils/xml';
+import { Project, isJenkinsPipeline, isJenkinsView, parseXml } from '../../utils/xml';
 
 export class XmlCodeLensProvider implements vscode.CodeLensProvider {
 
@@ -23,13 +23,13 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                 const position = new vscode.Position(0, 0);
                 const range = new vscode.Range(position, position);
                 const command1 = {
-                    title: '▶ Update Job',
+                    title: '$(edit) Update Job',
                     command: 'utocode.updateConfigJob',
                     arguments: []
                 };
 
                 const command2 = {
-                    title: '▶ Create Job',
+                    title: '$(repo) Create Job',
                     command: 'utocode.createJob',
                     arguments: []
                 };
@@ -46,7 +46,7 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
 
                         const range3 = new vscode.Range(lineStartPosition, new vscode.Position(lineStartPosition.line, lineStartPosition.character + 1));
                         const command3 = {
-                            title: '▶ Validate Jenkinsfile',
+                            title: '$(check-all) Validate Jenkinsfile',
                             command: 'utocode.validateJenkins',
                             arguments: []
                         };
@@ -58,13 +58,13 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                 const position = new vscode.Position(0, 0);
                 const range = new vscode.Range(position, position);
                 const command1 = {
-                    title: '▶ Update View',
+                    title: '$(replace-all) Update View',
                     command: 'utocode.updateConfigView',
                     arguments: []
                 };
 
                 const command2 = {
-                    title: '▶ Create View',
+                    title: '$(repo) Create View',
                     command: 'utocode.createView',
                     arguments: []
                 };

@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { CodeLens, window } from 'vscode';
 
 export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
 
@@ -34,9 +33,16 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                         tooltip: 'Execute Script',
                         arguments: []
                     };
+                    const command2 = {
+                        title: '$(server-process) Convert Job',
+                        command: 'utocode.convertJksshAsJob',
+                        tooltip: 'convert Jenkins to Job',
+                        arguments: []
+                    };
 
                     const codeLens = new vscode.CodeLens(range, command);
-                    return [codeLens];
+                    const codeLens2 = new vscode.CodeLens(range, command2);
+                    return [codeLens, codeLens2];
                 }
             }
         } else if (document.languageId === 'groovy') {

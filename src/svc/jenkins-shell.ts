@@ -3,7 +3,7 @@ import _ from "lodash";
 import { Executor } from "../api/executor";
 import logger from "../utils/logger";
 
-export class JenkinsBatch {
+export class JenkinsShell {
 
     [key: string]: Function | Executor;
 

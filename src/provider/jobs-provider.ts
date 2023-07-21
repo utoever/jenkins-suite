@@ -4,7 +4,7 @@ import { Jenkins } from '../api/jenkins';
 import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
 import { Constants } from '../svc/constants';
-import { JenkinsBatch } from '../svc/jenkins-batch';
+import { JenkinsShell } from '../svc/jenkins-shell';
 import { convertJksshAsJob, deleteJobParam, executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
@@ -218,8 +218,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                         const text = await this.executor?.getConfigJob(job);
                         const xmlData = parseXmlData(text) as ProjectJob;
                         const commands = xmlData.project.builders?.['hudson.tasks.Shell'];
-                        const jenkinsBatch = new JenkinsBatch(this._executor!);
-                        const result = await jenkinsBatch.execute(commands.command);
+                        const jksShell = new JenkinsShell(this._executor!);
+                        const result = await jksShell.execute(commands.command);
                         // logger.info(`Result:::\n${result}`);
                     } catch (error: any) {
                         logger.error(error.message);

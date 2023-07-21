@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { Constants } from '../svc/constants';
-import { JenkinsBatch } from '../svc/jenkins-batch';
+import { JenkinsShell } from '../svc/jenkins-shell';
 import { SnippetSvc } from '../svc/snippet';
 import { BuildStatus, JobsModel, ProjectModel, ProjectModels } from '../types/model';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
@@ -90,7 +90,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
             vscode.commands.registerCommand('utocode.buildProjectAll', async (projectModel: ProjectModel) => {
                 let buildProject = projectModel.buildProject;
                 if (buildProject) {
-                    const jenkinsBatch = new JenkinsBatch(this._executor!);
+                    const jksShell = new JenkinsShell(this._executor!);
                     const suffix = JenkinsConfiguration.batchJobNameSuffix;
                     if (buildProject.length === 1 && buildProject[0].split(' ')[1].endsWith(suffix)) {
                         const cmds = buildProject[0].split(' ');
@@ -99,7 +99,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectModel | J
                         const commands = xmlData.project.builders?.['hudson.tasks.Shell'];
                         buildProject = commands.command.split('\n');
                     }
-                    const result = await jenkinsBatch.execute(buildProject);
+                    const result = await jksShell.execute(buildProject);
                     // logger.info(`Result:::\n${result}`);
                 }
             }),

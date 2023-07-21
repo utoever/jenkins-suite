@@ -1455,6 +1455,14 @@
         {
           "language": "jenkins",
           "scheme": "file"
+        },
+        {
+          "language": "jkssh",
+          "scheme": "jkssh"
+        },
+        {
+          "language": "jenkins",
+          "scheme": "jkssh"
         }
       ],
       "priority": 1
@@ -1472,7 +1480,10 @@
           "light": "./resources/icons/jenkins.svg",
           "dark": "./resources/icons/jenkins.svg"
         },
-        "configuration": "./languages/jenkins-language-configuration.json"
+        "configuration": "./languages/jenkins-language-configuration.json",
+        "schemes": [
+          "jkssh"
+        ]
       },
       {
         "id": "jkssh",
@@ -1488,7 +1499,10 @@
           "light": "./resources/icons/jenkins.svg",
           "dark": "./resources/icons/jenkins.svg"
         },
-        "configuration": "./languages/jks-language-configuration.json"
+        "configuration": "./languages/jks-language-configuration.json",
+        "schemes": [
+          "jkssh"
+        ]
       }
     ],
     "grammars": [
