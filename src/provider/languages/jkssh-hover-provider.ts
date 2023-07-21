@@ -11,6 +11,10 @@ export class JksshHoverProvider implements vscode.HoverProvider {
 
         const word = document.getText(wordRange);
         const hoverInfo: { [key: string]: KeywordInfo } = {
+            'jenkins': {
+                content: this.makeHelp(),
+                description: '',
+            },
             'createUser': {
                 content: 'Create user\n' +
                     '\n---\n' +
@@ -196,6 +200,21 @@ export class JksshHoverProvider implements vscode.HoverProvider {
         }
 
         return null;
+    }
+
+    makeHelp(): string {
+        return `Jenkins: \n
+---
+Available Commands: \n
+---
+* create-user / delete-user
+* create-view / delete-view
+* build-job / create-pipeline / create-folder / create-shortcut / delete-job
+* create-secret-text / create-cred-user
+* create-global-var / delete-global-var
+* get-log-rotator / set-log-rotator / delete-log-rotator
+---
+`;
     }
 
 }

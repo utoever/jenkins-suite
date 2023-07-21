@@ -68,6 +68,8 @@ For more information, please visit the following site.
 
   ![project](images/guide/guide8.png)
 
+* Use __Jenkins Shell Mode__
+
 ## Getting Started
 
 * Generate an API Token

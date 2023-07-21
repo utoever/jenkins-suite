@@ -665,25 +665,26 @@ Available Parameters
     }
 
     makeTools(): string {
-        return `Tools: \n
+        return `Tools:\n
 ---
-A section defining tools to auto-install and put on the PATH. This is ignored if agent none is specified.
+A section defining tools to auto-install and put on the PATH.
+This is ignored if agent none is specified. \n
 ---
 Supported Tools
 ---
 * maven
 * jdk
 * gradle
----
-`;
+---`;
     }
 
     makePipeline(): string {
         return `Pipeline: \n
 ---
-A Pipeline is a user-defined model of a CD pipeline. A Pipeline\'s code defines your entire build process, which typically includes stages for building an application, testing it and then delivering it.
+A Pipeline is a user-defined model of a CD pipeline.
+A Pipeline's code defines your entire build process, which typically includes stages for building an application, testing it and then delivering it.
 ---
-Pipeline Syntax
+Pipeline Syntax \n
 ---
 * https://{YOUR_JENKINS}/jenkins/pipeline-syntax/
 * https://www.jenkins.io/doc/book/pipeline/syntax/

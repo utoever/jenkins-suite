@@ -1,17 +1,18 @@
 {
-  "CREATE_JENKINS_BATCH": {
-    "prefix": "create_jenkins_batch",
+  "CREATE_JENKINS_SHELL": {
+    "prefix": "create_jenkins_shell",
     "body": [
       "#!jenkins",
+      "# Save using the .jkssh file extension",
       "",
       "create-user     dev1 dev1234                # create user (account: dev1, password: dev1234)",
-      "create-user     dev2 dev1234                # create user",
-      "create-views    demo-view1 demo-view2       # create demo-view1, demo-view2 with Default Regex [a-zA-z].*",
-      "create-view     link-view1 .*-link          # create View with regex \".*-link\"",
-      "create-folder   my-folder                   # create folder",
-      "",
+      "create-view     link-view  .*-link          # create View with regex \".*-link\"",
       "create-pipeline dev-web",
       "create-shortcut home-link  https://jenkinssuite.github.io",
+      "",
+      "# create-user     dev2 dev1234                # create user",
+      "# create-views    demo-view1 demo-view2       # create demo-view1, demo-view2 with Default Regex [a-zA-z].*",
+      "# create-folder   my-folder                   # create folder",
       "",
       "# create-global-var  GIT_SERVER http://192.168.0.1",
       "# create-global-var  env        dev",
@@ -23,7 +24,7 @@
       "# delete-job  job/dev-web",
       ""
     ],
-    "description": "Create Jenkins Batch Script",
+    "description": "Create Jenkins Shell Script",
     "language": "jkssh",
     "type": "system"
   },
