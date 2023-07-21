@@ -19,8 +19,9 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                 const range = new vscode.Range(position, position);
                 if (text.startsWith('pipeline {')) {
                     const command = {
-                        title: '▶ Validate Jenkinsfile',
+                        title: '$(check-all) Validate Jenkinsfile',
                         command: 'utocode.validateJenkins',
+                        tooltip: 'Validate Jenkinsfile',
                         arguments: []
                     };
 
@@ -28,8 +29,9 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                     return [codeLens];
                 } else if (text.startsWith('#!jenkins') || text.startsWith('#! jenkins')) {
                     const command = {
-                        title: '⚡️ Execute Script',
+                        title: '$(run-all) Execute Script',
                         command: 'utocode.executeQuick',
+                        tooltip: 'Execute Script',
                         arguments: []
                     };
 
@@ -47,11 +49,19 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                     const command = {
                         title: '⚡️ Execute Script',
                         command: 'utocode.executeQuick',
+                        tooltip: 'Execute Script',
+                        arguments: []
+                    };
+                    const command2 = {
+                        title: '$(server-process) Convert Job',
+                        command: 'utocode.convertJksshAsJob',
+                        tooltip: 'convert Jenkins to Job',
                         arguments: []
                     };
 
                     const codeLens = new vscode.CodeLens(range, command);
-                    return [codeLens];
+                    const codeLens2 = new vscode.CodeLens(range, command2);
+                    return [codeLens, codeLens2];
                 }
             }
         }

@@ -111,3 +111,15 @@ export async function closeActiveEditor() {
         });
     }
 }
+
+export function saveCurrentEditor(forced: boolean = false): Thenable<boolean> {
+    const activeEditor = vscode.window.activeTextEditor;
+
+    if (activeEditor) {
+        const document = activeEditor.document;
+        let required = document.isDirty || forced;
+        return Promise.resolve(required ? document.save() : false);
+    } else {
+        return Promise.resolve(false);
+    }
+}

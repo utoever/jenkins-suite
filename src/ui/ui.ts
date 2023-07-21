@@ -67,6 +67,6 @@ export async function notifyUIUserMessage(message: string = 'Processing', showEd
 
 export async function refreshView(cmd: string, timeout: number = Constants.JENKINS_DEFAULT_GROOVY_DELAY) {
     setTimeout(async () => {
-        commands.executeCommand(cmd);
+        await commands.executeCommand(cmd);
     }, timeout);
 }

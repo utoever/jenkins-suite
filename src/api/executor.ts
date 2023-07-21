@@ -298,6 +298,30 @@ export class Executor {
         return data && await this.executeScript(data);
     }
 
+    async convertJksshAsJob(jobName: string, shCmd: string) {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('create_jenkins_shell');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__JOB_NAME__', jobName)
+                .replace('__SHELL_TEXT__', shCmd);
+        }
+
+        logger.debug(`convertJksshAsJob:: jobName <${jobName}>`);
+        return data && await this.executeScript(data);
+    }
+
+    async deleteJobParam(jobName: string, paramName: string) {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins('delete_job_param');
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__JOB_NAME__', jobName)
+                .replace('__PARAM_NAME__', paramName);
+        }
+
+        logger.debug(`deleteJobParam:: jobName <${jobName}>`);
+        return data && await this.executeScript(data);
+    }
+
     //
     // Job
     //

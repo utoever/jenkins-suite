@@ -5,7 +5,7 @@ import JenkinsConfiguration from '../config/settings';
 import { SnippetItem } from '../snippet/snippet';
 import { Constants } from '../svc/constants';
 import { JenkinsBatch } from '../svc/jenkins-batch';
-import { executeQuick } from '../svc/script-svc';
+import { convertJksshAsJob, deleteJobParam, executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
@@ -359,6 +359,19 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     showErrorMessage(text);
                 }
             }),
+            vscode.commands.registerCommand('utocode.convertJksshAsJob', async () => {
+                if (this._executor) {
+                    const result = convertJksshAsJob(this._executor);
+                    await refreshView('utocode.jobs.refresh', 1200);
+                }
+            }),
+            vscode.commands.registerCommand('utocode.deleteJobParam', async (jobsModel: JobsModel) => {
+                if (this._executor) {
+                    const jobParam = jobsModel.jobParam;
+                    const result = deleteJobParam(this._executor, jobsModel.fullName, jobParam!.name);
+                    await refreshView('utocode.jobs.refresh', 1200);
+                }
+            }),
         );
     }
 
@@ -443,7 +456,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             const viewName = this.view?.name ?? 'all';
             notifyUIUserMessage();
             const mesg = await this.executor?.createJobInput(text, viewName);
-            console.log(`result <${mesg}>`);
+            // console.log(`result <${mesg}>`);
             clearEditor();
         } else {
             let jobs = this.buildsProvider.jobs;
@@ -454,7 +467,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
             notifyUIUserMessage();
             const mesg = await this.executor?.updateJobConfig(jobs.name, text);
-            console.log(`result <${mesg}>`);
+            // console.log(`result <${mesg}>`);
             setTimeout(() => {
                 vscode.commands.executeCommand('utocode.getConfigJob', jobs, true);
             }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
@@ -471,6 +484,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             treeItem = {
                 label: `${jobParam.name} [${jobParam.defaultParameterValue.value}]`,
                 collapsibleState: vscode.TreeItemCollapsibleState.None,
+                contextValue: 'nothing',
                 iconPath: new vscode.ThemeIcon(jobParam._class === ParametersDefinitionProperty.wHideParameterDefinition ? 'eye-closed' : 'file-code'),
                 tooltip: this.getToolTipParams(jobsModel)
             };

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { notifyUIUserMessage, refreshView, showInfoMessageWithTimeout } from "../ui/ui";
-import { getSelectionText, printEditor, printEditorWithNew } from "../utils/editor";
+import { getSelectionText, printEditor, printEditorWithNew, saveCurrentEditor } from "../utils/editor";
 import logger from '../utils/logger';
 import { JenkinsBatch } from './jenkins-batch';
 
@@ -48,9 +48,6 @@ export async function executeQuick(_executor: Executor) {
     }
 }
 
-export async function executeJenkins(_executor: Executor) {
-}
-
 export async function executeScript(_executor: Executor) {
     const text = getSelectionText();
     if (!text) {
@@ -72,5 +69,38 @@ export async function executeScript(_executor: Executor) {
         }
     } catch (error: any) {
         logger.error(error.message);
+    }
+}
+
+export async function convertJksshAsJob(_executor: Executor) {
+    const saved = saveCurrentEditor();
+    let jobName = await vscode.window.showInputBox({
+        title: 'Job Name',
+        prompt: 'Enter job name'
+    }).then((val) => {
+        return val;
+    });
+
+    notifyUIUserMessage('Processing', false);
+    const text = getSelectionText();
+    if (jobName) {
+        const suffix = JenkinsConfiguration.batchJobNameSuffix;
+        if (!jobName.endsWith(suffix)) {
+            jobName = jobName + suffix;
+        }
+        const result = await _executor.convertJksshAsJob(jobName, text);
+        if (result) {
+            showInfoMessageWithTimeout(result);
+        }
+    } else {
+        showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
+    }
+}
+
+export async function deleteJobParam(_executor: Executor, jobName: string, paramName: string) {
+    const result = await _executor.deleteJobParam(jobName, paramName);
+    notifyUIUserMessage('Processing', false);
+    if (result) {
+        showInfoMessageWithTimeout(result);
     }
 }

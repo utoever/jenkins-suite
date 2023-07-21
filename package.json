@@ -5,7 +5,7 @@
   "version": "0.5.1",
   "author": "utocode",
   "publisher": "utocode",
-  "icon": "images/logo.png",
+  "icon": "images/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/utocode/jenkins-suite"
@@ -266,6 +266,11 @@
       {
         "command": "utocode.disabledJob",
         "title": "%disabledJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.deleteJobParam",
+        "title": "%deleteJobParam.title%",
         "category": "jenkinssuite"
       },
       {
@@ -684,6 +689,11 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.convertJksshAsJob",
+        "title": "%convertJksshAsJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.translateMessage",
         "title": "Translate Message",
         "category": "jenkinssuite"
@@ -862,7 +872,7 @@
           "group": "inline@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && (!(viewItem =~ /.*_disabled.*/))",
+          "when": "view == 'utocode.views.jobs' && (viewItem != 'nothing') && (!(viewItem =~ /.*_disabled.*/))",
           "command": "utocode.buildJob",
           "group": "1_jenkinssuite_actions@10"
         },
@@ -877,7 +887,7 @@
           "group": "1_jenkinssuite_actions@50"
         },
         {
-          "when": "view == 'utocode.views.jobs' && !(viewItem =~ /^.*_disabled.*/)",
+          "when": "view == 'utocode.views.jobs' && (viewItem != 'nothing') && !(viewItem =~ /^.*_disabled.*/)",
           "command": "utocode.addReservation",
           "group": "1_run@10"
         },
@@ -912,9 +922,14 @@
           "group": "3_manage@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && !(viewItem =~ /^.*_disabled.*/)",
+          "when": "view == 'utocode.views.jobs' && (viewItem != 'nothing') && !(viewItem =~ /^.*_disabled.*/)",
           "command": "utocode.disabledJob",
           "group": "3_manage@10"
+        },
+        {
+          "when": "view == 'utocode.views.jobs' && (viewItem == 'nothing')",
+          "command": "utocode.deleteJobParam",
+          "group": "1_run@10"
         },
         {
           "when": "viewItem == 'builds'",
@@ -1453,6 +1468,10 @@
         "aliases": [
           "Jenkins"
         ],
+        "icon": {
+          "light": "./resources/icons/jenkins.svg",
+          "dark": "./resources/icons/jenkins.svg"
+        },
         "configuration": "./languages/jenkins-language-configuration.json"
       },
       {
@@ -1465,6 +1484,10 @@
           ".jkssh",
           ".jenkins"
         ],
+        "icon": {
+          "light": "./resources/icons/jenkins.svg",
+          "dark": "./resources/icons/jenkins.svg"
+        },
         "configuration": "./languages/jks-language-configuration.json"
       }
     ],
