@@ -58,16 +58,9 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                         tooltip: 'Execute Script',
                         arguments: []
                     };
-                    const command2 = {
-                        title: '$(server-process) Convert Job',
-                        command: 'utocode.convertJksshAsJob',
-                        tooltip: 'convert Jenkins to Job',
-                        arguments: []
-                    };
 
                     const codeLens = new vscode.CodeLens(range, command);
-                    const codeLens2 = new vscode.CodeLens(range, command2);
-                    return [codeLens, codeLens2];
+                    return [codeLens];
                 }
             }
         }
