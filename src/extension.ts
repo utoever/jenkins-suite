@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { JenkinsHoverProvider } from './provider/JenkinsHoverProvider';
 import { JenkinsPipelineSymbolProvider } from './provider/JenkinsPipelineSymbolProvider';
 import { JksshHoverProvider } from './provider/JksshHoverProvider';
 import { BuildsProvider } from './provider/builds-provider';
@@ -56,6 +57,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.languages.registerHoverProvider(
 			{ language: 'jkssh', scheme: 'file' },
 			new JksshHoverProvider()
+		),
+		vscode.languages.registerHoverProvider(
+			{ language: 'jenkins', scheme: 'file' },
+			new JenkinsHoverProvider()
 		)
 	);
 

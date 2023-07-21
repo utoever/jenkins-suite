@@ -20,22 +20,22 @@
     "description": "delete user, view, pipeline, folder etc"
   },
   "job": {
-    "prefix": "jo",
+    "prefix": ["jo", "job"],
     "body": ["${1|build,rename,move,delete|}-job job/${2:job}", ""],
     "description": "build, rename, move, delete etc"
   },
   "create pipeline": {
-    "prefix": "cp",
+    "prefix": ["cp", "crp"],
     "body": ["create-pipeline ${1:job}", ""],
     "description": "create pipeline"
   },
   "create folder": {
-    "prefix": "cf",
+    "prefix": ["cf", "crf"],
     "body": ["create-folder ${1:folderName}", ""],
     "description": "create folder etc"
   },
   "delete job": {
-    "prefix": "dj",
+    "prefix": ["dj", "delj"],
     "body": ["delete-job ${1:job}", ""],
     "description": "Delete Job (Job, Folder etc)"
   },
