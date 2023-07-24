@@ -1,4 +1,27 @@
 {
+  "create_pipeline_job": {
+    "prefix": "create_pipeline_job",
+    "body": [
+      "<?xml version='1.1' encoding='UTF-8'?>",
+      "<flow-definition plugin=\"workflow-job@1316.vd2290d3341a_f\">",
+      "  <description></description>",
+      "  <keepDependencies>false</keepDependencies>",
+      "  <properties>",
+      "    <com.sonyericsson.rebuild.RebuildSettings plugin=\"rebuild@320.v5a_0933a_e7d61\">",
+      "      <autoRebuild>false</autoRebuild>",
+      "      <rebuildDisabled>false</rebuildDisabled>",
+      "    </com.sonyericsson.rebuild.RebuildSettings>",
+      "  </properties>",
+      "  <definition class=\"org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition\" plugin=\"workflow-cps@3697.vb_470e454c232\">",
+      "    <script>__SCRIPT__</script>",
+      "    <sandbox>true</sandbox>",
+      "  </definition>",
+      "  <triggers/>",
+      "  <disabled>false</disabled>",
+      "</flow-definition>"
+    ],
+    "description": "create_pipeline_job"
+  },
   "create_user": {
     "prefix": "create_user",
     "body": [

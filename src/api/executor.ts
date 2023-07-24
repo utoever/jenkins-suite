@@ -310,6 +310,17 @@ export class Executor {
         return data && await this.executeScript(data);
     }
 
+    async convertPipelineJob(jobName: string, script: string) {
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins(Constants.SNIPPET_CREATE_PIPELINE_JOB.toLowerCase());
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace('__SCRIPT__', script);
+        }
+
+        logger.debug(`convertPipelineJob:: jobName <${jobName}>`);
+        return data && await this.createJob(data, jobName);
+    }
+
     async deleteJobParam(jobName: string, paramName: string) {
         const snippetItem = await this.snippetSvc.invokeSnippetJenkins('delete_job_param');
         let data: string | undefined;

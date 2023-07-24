@@ -17,17 +17,25 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                 const position = new vscode.Position(0, 0);
                 const range = new vscode.Range(position, position);
                 if (text.startsWith('pipeline {')) {
-                    const command = {
+                    const command1 = {
                         title: '$(check-all) Validate Jenkinsfile',
                         command: 'utocode.validateJenkins',
                         tooltip: 'Validate Jenkinsfile',
                         arguments: []
                     };
 
-                    const codeLens = new vscode.CodeLens(range, command);
-                    return [codeLens];
+                    const command2 = {
+                        title: '$(server-process) Convert Job',
+                        command: 'utocode.convertPipelineJob',
+                        tooltip: 'Convert Pipeline to Job',
+                        arguments: []
+                    };
+
+                    const codeLens1 = new vscode.CodeLens(range, command1);
+                    const codeLens2 = new vscode.CodeLens(range, command2);
+                    return [codeLens1, codeLens2];
                 } else if (text.startsWith('#!jenkins') || text.startsWith('#! jenkins')) {
-                    const command = {
+                    const command1 = {
                         title: '$(run-all) Execute Script',
                         command: 'utocode.executeQuick',
                         tooltip: 'Execute Script',
@@ -40,9 +48,9 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                         arguments: []
                     };
 
-                    const codeLens = new vscode.CodeLens(range, command);
+                    const codeLens1 = new vscode.CodeLens(range, command1);
                     const codeLens2 = new vscode.CodeLens(range, command2);
-                    return [codeLens, codeLens2];
+                    return [codeLens1, codeLens2];
                 }
             }
         } else if (document.languageId === 'groovy') {

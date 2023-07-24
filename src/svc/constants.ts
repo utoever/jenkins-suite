@@ -21,4 +21,6 @@ export namespace Constants {
 
     export const SNIPPET_CREATE_SHORTCUT = 'CREATE_SHORTCUT';
 
+    export const SNIPPET_CREATE_PIPELINE_JOB = 'create_pipeline_job';
+
 }

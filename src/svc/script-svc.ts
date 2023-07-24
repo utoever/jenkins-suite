@@ -1,3 +1,4 @@
+import { encode } from 'html-entities';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
@@ -83,21 +84,48 @@ export async function convertJksshAsJob(_executor: Executor) {
         return val;
     });
 
-    notifyUIUserMessage('Processing', false);
-    const text = getSelectionText();
     if (jobName) {
+        notifyUIUserMessage('Processing', false);
+        const text = getSelectionText();
         const suffix = JenkinsConfiguration.batchJobNameSuffix;
         if (!jobName.endsWith(suffix)) {
             jobName = jobName + suffix;
         }
         const result = await _executor.convertJksshAsJob(jobName, text);
-        if (result) {
-            showInfoMessageWithTimeout(result);
+        if (result === '') {
+            showInfoMessageWithTimeout(vscode.l10n.t('Create Job <{0}>', jobName));
         }
     } else {
         showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
     }
 }
+
+export async function convertPipelineJob(_executor: Executor) {
+    let workspaceName = '';
+    if (vscode.workspace.workspaceFolders) {
+        workspaceName = vscode.workspace.workspaceFolders[0].name;
+    }
+    const saved = saveCurrentEditor();
+    let jobName = await vscode.window.showInputBox({
+        title: 'Job Name',
+        prompt: 'Enter job name',
+        value: workspaceName
+    }).then((val) => {
+        return val;
+    });
+
+    if (jobName) {
+        notifyUIUserMessage('Processing', false);
+        const text = getSelectionText();
+        const result = await _executor.convertPipelineJob(jobName, encode(text));
+        if (result === '') {
+            showInfoMessageWithTimeout(vscode.l10n.t('Create Job <{0}>', jobName));
+        }
+    } else {
+        showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
+    }
+}
+
 
 export async function deleteJobParam(_executor: Executor, jobName: string, paramName: string) {
     notifyUIUserMessage('Processing', false);

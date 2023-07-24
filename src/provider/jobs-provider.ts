@@ -5,7 +5,7 @@ import JenkinsConfiguration from '../config/settings';
 import { Constants } from '../svc/constants';
 import { JenkinsShell } from '../svc/jenkins-shell';
 import { SnippetItem } from '../svc/jenkins-snippet';
-import { convertJksshAsJob, deleteJobParam, executeQuick } from '../svc/script-svc';
+import { convertJksshAsJob, convertPipelineJob, deleteJobParam, executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
@@ -361,7 +361,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.convertJksshAsJob', async () => {
                 if (this._executor) {
-                    const result = convertJksshAsJob(this._executor);
+                    await convertJksshAsJob(this._executor);
                     await refreshView('utocode.jobs.refresh', 1200);
                 }
             }),
@@ -369,6 +369,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 if (this._executor) {
                     const jobParam = jobsModel.jobParam;
                     const result = deleteJobParam(this._executor, jobsModel.fullName, jobParam!.name);
+                    await refreshView('utocode.jobs.refresh', 1200);
+                }
+            }),
+            vscode.commands.registerCommand('utocode.convertPipelineJob', async () => {
+                if (this._executor) {
+                    await convertPipelineJob(this._executor);
                     await refreshView('utocode.jobs.refresh', 1200);
                 }
             }),
