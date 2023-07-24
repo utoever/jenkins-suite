@@ -287,7 +287,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
     }
 
     async getTreeItem(element: JenkinsServer | JenkinsUser): Promise<vscode.TreeItem> {
-        console.log(`connection::treeItem <${element}>`);
+        // console.log(`connection::treeItem <${element}>`);
         let treeItem: vscode.TreeItem;
         if (this.isJenkinsUser(element)) {
             const user = element as JenkinsUser;

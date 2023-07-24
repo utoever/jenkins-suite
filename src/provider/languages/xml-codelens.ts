@@ -26,12 +26,14 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                 const command1 = {
                     title: '$(edit) Update Job',
                     command: 'utocode.updateConfigJob',
+                    tooltip: 'Update Current Job',
                     arguments: []
                 };
 
                 const command2 = {
                     title: '$(repo) Create Job',
                     command: 'utocode.createJob',
+                    tooltip: 'Create a new job with the current settings',
                     arguments: []
                 };
 
@@ -43,12 +45,13 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                     const scriptPosition = text.indexOf('<script>');
                     if (scriptPosition > 0) {
                         const lineStartPosition = document.positionAt(scriptPosition);
-                        const lineEndPosition = document.lineAt(lineStartPosition.line).range.end;
+                        // const lineEndPosition = document.lineAt(lineStartPosition.line).range.end;
 
                         const range3 = new vscode.Range(lineStartPosition, new vscode.Position(lineStartPosition.line, lineStartPosition.character + 1));
                         const command3 = {
                             title: '$(check-all) Validate Jenkinsfile',
                             command: 'utocode.validateJenkins',
+                            tooltip: 'Validate Jenkinsfile',
                             arguments: []
                         };
                         codelens.push(new vscode.CodeLens(range3, command3));
@@ -60,9 +63,6 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                         const scriptPosition = text.indexOf('#!groovy');
                         if (scriptPosition > 0) {
                             const lineStartPosition = document.positionAt(scriptPosition);
-                            // const endPosition = document.positionAt(text.indexOf('</command>'));
-                            // const lineEndPosition = document.lineAt(endPosition.line - 1).range.end;
-
                             range3 = new vscode.Range(lineStartPosition, new vscode.Position(lineStartPosition.line, lineStartPosition.character + 1));
                             const command3 = {
                                 title: '$(run-all) Execute Script',
@@ -84,7 +84,7 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                         const command4 = {
                             title: '$(copy) Copy Script',
                             command: 'utocode.copyScript',
-                            tooltip: 'Copy Script',
+                            tooltip: 'Copy Script to the clipboard',
                             arguments: [command]
                         };
                         codelens.push(new vscode.CodeLens(range3, command4));
@@ -111,12 +111,14 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                 const command1 = {
                     title: '$(replace-all) Update View',
                     command: 'utocode.updateConfigView',
+                    tooltip: 'Update Current View',
                     arguments: []
                 };
 
                 const command2 = {
                     title: '$(repo) Create View',
                     command: 'utocode.createView',
+                    tooltip: 'Create a new view with the current settings',
                     arguments: []
                 };
 
