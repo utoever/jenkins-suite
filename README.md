@@ -70,6 +70,8 @@ For more information, please visit the following site.
 
 * Use __Jenkins Shell Mode__
 
+  ![jkssh](images/guide/guide11.png)
+
 ## Getting Started
 
 * Generate an API Token
@@ -147,14 +149,20 @@ For more information, please visit the following site.
     "applications": [
       "job/demo1",
       "job/demo2"
-    ]
+    ],
+    "buildProject": [
+      "build-job job/demo1",
+      "sleep 30",
+      "build-job job/demo2"
+    ],
+    "description": "Demo Project"
   }
 }
 ```
 
-## Jenkins Batch Script
+## Jenkins Shell Mode
 
-* Change _Jenkins Shell_ [JKSSH] Language Mode after editor open
+* Change _Jenkins Shell_ [JKSSH] Language Mode (Ctrl+K M) after editor open
 * The script file must start with __"#!jenkins"__
 
 ```sh
