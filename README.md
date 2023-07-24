@@ -8,7 +8,7 @@ This extension is built to make Jenkins fast to accomplish many tasks within VS 
 
 For more information, please visit the following site.
 
-**[https://jenkinssuite.github.io/](https://jenkinssuite.github.io/)**
+**[https://jenkinssuite.github.io/](https://jenkinssuite.github.io/categories/en)**
 
 ## Prerequisites
 
