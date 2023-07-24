@@ -35,7 +35,7 @@ export async function executeQuick(_executor: Executor) {
                 }
 
                 await refreshView('utocode.views.refresh');
-                refreshView('utocode.jobs.refresh', 100);
+                await refreshView('utocode.jobs.refresh', 100);
             } else {
                 await vscode.commands.executeCommand('utocode.validateJenkins');
             }
@@ -125,7 +125,6 @@ export async function convertPipelineJob(_executor: Executor) {
         showInfoMessageWithTimeout(vscode.l10n.t('Cancelled by User'));
     }
 }
-
 
 export async function deleteJobParam(_executor: Executor, jobName: string, paramName: string) {
     notifyUIUserMessage('Processing', false);

@@ -68,7 +68,7 @@ For more information, please visit the following site.
 
   ![project](images/guide/guide8.png)
 
-* Use __Jenkins Shell Mode__
+* Use __Jenkins Shell Mode__ After make *.jkssh
 
   ![jkssh](images/guide/guide11.png)
 

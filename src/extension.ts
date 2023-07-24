@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import JenkinsConfiguration from './config/settings';
 import { BuildsProvider } from './provider/builds-provider';
 import { ConnectionProvider } from './provider/connection-provider';
 import { JobsProvider } from './provider/jobs-provider';
@@ -68,6 +69,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.languages.registerCodeLensProvider(['jenkins', 'jkssh', 'groovy'], new JenkinsCodeLensProvider(context)),
 		vscode.languages.registerCodeLensProvider(['xml'], new XmlCodeLensProvider(context)),
+		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
+			const customFile = JenkinsConfiguration.snippetCustomFilePath;
+			if (customFile && document.fileName.endsWith(customFile)) {
+				await vscode.commands.executeCommand('utocode.snippets.refresh');
+			} else if (document.fileName.endsWith('.jenkinsrc.json')) {
+				showProjectView(projectProvider);
+			}
+		}),
+		vscode.workspace.onDidChangeConfiguration(handleConfigChange)
 	);
 
 	for (const { language, scheme, provider } of symbolProviders) {
@@ -78,13 +88,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.languages.registerHoverProvider({ language, scheme }, provider);
 	}
 
-	context.subscriptions.push(
-		vscode.workspace.onDidChangeTextDocument((e) => {
-			if (vscode.window.activeTextEditor?.document === e.document) {
-			}
-		})
-	);
-
 	// const scriptProvider = new ScriptProvider(context);
 	showProjectView(projectProvider);
 	function registerCommand(cmd: string, callback: () => void) {
@@ -94,6 +97,13 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
+}
+
+async function handleConfigChange(event: vscode.ConfigurationChangeEvent) {
+	if (event.affectsConfiguration('jenkinssuite.servers')) {
+		console.log('Configuration has been changed.');
+		await vscode.commands.executeCommand('utocode.connections.refresh');
+	}
 }
 
 class Command {
