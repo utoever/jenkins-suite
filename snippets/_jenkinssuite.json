@@ -333,7 +333,7 @@
       "    println \"false\"",
       "} else if (job != null && job.getProperty(ParametersDefinitionProperty.class) != null) {",
       "    def paramDefs = job.getProperty(ParametersDefinitionProperty.class).getParameterDefinitions()",
-      "    println paramDefs",
+      "    // println paramDefs",
       "",
       "    paramDefs.removeIf { paramDef ->",
       "        paramDef.name == delParam",
@@ -341,7 +341,7 @@
       "",
       "    job.removeProperty(ParametersDefinitionProperty.class)",
       "    job.addProperty(new ParametersDefinitionProperty(paramDefs))",
-      "    println \"${delParam}\"",
+      "    println \"true\"",
       "}",
       ""
     ],

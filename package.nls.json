@@ -72,6 +72,8 @@
   "viewJobConsole.title": "Get Job History",
   "openLinkNotifyJob.title": "Open With Browser History",
   "validateJenkins.title": "Validate Jenkinsfile",
+  "copyScript.title": "Copy Script",
+  "copyWithNewEditor.title": "Copy After new Editor",
   "setPrimaryServer.title": "Set Default",
   "deleteUser.title": "Delete User",
   "connectProjectServer.title": "Connect Server",

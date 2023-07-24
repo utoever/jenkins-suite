@@ -148,3 +148,7 @@ export function isJenkinsView(xmlData: any): xmlData is JenkinsView {
 export function isJenkinsPipeline(xmlData: any): xmlData is JenkinsPipeline {
     return xmlData && (typeof xmlData['flow-definition'] === 'object');
 }
+
+export function isProjectJob(xmlData: any): xmlData is ProjectJob {
+    return xmlData && (typeof xmlData.project.builders?.['hudson.tasks.Shell'] === 'object');
+}

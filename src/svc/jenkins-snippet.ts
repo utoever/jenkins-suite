@@ -1,8 +1,8 @@
 import { initial } from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { SnippetSvc } from '../svc/snippet';
 import logger from '../utils/logger';
+import { SnippetSvc } from './snippet';
 
 export default class JenkinsSnippet {
 

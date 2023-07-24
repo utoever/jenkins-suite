@@ -1,5 +1,6 @@
+import { copyFile } from 'fs';
 import * as vscode from 'vscode';
-import { Project, isJenkinsPipeline, isJenkinsView, parseXml } from '../../utils/xml';
+import { Project, isJenkinsPipeline, isJenkinsView, isProjectJob, parseXml, parseXmlData } from '../../utils/xml';
 
 export class XmlCodeLensProvider implements vscode.CodeLensProvider {
 
@@ -12,7 +13,7 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
     public provideCodeLenses(document: vscode.TextDocument, _token: vscode.CancellationToken) {
         if (document.languageId === 'xml') {
             const text = document.getText();
-            const xmlData = parseXml(text);
+            const xmlData = parseXmlData(text);
             const isJob = this.isProject(xmlData);
             let isPipeline = false;
             if (!isJob) {
@@ -39,8 +40,8 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                 codelens.push(new vscode.CodeLens(range, command2));
 
                 if (isPipeline) {
-                    const scriptPosition = text.indexOf('<script');
-                    if (scriptPosition !== 0) {
+                    const scriptPosition = text.indexOf('<script>');
+                    if (scriptPosition > 0) {
                         const lineStartPosition = document.positionAt(scriptPosition);
                         const lineEndPosition = document.lineAt(lineStartPosition.line).range.end;
 
@@ -51,6 +52,56 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                             arguments: []
                         };
                         codelens.push(new vscode.CodeLens(range3, command3));
+                    }
+                } else if (isProjectJob(xmlData)) {
+                    const command = xmlData.project.builders?.['hudson.tasks.Shell'].command;
+                    let range3: vscode.Range | undefined = undefined;
+                    if (command.startsWith('#!groovy')) {
+                        const scriptPosition = text.indexOf('#!groovy');
+                        if (scriptPosition > 0) {
+                            const lineStartPosition = document.positionAt(scriptPosition);
+                            // const endPosition = document.positionAt(text.indexOf('</command>'));
+                            // const lineEndPosition = document.lineAt(endPosition.line - 1).range.end;
+
+                            range3 = new vscode.Range(lineStartPosition, new vscode.Position(lineStartPosition.line, lineStartPosition.character + 1));
+                            const command3 = {
+                                title: '$(run-all) Execute Script',
+                                command: 'utocode.executeScript',
+                                tooltip: 'Execute Script',
+                                arguments: [command]
+                            };
+                            codelens.push(new vscode.CodeLens(range3, command3));
+                        }
+                    } else {
+                        const scriptPosition = text.indexOf('<command>');
+                        if (scriptPosition > 0) {
+                            const lineStartPosition = document.positionAt(scriptPosition);
+                            range3 = new vscode.Range(lineStartPosition, new vscode.Position(lineStartPosition.line, lineStartPosition.character + 1));
+                        }
+                    }
+
+                    if (range3) {
+                        const command4 = {
+                            title: '$(copy) Copy Script',
+                            command: 'utocode.copyScript',
+                            tooltip: 'Copy Script',
+                            arguments: [command]
+                        };
+                        codelens.push(new vscode.CodeLens(range3, command4));
+
+                        const lang = command.split('\n')[0];
+                        let languageId = lang.startsWith('#!') ? lang.substring(2) : 'shellscript';
+                        if (languageId === 'jenkins') {
+                            languageId = 'jkssh';
+                        }
+
+                        const command5 = {
+                            title: '$(comment-discussion) Copy With New Editor',
+                            command: 'utocode.copyWithNewEditor',
+                            tooltip: 'Copy & Paste After open new Editor',
+                            arguments: [command, languageId]
+                        };
+                        codelens.push(new vscode.CodeLens(range3, command5));
                     }
                 }
                 return codelens;

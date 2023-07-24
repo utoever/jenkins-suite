@@ -2,9 +2,9 @@ import { initial } from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import JenkinsConfiguration from '../config/settings';
-import { SnippetItem, SnippetItems } from '../snippet/snippet';
 import logger from '../utils/logger';
 import { Constants } from './constants';
+import { SnippetItem, SnippetItems } from './jenkins-snippet';
 
 export class SnippetSvc {
 

@@ -207,12 +207,12 @@ export class JksshHoverProvider implements vscode.HoverProvider {
 ---
 Available Commands: \n
 ---
-* create-user / delete-user
-* create-view / delete-view
-* build-job / create-pipeline / create-folder / create-shortcut / delete-job
-* create-secret-text / create-cred-user
-* create-global-var / delete-global-var
-* get-log-rotator / set-log-rotator / delete-log-rotator
+* User: create-user / delete-user
+* View: create-view / delete-view
+* Job: build-job / create-pipeline / create-folder / create-shortcut / delete-job
+* Credential: create-secret-text / create-cred-user
+* GlobalVar: create-global-var / delete-global-var
+* LogRotator: get-log-rotator / set-log-rotator / delete-log-rotator
 ---
 `;
     }

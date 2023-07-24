@@ -48,11 +48,13 @@ export async function executeQuick(_executor: Executor) {
     }
 }
 
-export async function executeScript(_executor: Executor) {
-    const text = getSelectionText();
+export async function executeScript(_executor: Executor, text: string) {
     if (!text) {
-        showInfoMessageWithTimeout(vscode.l10n.t('Script is empty'));
-        return;
+        text = getSelectionText();
+        if (!text) {
+            showInfoMessageWithTimeout(vscode.l10n.t('Script is empty'));
+            return;
+        }
     }
 
     try {
@@ -98,9 +100,9 @@ export async function convertJksshAsJob(_executor: Executor) {
 }
 
 export async function deleteJobParam(_executor: Executor, jobName: string, paramName: string) {
-    const result = await _executor.deleteJobParam(jobName, paramName);
     notifyUIUserMessage('Processing', false);
+    const result = await _executor.deleteJobParam(jobName, paramName);
     if (result) {
-        showInfoMessageWithTimeout(result);
+        showInfoMessageWithTimeout(result ? 'Success' : 'Failed');
     }
 }

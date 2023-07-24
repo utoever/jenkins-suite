@@ -72,6 +72,8 @@
   "viewJobConsole.title": "Job 기록 가져오기",
   "openLinkNotifyJob.title": "Job 기록 외부 브라우저 열기",
   "validateJenkins.title": "Jenkinsfile 검사",
+  "copyScript.title": "Copy Script",
+  "copyWithNewEditor.title": "Copy After new Editor",
   "setPrimaryServer.title": "기본 접속으로 설정",
   "deleteUser.title": "계정 삭제",
   "connectProjectServer.title": "Connect 서버",

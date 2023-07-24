@@ -334,6 +334,16 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.copyScript",
+        "title": "%copyScript.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.copyWithNewEditor",
+        "title": "%copyWithNewEditor.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.openExternalBrowser",
         "title": "%openExternalBrowser.title%",
         "category": "jenkinssuite"
