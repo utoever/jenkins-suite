@@ -78,6 +78,7 @@ export async function makeJobTreeItems(jobsModel: JobsModel, executor: Executor,
 
         treeItem = {
             label: jobsModel.name,
+            description: jobsModel.jobDetail?.description ?? '',
             collapsibleState: cntParam === 0 ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
             contextValue: (jobDetail?.buildable ? 'jobs' : 'jobs_disabled') + ctx.join(''),
             // iconPath: new vscode.ThemeIcon('output-view-icon'),

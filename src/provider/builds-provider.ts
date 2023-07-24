@@ -43,7 +43,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
                 if (builds && builds.length > 0) {
                     await vscode.window.showQuickPick(builds.map<string>(v => v.number.toString()), {
-                        title: vscode.l10n.t("Switch Build"),
+                        title: this.jobs?.name ?? 'Builds',
                         placeHolder: vscode.l10n.t("Select to view Job Log")
                     }).then(async (selectedItem) => {
                         if (selectedItem) {
@@ -69,6 +69,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
         }
         let treeItem: vscode.TreeItem = {
             label: `#${element.number} (${formatDurationTime(history!.duration)})`,
+            description: getLocalDate(history?.timestamp) ?? '',
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: 'builds',
             iconPath: this.context.asAbsolutePath(`resources/job/${getResultColor(history?.result)}.png`),
