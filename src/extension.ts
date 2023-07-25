@@ -29,15 +29,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	const connectionProvider = new ConnectionProvider(context, viewsProvider, jobsProvider, buildsProvider, reservationProvider, notifyProvider);
 	const projectProvider = new ProjectProvider(context);
 
-	vscode.window.registerTreeDataProvider("utocode.views.views", viewsProvider);
-	vscode.window.registerTreeDataProvider("utocode.views.jobs", jobsProvider);
-	vscode.window.registerTreeDataProvider("utocode.views.builds", buildsProvider);
-	vscode.window.registerTreeDataProvider("utocode.views.notify", notifyProvider);
-	vscode.window.registerTreeDataProvider("utocode.views.connection", connectionProvider);
+	vscode.window.registerTreeDataProvider("viewsView", viewsProvider);
+	vscode.window.registerTreeDataProvider("jobsView", jobsProvider);
+	vscode.window.registerTreeDataProvider("buildsView", buildsProvider);
+	vscode.window.registerTreeDataProvider("notifyView", notifyProvider);
+	vscode.window.registerTreeDataProvider("connectionView", connectionProvider);
 
 	const snippetProvider = new SnippetProvider(context);
-	vscode.window.registerTreeDataProvider("utocode.views.reservation", reservationProvider);
-	vscode.window.registerTreeDataProvider("utocode.views.snippets", snippetProvider);
+	vscode.window.registerTreeDataProvider("reservationView", reservationProvider);
+	vscode.window.registerTreeDataProvider("snippetsView", snippetProvider);
 
 	const jenkinsSymbolProvider = new JenkinsPipelineSymbolProvider();
 	const jksSymbolProvider = new JksshDocumentSymbolProvider();
@@ -57,6 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		{ language: 'jenkins', scheme: 'jkssh', provider: jenkinsHoverProvider },
 		{ language: 'jkssh', scheme: 'jkssh', provider: jksshHoverProvider },
 	];
+
 	context.subscriptions.push(
 		vscode.window.createTreeView('jenkinsProject', {
 			treeDataProvider: projectProvider

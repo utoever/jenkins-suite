@@ -73,35 +73,35 @@
       ],
       "jenkins-explorer": [
         {
-          "id": "utocode.views.connection",
+          "id": "connectionView",
           "name": "%views.connection.title%"
         },
         {
-          "id": "utocode.views.views",
+          "id": "viewsView",
           "name": "%views.views.title%"
         },
         {
-          "id": "utocode.views.jobs",
+          "id": "jobsView",
           "name": "%views.jobs.title%"
         },
         {
-          "id": "utocode.views.builds",
+          "id": "buildsView",
           "name": "%views.builds.title%"
         },
         {
-          "id": "utocode.views.reservation",
+          "id": "reservationView",
           "name": "%views.reservation.title%",
           "visibility": "collapsed",
           "when": "config.jenkinssuite.views.reservation.enabled"
         },
         {
-          "id": "utocode.views.notify",
+          "id": "notifyView",
           "name": "%views.notify.title%",
           "visibility": "collapsed",
           "when": "config.jenkinssuite.views.notify.enabled"
         },
         {
-          "id": "utocode.views.snippets",
+          "id": "snippetsView",
           "name": "%views.snippets.title%",
           "visibility": "collapsed",
           "when": "config.jenkinssuite.views.snippet.enabled"
@@ -261,6 +261,11 @@
       {
         "command": "utocode.renameJob",
         "title": "%renameJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.renameFolder",
+        "title": "%renameFolder.title%",
         "category": "jenkinssuite"
       },
       {
@@ -752,192 +757,197 @@
           "group": "inline@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*sparrow.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*sparrow.*/",
           "command": "utocode.openLink#sparrow",
           "group": "inline@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_sqube.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*_sqube.*/",
           "command": "utocode.openLink#sqube",
           "group": "inline@30"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_git.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*_git.*/",
           "command": "utocode.openLink#git",
           "group": "inline@50"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
           "command": "utocode.openLink#Home",
           "group": "inline@70"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/ && !(viewItem =~ /^.*_conn/)",
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/ && !(viewItem =~ /^.*_conn/)",
           "command": "utocode.connectServer",
           "group": "1_jenkinssuite_actions@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && (viewItem =~ /^.*_conn/)",
+          "when": "view == 'connectionView' && (viewItem =~ /^.*_conn/)",
           "command": "utocode.disconnectServer",
           "group": "1_jenkinssuite_actions@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
           "command": "utocode.openLinkUserConfigure",
           "group": "1_jenkinssuite_actions@90"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
           "command": "utocode.connectSSH",
           "group": "1_run@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
           "command": "utocode.connectSSHExternal",
           "group": "1_run@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.createUser",
           "group": "2_configure@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.createCredential#SecretText",
           "group": "2_configure@20"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.createCredential#CredentialUser",
           "group": "2_configure@20"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^connection.*/ && viewItem =~ /^.*_not.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/ && viewItem =~ /^.*_not.*/",
           "command": "utocode.setPrimaryServer",
           "group": "3_manage@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.changeExecutor",
           "group": "3_manage@20"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^.*_admin.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
           "command": "utocode.setSystemMessage",
           "group": "3_manage@99"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^user.*/ && viewItem != 'user_not'",
+          "when": "view == 'connectionView' && viewItem =~ /^user.*/ && viewItem != 'user_not'",
           "command": "utocode.deleteUser",
           "group": "1_run@10"
         },
         {
-          "when": "view == 'utocode.views.connection' && viewItem =~ /^user.*/",
+          "when": "view == 'connectionView' && viewItem =~ /^user.*/",
           "command": "utocode.openLink#user",
           "group": "inline"
         },
         {
-          "when": "view == 'utocode.views.views'",
+          "when": "view == 'viewsView'",
           "command": "utocode.getConfigView",
           "group": "1_jenkinssuite_actions@20"
         },
         {
-          "when": "view == 'utocode.views.views' && viewItem =~ /^.*_enabled.*/",
+          "when": "view == 'viewsView' && viewItem =~ /^.*_enabled.*/",
           "command": "utocode.renameView",
           "group": "1_jenkinssuite_actions@20"
         },
         {
-          "when": "view == 'utocode.views.views' && viewItem =~ /^.*_enabled.*/",
+          "when": "view == 'viewsView' && viewItem =~ /^.*_enabled.*/",
           "command": "utocode.changePrimaryView",
           "group": "1_jenkinssuite_actions@50"
         },
         {
-          "when": "view == 'utocode.views.views' && viewItem =~ /^.*_enabled.*/",
+          "when": "view == 'viewsView' && viewItem =~ /^.*_enabled.*/",
           "command": "utocode.deleteView",
           "group": "1_jenkinssuite_actions@90"
         },
         {
-          "when": "view == 'utocode.views.views'",
+          "when": "view == 'viewsView'",
           "command": "utocode.openLinkView",
           "group": "inline"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.openLinkJob",
           "group": "inline@90"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*_home.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^.*_home.*/",
           "command": "utocode.openLink#appHome",
           "group": "inline@70"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*_manage.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^.*_manage.*/",
           "command": "utocode.openLink#manage",
           "group": "inline@30"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*_swagger.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^.*_swagger.*/",
           "command": "utocode.openLink#swagger",
           "group": "inline@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && (viewItem != 'nothing') && (!(viewItem =~ /.*_disabled.*/))",
+          "when": "view == 'jobsView' && viewItem != 'jobs_folder' && (!(viewItem =~ /nothing.*/)) && (!(viewItem =~ /.*_disabled.*/))",
           "command": "utocode.buildJob",
           "group": "1_jenkinssuite_actions@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.getConfigJob",
           "group": "1_jenkinssuite_actions@30"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.openExternalBrowser",
           "group": "1_jenkinssuite_actions@50"
         },
         {
-          "when": "view == 'utocode.views.jobs' && (viewItem != 'nothing') && !(viewItem =~ /^.*_disabled.*/)",
+          "when": "view == 'jobsView' && viewItem != 'jobs_folder' && (!(viewItem =~ /nothing.*/)) && !(viewItem =~ /^.*_disabled.*/)",
           "command": "utocode.addReservation",
           "group": "1_run@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem != 'jobs_folder' && viewItem =~ /^jobs.*/",
           "command": "utocode.renameJob",
           "group": "2_configure@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs_folder/",
+          "command": "utocode.renameFolder",
+          "group": "2_configure@10"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.copyJob",
           "group": "2_configure@30"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.moveJob",
           "group": "2_configure@50"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.deleteJob",
           "group": "2_configure@70"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.copyUri",
           "group": "2_configure@80"
         },
         {
-          "when": "view == 'utocode.views.jobs' && viewItem =~ /^.*_disabled.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^.*_disabled.*/",
           "command": "utocode.enabledJob",
           "group": "3_manage@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && (viewItem != 'nothing') && !(viewItem =~ /^.*_disabled.*/)",
+          "when": "view == 'jobsView' && (!(viewItem =~ /nothing.*/)) && !(viewItem =~ /^.*_disabled.*/)",
           "command": "utocode.disabledJob",
           "group": "3_manage@10"
         },
         {
-          "when": "view == 'utocode.views.jobs' && (viewItem == 'nothing')",
+          "when": "view == 'jobsView' && (viewItem == 'nothing')",
           "command": "utocode.deleteJobParam",
           "group": "1_run@10"
         },
@@ -985,72 +995,72 @@
         },
         {
           "command": "utocode.connections.settings",
-          "when": "view == utocode.views.connection",
+          "when": "view == connectionView",
           "group": "navigation@10"
         },
         {
           "command": "utocode.connections.question",
-          "when": "view == utocode.views.connection",
+          "when": "view == connectionView",
           "group": "navigation@90"
         },
         {
           "command": "utocode.connections.refresh",
-          "when": "view == utocode.views.connection",
+          "when": "view == connectionView",
           "group": "navigation@99"
         },
         {
           "command": "utocode.createView",
-          "when": "view == utocode.views.views",
+          "when": "view == viewsView",
           "group": "navigation@10"
         },
         {
           "command": "utocode.views.refresh",
-          "when": "view == utocode.views.views",
+          "when": "view == viewsView",
           "group": "navigation@99"
         },
         {
           "command": "utocode.generateJobCode",
-          "when": "view == utocode.views.jobs",
+          "when": "view == jobsView",
           "group": "navigation@10"
         },
         {
           "command": "utocode.createFolder",
-          "when": "view == utocode.views.jobs",
+          "when": "view == jobsView",
           "group": "navigation@20"
         },
         {
           "command": "utocode.jobs.refresh",
-          "when": "view == utocode.views.jobs",
+          "when": "view == jobsView",
           "group": "navigation@99"
         },
         {
           "command": "utocode.builds.refresh",
-          "when": "view == utocode.views.builds",
+          "when": "view == buildsView",
           "group": "navigation@99"
         },
         {
           "command": "utocode.reservation.info",
-          "when": "view == utocode.views.reservation",
+          "when": "view == reservationView",
           "group": "navigation@10"
         },
         {
           "command": "utocode.reservation.sort",
-          "when": "view == utocode.views.reservation",
+          "when": "view == reservationView",
           "group": "navigation@30"
         },
         {
           "command": "utocode.reservation.refresh",
-          "when": "view == utocode.views.reservation",
+          "when": "view == reservationView",
           "group": "navigation@99"
         },
         {
           "command": "utocode.snippets.settings",
-          "when": "view == utocode.views.snippets",
+          "when": "view == snippetsView",
           "group": "navigation@90"
         },
         {
           "command": "utocode.snippets.refresh",
-          "when": "view == utocode.views.snippets",
+          "when": "view == snippetsView",
           "group": "navigation@99"
         }
       ]
@@ -1411,6 +1421,11 @@
         "command": "utocode.runAddMultiReservation",
         "key": "alt+8",
         "mac": "cmd+8"
+      },
+      {
+        "command": "utocode.deleteJobItem",
+        "key": "delete",
+        "when": "jobsView"
       },
       {
         "command": "utocode.validateJenkins",

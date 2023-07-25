@@ -31,7 +31,7 @@
       "def username = \"__USERNAME__\";",
       "def password = \"__PASSWORD__\";",
       "",
-      "def instance = Jenkins.getInstance();",
+      "def instance = Jenkins.getInstanceOrNull();",
       "def strategy = instance.getAuthorizationStrategy();",
       "jenkins.model.Jenkins.instance.securityRealm.createAccount(username, password);",
       "if (role == \"ADMIN\") {",
@@ -88,12 +88,12 @@
   },
   "get_executor": {
     "prefix": "get_executor",
-    "body": ["Jenkins jenkins = Jenkins.getInstance();jenkins.getNumExecutors()"],
+    "body": ["Jenkins jenkins = Jenkins.getInstanceOrNull();jenkins.getNumExecutors()"],
     "description": "get_executor"
   },
   "set_executor": {
     "prefix": "set_executor",
-    "body": ["Jenkins jenkins = Jenkins.getInstance();jenkins.setNumExecutors(__NUM__);jenkins.save();jenkins.getNumExecutors();"],
+    "body": ["Jenkins jenkins = Jenkins.getInstanceOrNull();jenkins.setNumExecutors(__NUM__);jenkins.save();jenkins.getNumExecutors();"],
     "description": "set_executor"
   },
   "createCredential": {
@@ -111,7 +111,7 @@
       "import jenkins.model.*",
       "import org.jenkinsci.plugins.plaincredentials.impl.*",
       "",
-      "Jenkins jenkins = Jenkins.getInstance()",
+      "Jenkins jenkins = Jenkins.getInstanceOrNull()",
       "def store = jenkins.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()",
       "def domain = Domain.global()",
       "def kind = '__KIND__'",
@@ -317,7 +317,7 @@
       "import hudson.tasks.Shell",
       "",
       "def env = System.getenv()",
-      "def jenkins = Jenkins.getInstance()",
+      "def jenkins = Jenkins.getInstanceOrNull()",
       "",
       "def jobName = '__JOB_NAME__'",
       "def existJob = hudson.model.Hudson.instance.getJob(jobName)",
@@ -346,7 +346,7 @@
       "import jenkins.model.Jenkins",
       "import hudson.tasks.Shell",
       "",
-      "def jenkins = Jenkins.getInstance()",
+      "def jenkins = Jenkins.getInstanceOrNull()",
       "",
       "def jobName = '__JOB_NAME__'",
       "def delParam = '__PARAM_NAME__'",
@@ -369,6 +369,31 @@
       ""
     ],
     "description": "delete_job_param",
+    "hidden": true
+  },
+  "rename_folder": {
+    "prefix": "rename_folder",
+    "body": [
+      "#!groovy",
+      "",
+      "def instance = Jenkins.getInstanceOrNull();",
+      "def jobName1 = '__JOB_NAME__'",
+      "def newName = '__NEW_NAME__'",
+      "",
+      "def job = instance.getItemByFullName(jobName1)",
+      "def newJob = instance.getItemByFullName(newName)",
+      "if (newJob) {",
+      "    return newJob;",
+      "}",
+      "if (job) {",
+      "    job.renameTo(newName)",
+      "    return true;",
+      "} else {",
+      "    return false;",
+      "}",
+      ""
+    ],
+    "description": "rename_folder",
     "hidden": true
   },
   "get_log_rotator": {

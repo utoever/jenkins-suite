@@ -87,6 +87,17 @@ export class JksshHoverProvider implements vscode.HoverProvider {
                     '### snippet: cr, crf',
                 description: 'Creates a new folder.',
             },
+            'renameFolder': {
+                content: 'Rename folder\n' +
+                    '\n---\n' +
+                    '### rename-folder {folderName} newFolderName\n' +
+                    '\n---\n' +
+                    '* _folderName_: Folder Name\n' +
+                    '* _newFolderName_: new Folder Name\n' +
+                    '\n---\n' +
+                    '### snippet: ren',
+                description: 'Rename a folder.',
+            },
             'createShortcut': {
                 content: 'Create shortcut\n' +
                     '\n---\n' +
@@ -106,6 +117,17 @@ export class JksshHoverProvider implements vscode.HoverProvider {
                     '\n---\n' +
                     '### snippet: cr, crp',
                 description: 'Builds a job.',
+            },
+            'renameJob': {
+                content: 'Rename job\n' +
+                    '\n---\n' +
+                    '### rename-job job/{job} newJobName\n' +
+                    '\n---\n' +
+                    '* _job_: Job Name\n' +
+                    '* _newJobName_: new Job Name\n' +
+                    '\n---\n' +
+                    '### snippet: ren, job',
+                description: 'Rename a job.',
             },
             'deleteJob': {
                 content: 'Delete job\n' +
@@ -209,7 +231,7 @@ Available Commands: \n
 ---
 * User: create-user / delete-user
 * View: create-view / delete-view
-* Job: build-job / create-pipeline / create-folder / create-shortcut / delete-job
+* Job: build-job / create-pipeline / create-folder / create-shortcut / rename-job / rename-folder / delete-job
 * Credential: create-secret-text / create-cred-user
 * GlobalVar: create-global-var / delete-global-var
 * LogRotator: get-log-rotator / set-log-rotator / delete-log-rotator

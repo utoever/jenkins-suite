@@ -604,6 +604,36 @@ export class Executor {
         }
     }
 
+    async renameFolder(folderName: string | undefined, newName: string) {
+        if (!folderName) {
+            folderName = await vscode.window.showInputBox({
+                title: 'Folder name',
+                prompt: 'Enter to rename Folder name'
+            }).then((val) => {
+                return val;
+            });
+        }
+
+        if (!folderName) {
+            return;
+        }
+
+        const snippetItem = await this.snippetSvc.invokeSnippetJenkins(Constants.SNIPPET_RENAME_FOLDER);
+        let data: string | undefined;
+        if (snippetItem && snippetItem.body) {
+            data = snippetItem.body.join('\n').replace(/__JOB_NAME__/g, folderName)
+                .replace(/__NEW_NAME__/g, newName);
+            const result = await this.executeScript(data);
+            if (result && result.startsWith('Result:')) {
+                return result.split('Result: ').pop();
+            } else {
+                return false;
+            }
+        } else {
+            return undefined;
+        }
+    }
+
     async createShortcut(shortcutName: string, url: string, viewName: string = 'all') {
         const snippetItem = await this.snippetSvc.invokeSnippet(Constants.SNIPPET_CREATE_SHORTCUT.toUpperCase());
         let data: string | undefined;
@@ -699,6 +729,7 @@ export class Executor {
         const result = await this._jenkins._post<string>(
             `${uri}/doRename?newName=${newName}`
         );
+        console.log(result);
         return result.includes('status code') ? false : true;
     }
 

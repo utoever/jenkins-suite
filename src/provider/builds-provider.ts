@@ -68,8 +68,8 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
             history = await this.executor?.getBuild(this._jobs, element.number);
         }
         let treeItem: vscode.TreeItem = {
-            label: `#${element.number} (${formatDurationTime(history!.duration)})`,
-            description: getLocalDate(history?.timestamp) ?? '',
+            label: `${history?.fullDisplayName ?? element.number}`,
+            description: (getLocalDate(history?.timestamp) ?? '') + ` (${formatDurationTime(history!.duration)})`,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: 'builds',
             iconPath: this.context.asAbsolutePath(`resources/job/${getResultColor(history?.result)}.png`),

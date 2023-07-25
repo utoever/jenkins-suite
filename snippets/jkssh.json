@@ -39,6 +39,11 @@
     "body": ["delete-job ${1:job}", ""],
     "description": "Delete Job (Job, Folder etc)"
   },
+  "rename": {
+    "prefix": ["ren"],
+    "body": ["rename-${1|job,folder|} ${2} ${2}", ""],
+    "description": "rename job or folder"
+  },
   "global-var": {
     "prefix": ["gv", "glv"],
     "body": ["${1|create,change,delete|}-global-var ${2:username} ${3:password}"],

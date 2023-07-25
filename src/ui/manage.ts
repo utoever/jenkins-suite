@@ -119,7 +119,7 @@ export async function getFolderAsModel(jobs: JobsModel[], selectedJob: JobsModel
     };
 
     items.push({
-        label: `$(tasklist) Jenkins`,
+        label: `$(root-folder-opened) Jenkins`,
         description: `${rootJob.fullName}`,
         model: rootJob
     });
@@ -139,7 +139,7 @@ export async function getFolderAsModel(jobs: JobsModel[], selectedJob: JobsModel
             });
         }
         items.push({
-            label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
+            label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(folder) ") + job.name,
             description: job.jobDetail?.description ? job.jobDetail?.description : job.jobDetail?.displayName,
             model: job
         });

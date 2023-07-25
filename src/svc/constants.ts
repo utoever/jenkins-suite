@@ -23,4 +23,6 @@ export namespace Constants {
 
     export const SNIPPET_CREATE_PIPELINE_JOB = 'create_pipeline_job';
 
+    export const SNIPPET_RENAME_FOLDER = 'rename_folder';
+
 }

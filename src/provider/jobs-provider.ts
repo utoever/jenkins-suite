@@ -297,17 +297,35 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
             }),
             vscode.commands.registerCommand('utocode.renameJob', async (job: JobsModel) => {
-                const name = await vscode.window.showInputBox({
+                const newName = await vscode.window.showInputBox({
                     prompt: 'Enter Job Name',
                     value: job.name
                 });
-                if (!name || name === job.name) {
+                if (!newName || newName === job.name) {
                     showInfoMessageWithTimeout('Job name is equals');
                     return;
                 }
 
                 try {
-                    const mesg = await this.executor?.renameJobUrl(job.url, name);
+                    const mesg = await this.executor?.renameJobUrl(job.url, newName);
+                } catch (error: any) {
+                    showInfoMessageWithTimeout(error.message);
+                    console.log(error.message);
+                }
+                this.refresh();
+            }),
+            vscode.commands.registerCommand('utocode.renameFolder', async (job: JobsModel) => {
+                const newName = await vscode.window.showInputBox({
+                    prompt: 'Enter Folder Name',
+                    value: job.name
+                });
+                if (!newName || newName === job.name) {
+                    showInfoMessageWithTimeout('Folder name is equals');
+                    return;
+                }
+
+                try {
+                    const mesg = await this.executor?.renameFolder(job.name, newName);
                 } catch (error: any) {
                     showInfoMessageWithTimeout(error.message);
                     console.log(error.message);
@@ -376,6 +394,32 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 if (this._executor) {
                     await convertPipelineJob(this._executor);
                     await refreshView('utocode.jobs.refresh', 1200);
+                }
+            }),
+            vscode.commands.registerCommand('utocode.deleteJobItem', async () => {
+                if (!this._executor) {
+                    return;
+                }
+                try {
+                    if (!this.buildsProvider.jobs) {
+                        showInfoMessageWithTimeout('Job is not choices');
+                        return;
+                    }
+
+                    const job = this.buildsProvider.jobs;
+                    if (job.level !== 100 || (job.level === 100 && job.parents![0]._class === JobModelType.freeStyleProject)) {
+                        const result = await vscode.window.showInformationMessage(`Do you want delete ${job.level === 100 ? 'Parameter' : 'Job'} '${job.name}'?`, 'Yes', 'No');
+                        if (result === 'Yes') {
+                            if (job.level === 100) {
+                                await vscode.commands.executeCommand('utocode.deleteJobParam', this.buildsProvider.jobs);
+                            } else {
+                                await vscode.commands.executeCommand('utocode.deleteJob', this.buildsProvider.jobs);
+                            }
+                            await refreshView('utocode.jobs.refresh', 800);
+                        }
+                    }
+                } catch (error: any) {
+                    logger.error(error.message);
                 }
             }),
         );
@@ -462,7 +506,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             const viewName = this.view?.name ?? 'all';
             notifyUIUserMessage();
             const mesg = await this.executor?.createJobInput(text, viewName);
-            // console.log(`result <${mesg}>`);
+            // console.log(`result < ${ mesg } > `);
             clearEditor();
         } else {
             let jobs = this.buildsProvider.jobs;
@@ -473,7 +517,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
             notifyUIUserMessage();
             const mesg = await this.executor?.updateJobConfig(jobs.name, text);
-            // console.log(`result <${mesg}>`);
+            // console.log(`result < ${ mesg } > `);
             setTimeout(() => {
                 vscode.commands.executeCommand('utocode.getConfigJob', jobs, true);
             }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
@@ -483,20 +527,19 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
     }
 
     async getTreeItem(jobsModel: JobsModel): Promise<vscode.TreeItem> {
-        // console.log(`jobs::treeItem <${element?.fullName ?? element?.name}>`);
         let treeItem: vscode.TreeItem;
         if (jobsModel && jobsModel.jobParam && jobsModel.level === 100) {
             const jobParam = jobsModel.jobParam;
             treeItem = {
                 label: `${jobParam.name} [${jobParam.defaultParameterValue.value}]`,
                 collapsibleState: vscode.TreeItemCollapsibleState.None,
-                contextValue: 'nothing',
+                contextValue: jobsModel.parents![0]._class === JobModelType.freeStyleProject ? 'nothing' : 'nothing2',
                 iconPath: new vscode.ThemeIcon(jobParam._class === ParametersDefinitionProperty.wHideParameterDefinition ? 'eye-closed' : 'file-code'),
                 tooltip: this.getToolTipParams(jobsModel)
             };
         } else {
             treeItem = await makeJobTreeItems(jobsModel, this._executor!, this.context);
-        }
+        };
         treeItem.command = {
             command: 'utocode.showBuilds',
             title: 'Show Builds',
@@ -549,6 +592,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                         fullName: jobDetail.name,
                         fullDisplayName: jobDetail.fullDisplayName,
                         healthReport: jobDetail.healthReport,
+                        parents: [element],
                         ...definition
                     };
                     jobsModel.push(prop);
@@ -587,12 +631,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         const jobParam = jobModel.jobParam!;
         const text = new vscode.MarkdownString();
         text.appendMarkdown(`### Job: \n`);
-        text.appendMarkdown(`* name: ${jobModel.fullDisplayName ?? jobModel.fullName}\n`);
+        text.appendMarkdown(`* name: ${jobModel.fullDisplayName ?? jobModel.fullName} \n`);
         text.appendMarkdown('\n---\n');
 
         text.appendMarkdown(`### Parameter: \n`);
-        text.appendMarkdown(`* Type: _${jobParam.type.substring(0, jobParam.type.length - 'ParameterValue'.length)}_\n`);
-        text.appendMarkdown(`* Default Value: *${jobParam.defaultParameterValue.value}*\n`);
+        text.appendMarkdown(`* Type: _${jobParam.type.substring(0, jobParam.type.length - 'ParameterValue'.length)} _\n`);
+        text.appendMarkdown(`* Default Value: * ${jobParam.defaultParameterValue.value}*\n`);
         return text;
     }
 

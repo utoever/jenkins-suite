@@ -134,6 +134,14 @@ export class JenkinsShell {
         return results;
     }
 
+    async renameFolder(jobName: string, newName: string = 'all') {
+        const results = [];
+        logger.info(`Rename jobName: ${jobName}`);
+        const result = await this.executor.renameFolder(jobName, newName);
+        results.push(`folder <${jobName}>: ${result === 'true' ? 'Success' : 'Failed'}`);
+        return results;
+    }
+
     async createPipeline(jobName: string, viewName: string = 'all') {
         const results = [];
         logger.info(`Creating jobName: ${jobName}`);
