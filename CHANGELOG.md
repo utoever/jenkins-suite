@@ -1,5 +1,10 @@
 # Change Log
 
+### [0.5.5] - 2023-08-12
+
+- A few bug fixes
+- Add Shortcut for jobs
+
 ### [0.5.3] - 2023-07-25
 
 - A few bug fixes

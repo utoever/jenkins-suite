@@ -2,7 +2,7 @@
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
   "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "author": "utocode",
   "publisher": "utocode",
   "icon": "images/icon.png",
@@ -1423,14 +1423,57 @@
         "mac": "cmd+8"
       },
       {
-        "command": "utocode.deleteJobItem",
+        "command": "utocode.buildJob",
+        "key": "ctrl+w",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.getConfigJob",
+        "key": "ctrl+e",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.copyJob",
+        "key": "ctrl+c",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.copyUri",
+        "key": "ctrl+shift+c",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.renameJob",
+        "key": "f2",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.renameFolder",
+        "key": "shift+f2",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.moveJob",
+        "key": "ctrl+m",
+        "mac": "cmd+m",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.deleteJob",
         "key": "delete",
+        "mac": "cmd+d",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.addReservation",
+        "key": "ctrl+alt+v",
         "when": "jobsView"
       },
       {
         "command": "utocode.validateJenkins",
         "key": "ctrl+alt+t",
-        "mac": "cmd+option+t"
+        "mac": "cmd+option+t",
+        "when": "editorTextFocus && (editorLangId == jenkins || editorLangId == xml)"
       },
       {
         "command": "utocode.showJobs",
@@ -1463,7 +1506,7 @@
         "command": "utocode.executeQuick",
         "key": "shift+alt+enter",
         "mac": "shift+option+enter",
-        "when": "editorTextFocus",
+        "when": "editorTextFocus && editorLangId == jenkins",
         "category": "jenkinssuite"
       }
     ],

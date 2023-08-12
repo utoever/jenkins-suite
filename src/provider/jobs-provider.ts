@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
-import { Jenkins } from '../api/jenkins';
 import JenkinsConfiguration from '../config/settings';
 import { Constants } from '../svc/constants';
 import { JenkinsShell } from '../svc/jenkins-shell';
@@ -8,16 +7,16 @@ import { SnippetItem } from '../svc/jenkins-snippet';
 import { convertJksshAsJob, convertPipelineJob, deleteJobParam, executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
-import buildJobModelType, { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
+import { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
 import { getFolderAsModel, runJobAll } from '../ui/manage';
 import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithTimeout } from '../ui/ui';
 import { clearEditor, getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
-import { getParameterDefinition, isJenkinsBatch, makeJobTreeItems } from '../utils/model-utils';
+import { getParameterDefinition, makeJobTreeItems } from '../utils/model-utils';
 import { inferFileExtension } from '../utils/util';
 import { notifyMessageWithTimeout, showErrorMessage } from '../utils/vsc';
-import { FlowDefinition, Project, ProjectJob, parseXml, parseXmlData } from '../utils/xml';
+import { FlowDefinition, ProjectJob, parseXml, parseXmlData } from '../utils/xml';
 import { BuildsProvider } from './builds-provider';
 import { ReservationProvider } from './reservation-provider';
 
@@ -86,7 +85,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             vscode.commands.registerCommand('utocode.updateConfigJob', async () => {
                 this.createJob(false);
             }),
-            vscode.commands.registerCommand('utocode.getConfigJob', async (job: JobsModel, reuse: boolean = false) => {
+            vscode.commands.registerCommand('utocode.getConfigJob', async (job1: JobsModel, reuse: boolean = false) => {
+                const job = this.getFindJob(job1);
                 this.buildsProvider.jobs = job;
                 const text = await this.executor?.getConfigJob(job);
                 if (reuse) {
@@ -162,7 +162,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     }
                 });
             }),
-            vscode.commands.registerCommand('utocode.addReservation', async (job: JobsModel) => {
+            vscode.commands.registerCommand('utocode.addReservation', async (job1: JobsModel) => {
+                const job = this.getFindJob(job1);
                 this.reservationProvider.addReservation(job);
             }),
             vscode.commands.registerCommand('utocode.runAddReservation', async () => {
@@ -210,7 +211,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     }
                 });
             }),
-            vscode.commands.registerCommand('utocode.buildJob', async (job: JobsModel) => {
+            vscode.commands.registerCommand('utocode.buildJob', async (job1: JobsModel) => {
+                const job = this.getFindJob(job1);
                 const suffix = JenkinsConfiguration.batchJobNameSuffix;
                 const isBatch = job.name.endsWith(suffix); // || isJenkinsBatch(job.jobDetail);
                 if (isBatch) {
@@ -223,35 +225,66 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                         // logger.info(`Result:::\n${result}`);
                     } catch (error: any) {
                         logger.error(error.message);
+                        console.log(error.stack);
                     }
                 } else {
                     const mesg = await this.executor?.buildJobWithParameter(job, JenkinsConfiguration.buildDelay);
+                    notifyMessageWithTimeout(mesg === '' ? `The request was fulfilled <${job.name}>` : mesg);
                     // console.log(`buildJob <${mesg}>`);
-                    setTimeout(() => {
-                        notifyMessageWithTimeout(mesg);
-                        this.buildsProvider.jobs = job;
-                    }, Constants.JENKINS_DEFAULT_BUILD_DELAY);
+                    setTimeout(async () => {
+                        await refreshView('utocode.builds.refresh', 2500);
+                    }, 3850);
                 }
             }),
-            vscode.commands.registerCommand('utocode.deleteJob', async (job: JobsModel) => {
-                let mesg = await this.executor?.deleteJob(job.url);
-                // console.log(`deleteJob <${mesg}>`);
-                if (mesg && !mesg.startsWith("Request failed")) {
-                    mesg = `Success to delete job <${job.name}>`;
+            vscode.commands.registerCommand('utocode.deleteJobParam', async (jobsModel: JobsModel) => {
+                if (this._executor) {
+                    const jobParam = jobsModel.jobParam;
+                    const result = deleteJobParam(this._executor, jobsModel.fullName, jobParam!.name);
+                    await refreshView('utocode.jobs.refresh', 1200);
                 }
-                setTimeout(() => {
-                    notifyMessageWithTimeout(mesg);
-                    this.buildsProvider.jobs = undefined;
-                    this.refresh();
-                }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
             }),
-            vscode.commands.registerCommand('utocode.copyUri', async (job: JobsModel) => {
+            vscode.commands.registerCommand('utocode.deleteJob', async (job1: JobsModel) => {
+                try {
+                    let job: JobsModel | undefined;
+                    if (job1) {
+                        job = job1;
+                    } else {
+                        job = this.getFindJob(job1);
+                    }
+                    if (job && (job.level !== 100 || (job.level === 100 && job.parents![0]._class === JobModelType.freeStyleProject))) {
+                        const result = await vscode.window.showInformationMessage(`Do you want delete ${job.level === 100 ? 'Parameter' : 'Job'} '${job.name}'?`, 'Yes', 'No');
+                        if (result === 'Yes') {
+                            if (job.level === 100) {
+                                await vscode.commands.executeCommand('utocode.deleteJobParam', this.buildsProvider.jobs);
+                            } else {
+                                let mesg = await this.executor?.deleteJob(job.url);
+                                // console.log(`deleteJob <${mesg}>`);
+                                if (mesg && !mesg.startsWith("Request failed")) {
+                                    mesg = `Success to delete job <${job.name}>`;
+                                }
+                                setTimeout(() => {
+                                    notifyMessageWithTimeout(mesg);
+                                    this.buildsProvider.jobs = undefined;
+                                    this.refresh();
+                                }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);
+                            }
+                            await refreshView('utocode.jobs.refresh', 800);
+                        }
+                    }
+                } catch (error: any) {
+                    logger.error(error.message);
+                    console.log('Error: ', error.stack);
+                }
+            }),
+            vscode.commands.registerCommand('utocode.copyUri', async (job1: JobsModel) => {
+                const job = this.getFindJob(job1);
                 const uri = this.executor?.extractUrl(job.url);
                 if (uri) {
                     vscode.env.clipboard.writeText(uri.substring(1));
                 }
             }),
-            vscode.commands.registerCommand('utocode.copyJob', async (job: JobsModel) => {
+            vscode.commands.registerCommand('utocode.copyJob', async (job1: JobsModel) => {
+                const job = this.getFindJob(job1);
                 const name = await vscode.window.showInputBox({
                     title: 'Copy Job',
                     prompt: 'Enter Job Name',
@@ -269,16 +302,17 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     this.refresh();
                 } catch (error: any) {
                     showInfoMessageWithTimeout(error.message);
-                    console.log(error.message);
+                    console.log(error.stack);
                 }
             }),
-            vscode.commands.registerCommand('utocode.moveJob', async (job: JobsModel) => {
+            vscode.commands.registerCommand('utocode.moveJob', async (job1: JobsModel) => {
                 const jobs = await this.getJobsWithView();
                 if (!jobs || jobs.length === 0) {
                     showInfoMessageWithTimeout(vscode.l10n.t('Jobs is not exists'));
                     return;
                 }
 
+                const job = this.getFindJob(job1);
                 const items = getFolderAsModel(jobs, job);
                 let newJob = await vscode.window.showQuickPick(items, {
                     placeHolder: vscode.l10n.t("Select the job you want to build"),
@@ -294,14 +328,18 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     }
                 } catch (error: any) {
                     showInfoMessageWithTimeout(error.message);
+                    console.log(error.stack);
                 }
             }),
-            vscode.commands.registerCommand('utocode.renameJob', async (job: JobsModel) => {
+            vscode.commands.registerCommand('utocode.renameJob', async (job1: JobsModel) => {
+                const job = this.getFindJob(job1);
                 const newName = await vscode.window.showInputBox({
                     prompt: 'Enter Job Name',
                     value: job.name
                 });
-                if (!newName || newName === job.name) {
+                if (!newName) {
+                    return;
+                } else if (newName === job.name) {
                     showInfoMessageWithTimeout('Job name is equals');
                     return;
                 }
@@ -310,11 +348,12 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     const mesg = await this.executor?.renameJobUrl(job.url, newName);
                 } catch (error: any) {
                     showInfoMessageWithTimeout(error.message);
-                    console.log(error.message);
+                    console.log(error.stack);
                 }
                 this.refresh();
             }),
-            vscode.commands.registerCommand('utocode.renameFolder', async (job: JobsModel) => {
+            vscode.commands.registerCommand('utocode.renameFolder', async (job1: JobsModel) => {
+                const job = this.getFindJob(job1);
                 const newName = await vscode.window.showInputBox({
                     prompt: 'Enter Folder Name',
                     value: job.name
@@ -328,7 +367,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     const mesg = await this.executor?.renameFolder(job.name, newName);
                 } catch (error: any) {
                     showInfoMessageWithTimeout(error.message);
-                    console.log(error.message);
+                    console.log(error.stack);
                 }
                 this.refresh();
             }),
@@ -358,7 +397,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.validateJenkins', async () => {
                 let content = getSelectionText();
-
                 if (inferFileExtension(content) === 'xml') {
                     const xmlData: FlowDefinition = parseXml(content);
                     const script = xmlData["flow-definition"].definition.script._text;
@@ -366,7 +404,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
 
                 const text = await this.executor?.validateJenkinsfile(content);
-                // console.log(`text <${text}>`);
                 if (!text) {
                     return;
                 }
@@ -383,46 +420,27 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     await refreshView('utocode.jobs.refresh', 1200);
                 }
             }),
-            vscode.commands.registerCommand('utocode.deleteJobParam', async (jobsModel: JobsModel) => {
-                if (this._executor) {
-                    const jobParam = jobsModel.jobParam;
-                    const result = deleteJobParam(this._executor, jobsModel.fullName, jobParam!.name);
-                    await refreshView('utocode.jobs.refresh', 1200);
-                }
-            }),
             vscode.commands.registerCommand('utocode.convertPipelineJob', async () => {
                 if (this._executor) {
                     await convertPipelineJob(this._executor);
                     await refreshView('utocode.jobs.refresh', 1200);
                 }
             }),
-            vscode.commands.registerCommand('utocode.deleteJobItem', async () => {
-                if (!this._executor) {
-                    return;
-                }
-                try {
-                    if (!this.buildsProvider.jobs) {
-                        showInfoMessageWithTimeout('Job is not choices');
-                        return;
-                    }
-
-                    const job = this.buildsProvider.jobs;
-                    if (job.level !== 100 || (job.level === 100 && job.parents![0]._class === JobModelType.freeStyleProject)) {
-                        const result = await vscode.window.showInformationMessage(`Do you want delete ${job.level === 100 ? 'Parameter' : 'Job'} '${job.name}'?`, 'Yes', 'No');
-                        if (result === 'Yes') {
-                            if (job.level === 100) {
-                                await vscode.commands.executeCommand('utocode.deleteJobParam', this.buildsProvider.jobs);
-                            } else {
-                                await vscode.commands.executeCommand('utocode.deleteJob', this.buildsProvider.jobs);
-                            }
-                            await refreshView('utocode.jobs.refresh', 800);
-                        }
-                    }
-                } catch (error: any) {
-                    logger.error(error.message);
-                }
-            }),
         );
+    }
+
+    getFindJob(job: JobsModel): JobsModel {
+        if (!this._executor) {
+            throw new Error('Jenkins is not connected');
+        }
+        if (!this.buildsProvider.jobs) {
+            throw new Error('Job is not choices');
+        }
+
+        if (!job) {
+            job = this.buildsProvider.jobs;
+        }
+        return job;
     }
 
     openLinkHomeWithHidden(job: JobsModel, target: string) {
@@ -468,29 +486,6 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
             });
         }
-
-        // let allViewModel;
-        // if (this._view.name === 'all') {
-        //     const views = (await this._executor.getInfo()).views;
-        //     for (let view of views) {
-        //         const viewModel = await this.executor?.getViewsWithDetail(view.name, true);
-        //         if (!viewModel) {
-        //             continue;
-        //         }
-        //         viewModel.jobs.filter(job => job._class !== JobModelType.folder.toString()).forEach(job => {
-        //             items.push({
-        //                 label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
-        //                 detail: view.name === 'all' ? '' : view.name,
-        //                 description: job.jobDetail?.description ?? job.description,
-        //                 model: job
-        //             });
-        //         });
-        //         items.push({
-        //             label: '',
-        //             kind: vscode.QuickPickItemKind.Separator
-        //         });
-        //     }
-        // }
 
         return items;
     }

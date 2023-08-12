@@ -15,7 +15,6 @@ import { ReservationProvider } from './provider/reservation-provider';
 import { SnippetProvider } from './provider/snippet-provider';
 import { ViewsProvider } from './provider/views-provider';
 import { getConfigPath } from './utils/file';
-import { isRemoteUri } from './utils/remote';
 import { vscExtension } from './vsc-ns';
 
 export async function activate(context: vscode.ExtensionContext) {
