@@ -1,7 +1,9 @@
 {
   "name": "jkssh",
   "scopeName": "source.jkssh",
-  "fileTypes": ["jkssh"],
+  "fileTypes": [
+    "jkssh"
+  ],
   "patterns": [
     {
       "include": "#comments"
@@ -46,7 +48,7 @@
       "patterns": [
         {
           "name": "keyword.jkssh",
-          "match": "\\b(create-user|delete-user|create-views|create-view|delete-view|create-folder|create-pipeline|create-shortcut|build-job|rename-job|move-job|delete-job|delete-folder|create-secret-text|crate-cred-user|get-global-var|create-global-var|change-global-var|delete-global-var|get-log-rotator|set-log-rotator|delete-log-rotator|sleep|get-rss-all)\\b"
+          "match": "\\b(create-user|delete-user|create-views|create-view|delete-view|create-folder|create-pipeline|create-shortcut|build-job|rename-job|move-job|delete-job|delete-folder|create-secret-text|create-cred-user|get-global-var|create-global-var|change-global-var|delete-global-var|get-log-rotator|set-log-rotator|delete-log-rotator|sleep|get-rss-all)\\b"
         }
       ]
     }
