@@ -223,7 +223,7 @@ export class JenkinsShell {
         const results = [];
         logger.info(`Creating Credential User: ${username}`);
         const result = await this.executor.createCredential(username, password, 'CredentialUser');
-        results.push(`createSecretText <${username}>: ${result === '' ? 'Success' : 'Failed'}`);
+        results.push(`createCredUser <${username}>: ${result === '' ? 'Success' : 'Failed'}`);
         return results;
     }
 
@@ -240,7 +240,8 @@ export class JenkinsShell {
                 results.push(`${key}=${val}`);
             });
         }
-        logger.info(results.join('\n'));
+
+        logger.info('getGlobalVar: ', results.join('\n'));
         return results;
     }
 

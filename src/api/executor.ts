@@ -1,17 +1,16 @@
 import FormData from 'form-data';
 import { decode } from 'html-entities';
 import { initial } from 'lodash';
-import path from 'path';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { Constants } from '../svc/constants';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
-import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsFeed, JenkinsInfo, JenkinsUsers, JobModelType, JobProperty, JobsModel } from "../types/model";
+import { AllViewModel, BaseJobModel, BuildDetailStatus, BuildsModel, JenkinsFeed, JenkinsInfo, JenkinsUsers, JobModelType, JobsModel } from "../types/model";
 import { mapToUrlParams } from '../utils/html';
 import logger from '../utils/logger';
 import { getParameterDefinition } from '../utils/model-utils';
-import { parseXml, parseXmlData } from '../utils/xml';
+import { parseXmlData } from '../utils/xml';
 import { Jenkins } from "./jenkins";
 
 export class Executor {
@@ -96,11 +95,7 @@ export class Executor {
             const result = await this._jenkins._create<string>(
                 `createView?name=${name}`, data
             );
-            if (result === '') {
-                return true;
-            } else {
-                return false;
-            }
+            return result === '' ? true : false;
         } else {
             return 'Cancelled creating view';
         }
@@ -127,11 +122,7 @@ export class Executor {
 
         const data = `def jenkins = Jenkins.getInstanceOrNull();def view = jenkins.getView('${name}');jenkins.deleteView(view)`;
         const result = await this.executeScript(data);
-        if (result === '') {
-            return true;
-        } else {
-            return false;
-        }
+        return result === '' ? true : false;
     }
 
     async changePrimaryView(name: string) {
@@ -161,11 +152,7 @@ export class Executor {
                 .replace('__PASSWORD__', password);
             console.log(`createUser:: username <${username}> role <${role}>`);
             const result = data && await this.executeScript(data);
-            if (result === '') {
-                return true;
-            } else {
-                return false;
-            }
+            return result === '' ? true : false;
         } else {
             return undefined;
         }
@@ -225,11 +212,12 @@ export class Executor {
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n');
-        }
 
-        console.log(`getGlobalVars`);
-        const result = data && await this.executeScript(data);
-        return result;
+            console.log(`getGlobalVars`);
+            const result = data && await this.executeScript(data);
+            return result;
+        }
+        return undefined;
     }
 
     async createGlobalVar(key: string, val: string) {
@@ -238,11 +226,12 @@ export class Executor {
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__ENV_KEY__', key)
                 .replace('__ENV_VAL__', val);
-        }
 
-        console.log(`createGlobalVars:: key <${key}> val <${val}>`);
-        const result = data && await this.executeScript(data);
-        return result;
+            console.log(`createGlobalVars:: key <${key}> val <${val}>`);
+            const result = data && await this.executeScript(data);
+            return result;
+        }
+        return undefined;
     }
 
     async deleteGlobalVar(key: string) {
@@ -250,11 +239,12 @@ export class Executor {
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__ENV_KEY__', key);
-        }
+            console.log(`deleteGlobalVars:: key <${key}>`);
 
-        console.log(`deleteGlobalVars:: key <${key}>`);
-        const result = data && await this.executeScript(data);
-        return result;
+            const result = data && await this.executeScript(data);
+            return result;
+        }
+        return undefined;
     }
 
     async getSystemMessage(): Promise<string> {
@@ -292,10 +282,10 @@ export class Executor {
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
             data = snippetItem.body.join('\n').replace('__USERNAME__', username);
+            logger.debug(`isAdmin:: username <${username}>`);
+            return data && await this.executeScript(data);
         }
-
-        logger.debug(`isAdmin:: username <${username}>`);
-        return data && await this.executeScript(data);
+        return false;
     }
 
     async convertJksshAsJob(jobName: string, shCmd: string) {
@@ -490,6 +480,7 @@ export class Executor {
                 }).then((val) => {
                     return val;
                 });
+
                 if (result) {
                     formData.set(param.name, result);
                 } else {
@@ -508,7 +499,6 @@ export class Executor {
     }
 
     async executeScript(text: string): Promise<string> {
-        // logger.debug(text);
         const body = {
             script: text
         };

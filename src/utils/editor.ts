@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as vscode from 'vscode';
 
 export function getSelectionText() {
@@ -16,10 +14,10 @@ export function getSelectionText() {
     return content;
 }
 
-export async function openEditorWithNew(languageId: string = 'xml') {
+export async function openEditorWithNew(languageId: string = 'xml', options?: vscode.TextDocumentShowOptions) {
     const document = await vscode.workspace.openTextDocument({ content: '' });
     await vscode.languages.setTextDocumentLanguage(document, languageId);
-    await vscode.window.showTextDocument(document);
+    await vscode.window.showTextDocument(document, options);
     return vscode.window.activeTextEditor;
 }
 
@@ -57,12 +55,12 @@ export async function getDocument(languageId: string = 'xml') {
     return null;
 }
 
-export async function printEditorWithNew(output: string | undefined, languageId: string = 'xml') {
+export async function printEditorWithNew(output: string | undefined, languageId: string = 'xml', options?: vscode.TextDocumentShowOptions) {
     if (!output) {
         return;
     }
 
-    const editor = await openEditorWithNew(languageId);
+    const editor = await openEditorWithNew(languageId, options);
     if (editor) {
         editor.edit((editBuilder) => {
             editBuilder.insert(editor.selection.start, output);
@@ -101,9 +99,9 @@ export async function printEditor(output: string, redraw: boolean = false) {
 }
 
 export async function closeActiveEditor() {
-    const activeEditor = vscode.window.activeTextEditor;
-    if (activeEditor) {
-        const document = activeEditor.document;
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const document = editor.document;
         const edit = new vscode.WorkspaceEdit();
         edit.set(document.uri, [{ range: document.validateRange(new vscode.Range(0, 0, Infinity, Infinity)), newText: document.getText() }]);
         vscode.workspace.applyEdit(edit).then(() => {
@@ -113,10 +111,9 @@ export async function closeActiveEditor() {
 }
 
 export function saveCurrentEditor(forced: boolean = false): Thenable<boolean> {
-    const activeEditor = vscode.window.activeTextEditor;
-
-    if (activeEditor) {
-        const document = activeEditor.document;
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const document = editor.document;
         let required = document.isDirty || forced;
         return Promise.resolve(required ? document.save() : false);
     } else {

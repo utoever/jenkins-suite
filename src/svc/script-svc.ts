@@ -29,7 +29,8 @@ export async function executeQuick(_executor: Executor) {
                     } else if (columnCount === 2) {
                         await vscode.commands.executeCommand('workbench.action.focusNextGroup');
                     }
-                    printEditorWithNew(results, languageIds);
+
+                    printEditorWithNew(results, 'plaintext');
                 } else {
                     printEditor(results, true);
                 }

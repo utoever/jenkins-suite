@@ -396,22 +396,27 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 openLinkBrowser(`${message.url}${message.number}/console`);
             }),
             vscode.commands.registerCommand('utocode.validateJenkins', async () => {
-                let content = getSelectionText();
-                if (inferFileExtension(content) === 'xml') {
-                    const xmlData: FlowDefinition = parseXml(content);
-                    const script = xmlData["flow-definition"].definition.script._text;
-                    content = script;
-                }
+                try {
+                    let content = getSelectionText();
+                    if (inferFileExtension(content) === 'xml') {
+                        const xmlData: FlowDefinition = parseXml(content);
+                        const script = xmlData["flow-definition"].definition.script._text;
+                        content = script;
+                    }
 
-                const text = await this.executor?.validateJenkinsfile(content);
-                if (!text) {
-                    return;
-                }
-                if (text.startsWith('Jenkinsfile successfully validated')) {
-                    showInfoMessageWithTimeout(vscode.l10n.t(text));
-                } else {
-                    logger.error(`validate <${text}>`);
-                    showErrorMessage(text);
+                    const text = await this.executor?.validateJenkinsfile(content);
+                    if (!text) {
+                        return;
+                    }
+                    if (text.startsWith('Jenkinsfile successfully validated')) {
+                        showInfoMessageWithTimeout(vscode.l10n.t(text));
+                    } else {
+                        logger.error(`validate <${text}>`);
+                        showErrorMessage(text);
+                    }
+                } catch (error: any) {
+                    console.log(error.stack);
+                    logger.error(error.message);
                 }
             }),
             vscode.commands.registerCommand('utocode.convertJksshAsJob', async () => {
