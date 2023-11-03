@@ -88,12 +88,16 @@
   },
   "get_executor": {
     "prefix": "get_executor",
-    "body": ["Jenkins jenkins = Jenkins.getInstanceOrNull();jenkins.getNumExecutors()"],
+    "body": [
+      "Jenkins jenkins = Jenkins.getInstanceOrNull();jenkins.getNumExecutors()"
+    ],
     "description": "get_executor"
   },
   "set_executor": {
     "prefix": "set_executor",
-    "body": ["Jenkins jenkins = Jenkins.getInstanceOrNull();jenkins.setNumExecutors(__NUM__);jenkins.save();jenkins.getNumExecutors();"],
+    "body": [
+      "Jenkins jenkins = Jenkins.getInstanceOrNull();jenkins.setNumExecutors(__NUM__);jenkins.save();jenkins.getNumExecutors();"
+    ],
     "description": "set_executor"
   },
   "createCredential": {
@@ -119,11 +123,11 @@
       "def password = \"__PASSWORD__\";",
       "",
       "if (kind == 'CredentialUser') {",
-      "    def id = username + '_user'",
+      "    def id = username",
       "    def credUser = makeCredentialUser(id, username, password, username + \" User\")",
       "    store.addCredentials(domain, credUser)",
       "} else if (kind == 'SecretText') {",
-      "    def id = username + '_secret'",
+      "    def id = username",
       "    def secretText = makeSecretText(id, username, password)",
       "    store.addCredentials(domain, secretText)",
       "} else if (kind == 'KubeConfig') {",
