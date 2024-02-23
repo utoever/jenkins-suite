@@ -1,0 +1,56 @@
+{
+  "name": "jkssh",
+  "scopeName": "source.jkssh",
+  "fileTypes": [
+    "jkssh"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#keywords"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.jkssh",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.jkssh",
+          "begin": "\"",
+          "end": "\""
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.jkssh",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.jkssh",
+          "match": "\\b(create-user|delete-user|create-views|create-view|delete-view|create-folder|create-pipeline|create-shortcut|build-job|rename-job|move-job|delete-job|delete-folder|create-secret-text|create-cred-user|get-global-var|create-global-var|change-global-var|delete-global-var|get-log-rotator|set-log-rotator|delete-log-rotator|sleep|get-rss-all)\\b"
+        }
+      ]
+    }
+  }
+}

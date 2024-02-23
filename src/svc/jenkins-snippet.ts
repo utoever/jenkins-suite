@@ -2,33 +2,24 @@ import { initial } from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import logger from '../utils/logger';
+import { SnippetSvc } from './snippet';
 
 export default class JenkinsSnippet {
 
     private _snippets: SnippetItems | undefined;
 
-    private snippetFilePath: string;
-
     private static _instance: JenkinsSnippet;
+
+    private snippetSvc: SnippetSvc;
 
     private _initialized: boolean = false;
 
     private constructor(protected context: vscode.ExtensionContext) {
-        const extensionPath = this.context.extensionPath;
-        this.snippetFilePath = path.join(extensionPath, 'snippets', 'snippet.json');
-        this.initialize();
+        this.snippetSvc = new SnippetSvc(this.context);
     }
 
     async initialize() {
-        this._snippets = await this.loadSnippet();
-        this._initialized = true;
-    }
-
-    async loadSnippet() {
-        const file = vscode.Uri.file(this.snippetFilePath);
-        const snippetContent = (await vscode.workspace.fs.readFile(file)).toString();
-        logger.debug(`snippets <${this._snippets}>`);
-        return JSON.parse(snippetContent) as SnippetItems;
+        this._snippets = await this.snippetSvc.invokeSnippetAll(true);
     }
 
     static getInstance(context: vscode.ExtensionContext) {
@@ -62,7 +53,7 @@ export default class JenkinsSnippet {
 
 }
 
-type SnippetItems = {
+export type SnippetItems = {
     [key: string]: SnippetItem
 };
 
@@ -70,6 +61,8 @@ export interface SnippetItem {
     prefix: string
     body: string[]
     description: string
+    language?: string
     hidden?: boolean
     when?: string
+    type?: string
 }

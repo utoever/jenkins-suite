@@ -1,0 +1,115 @@
+{
+  "user": {
+    "prefix": "user",
+    "body": [
+      "${1|create,delete|}-user ${2:username}",
+      ""
+    ],
+    "description": "Create or Delete user"
+  },
+  "view": {
+    "prefix": "view",
+    "body": [
+      "${1|create,delete|}-view ${2:view}",
+      ""
+    ],
+    "description": "Create or Delete view"
+  },
+  "create": {
+    "prefix": "cr",
+    "body": [
+      "create-${1|pipeline,folder,shortcut,view,user,secret-text,cred-user,global-var|} $2",
+      ""
+    ],
+    "description": "Create pipeline,folder,shortcut,view,user,secret-text,cred-user,global-var"
+  },
+  "delete": {
+    "prefix": "del",
+    "body": [
+      "delete-${1|job,folder,shortcut,view,user,global-var|} $2",
+      ""
+    ],
+    "description": "Delete job,folder,shortcut,view,user,global-var"
+  },
+  "job": {
+    "prefix": [
+      "jo",
+      "job"
+    ],
+    "body": [
+      "${1|build,rename,move,delete|}-job job/${2:job}",
+      ""
+    ],
+    "description": "Build, rename, move, delete Job"
+  },
+  "create pipeline": {
+    "prefix": [
+      "cp",
+      "crp"
+    ],
+    "body": [
+      "create-pipeline ${1:job}",
+      ""
+    ],
+    "description": "Create pipeline Job"
+  },
+  "create folder": {
+    "prefix": [
+      "cf",
+      "crf"
+    ],
+    "body": [
+      "create-folder ${1:folderName}",
+      ""
+    ],
+    "description": "Create folder FolderName"
+  },
+  "delete job": {
+    "prefix": [
+      "dj",
+      "delj"
+    ],
+    "body": [
+      "delete-job ${1:job}",
+      ""
+    ],
+    "description": "Delete Job (Job, Folder etc)"
+  },
+  "rename": {
+    "prefix": [
+      "ren"
+    ],
+    "body": [
+      "rename-${1|job,folder|} ${2} ${2}",
+      ""
+    ],
+    "description": "Rename job or folder"
+  },
+  "global-var": {
+    "prefix": [
+      "gv",
+      "glv"
+    ],
+    "body": [
+      "${1|create,change,delete|}-global-var ${2:username} ${3:password}"
+    ],
+    "description": "Create or delete Global Variable"
+  },
+  "get-global-var": {
+    "prefix": [
+      "ggv"
+    ],
+    "body": [
+      "get-global-var"
+    ],
+    "description": "Get Global Variable"
+  },
+  "log": {
+    "prefix": "log",
+    "body": [
+      "${1|get,set,delete|}-log-rotator ${2:jobName}",
+      "$0"
+    ],
+    "description": "Get, Set or Delete log-rotator"
+  }
+}

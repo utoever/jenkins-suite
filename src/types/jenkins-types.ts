@@ -54,9 +54,11 @@ export enum CrumbIssuer {
     crumbIssuer = 'hudson.security.csrf.DefaultCrumbIssuer'
 }
 
-enum ViewType {
+export enum ViewType {
+    allView = 'hudson.model.AllView',
     listView = 'hudson.model.ListView',
-    myView = 'hudson.model.MyView'
+    myView = 'hudson.model.MyView',
+    categorizedJobsView = 'org.jenkinsci.plugins.categorizedview.CategorizedJobsView'
 }
 
 enum ScmType {
@@ -80,13 +82,25 @@ export interface Jobs {
     color?: string
 }
 
- export enum JobActionType {
+export enum JobActionType {
     causeAction = 'hudson.model.CauseAction',
     parameterAction = 'hudson.model.ParametersAction'
 }
 
 export enum DefinitionPropertyType {
     parametersDefinitionProperty = 'hudson.model.ParametersDefinitionProperty'
+}
+
+export enum ParametersDefinitionProperty {
+    stringParameterDefinition = 'hudson.model.StringParameterDefinition',
+    choiceParameterDefinition = 'hudson.model.ChoiceParameterDefinition',
+    booleanParameterDefinition = 'hudson.model.BooleanParameterDefinition',
+    fileParameterDefinition = 'hudson.model.FileParameterDefinition',
+    runParameterDefinition = 'hudson.model.RunParameterDefinition',
+    simpleParameterDefinition = 'hudson.model.SimpleParameterDefinition',
+    textParameterDefinition = 'hudson.model.TextParameterDefinition',
+    passwordParameterDefinition = 'hudson.model.PasswordParameterDefinition',
+    wHideParameterDefinition = 'com.wangyin.parameter.WHideParameterDefinition'
 }
 
 export function getResultColor(resultColor: string | undefined): BallColor {

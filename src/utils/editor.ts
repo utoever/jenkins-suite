@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as vscode from 'vscode';
 
 export function getSelectionText() {
@@ -12,21 +10,19 @@ export function getSelectionText() {
         } else {
             content = editor.document.getText(selection);
         }
-    // } else {
-    //     vscode.window.showErrorMessage('Editor is not open');
     }
     return content;
 }
 
-export async function openEditorWithNew(languageId: string = 'xml') {
+export async function openEditorWithNew(languageId: string = 'xml', options?: vscode.TextDocumentShowOptions) {
     const document = await vscode.workspace.openTextDocument({ content: '' });
     await vscode.languages.setTextDocumentLanguage(document, languageId);
-    await vscode.window.showTextDocument(document);
+    await vscode.window.showTextDocument(document, options);
     return vscode.window.activeTextEditor;
 }
 
 export async function openEditorWithNewOld(filename: string = 'untitled:Untitled', languageId: string = 'xml') {
-    const baseUri = vscode.Uri.parse(filename +'-1');
+    const baseUri = vscode.Uri.parse(filename + '-1');
     let uri = baseUri;
     let count = 1;
     let document: vscode.TextDocument;
@@ -59,33 +55,68 @@ export async function getDocument(languageId: string = 'xml') {
     return null;
 }
 
-export async function printEditorWithNew(output: string | undefined, languageId: string = 'xml') {
+export async function printEditorWithNew(output: string | undefined, languageId: string = 'xml', options?: vscode.TextDocumentShowOptions) {
     if (!output) {
         return;
     }
 
-    const editor = await openEditorWithNew(languageId);
+    const editor = await openEditorWithNew(languageId, options);
     if (editor) {
         editor.edit((editBuilder) => {
             editBuilder.insert(editor.selection.start, output);
         });
     } else {
-        vscode.window.showErrorMessage("Editor 창이 없습니다. 파일을 생성하거나 열어주세요.");
+        vscode.window.showErrorMessage("There is no Editor window. Create or open a file");
     }
 }
 
-export async function printEditor(output: string) {
-    if (!output) {
+export async function clearEditor() {
+    await printEditor('', true);
+}
+
+export async function printEditor(output: string, redraw: boolean = false) {
+    if (!output && !redraw) {
         return;
     }
     // console.log(output);
     const editor = vscode.window.activeTextEditor;
     if (editor) {
-        const currentPosition = editor.selection.start;
-        editor.edit((editBuilder) => {
-            editBuilder.insert(currentPosition, output);
-        });
+        if (redraw) {
+            const document = editor.document;
+            const range = document.validateRange(new vscode.Range(0, 0, document.lineCount, 0));
+            editor.edit((editBuilder) => {
+                editBuilder.replace(new vscode.Selection(range.start, range.end), output);
+            });
+        } else {
+            const currentPosition = editor.selection.start;
+            editor.edit((editBuilder) => {
+                editBuilder.insert(currentPosition, output);
+            });
+        }
     } else {
-        vscode.window.showErrorMessage("Editor 창이 없습니다. 파일을 생성하거나 열어주세요.");
+        vscode.window.showErrorMessage("There is no Editor window. Create or open a file");
+    }
+}
+
+export async function closeActiveEditor() {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const document = editor.document;
+        const edit = new vscode.WorkspaceEdit();
+        edit.set(document.uri, [{ range: document.validateRange(new vscode.Range(0, 0, Infinity, Infinity)), newText: document.getText() }]);
+        vscode.workspace.applyEdit(edit).then(() => {
+            vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+        });
+    }
+}
+
+export function saveCurrentEditor(forced: boolean = false): Thenable<boolean> {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const document = editor.document;
+        let required = document.isDirty || forced;
+        return Promise.resolve(required ? document.save() : false);
+    } else {
+        return Promise.resolve(false);
     }
 }

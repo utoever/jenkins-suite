@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EXTENSION_NAME } from '../constants';
+import { Constants } from '../svc/constants';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 
 export function getMessageL10n(mesg: string, ...args: Array<string | number | boolean>) {
@@ -33,8 +33,12 @@ export function showMessageWithTimeout(message: string, timeout: number = 2200) 
     }, timeout);
 }
 
+export function openSettings(kind?: string) {
+    vscode.commands.executeCommand("workbench.action.openSettings", kind ? `jenkinssuite.${kind} ` : "jenkinssuite");
+}
+
 export function getExtensionSetting() {
-    return getUserSetting(EXTENSION_NAME);
+    return getUserSetting(Constants.EXTENSION_NAME);
 }
 
 export function getUserSetting(section: string, resource?: vscode.Uri | null | undefined) {

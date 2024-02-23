@@ -1,0 +1,194 @@
+{
+  "pipeline": {
+    "prefix": [
+      "pipe",
+      "pp"
+    ],
+    "body": [
+      "pipeline {",
+      "",
+      "    agent any",
+      "",
+      "    options {",
+      "        disableConcurrentBuilds()",
+      "        timeout(time: 20, unit: 'MINUTES')",
+      "        buildDiscarder(logRotator(numToKeepStr: '15'))",
+      "    }",
+      "",
+      "    // triggers {",
+      "    //     cron('H 8 * * 1-5')",
+      "    // }",
+      "",
+      "    environment {",
+      "        FULL_APP_NAME = \"$1\"",
+      "        VERSION='0.0.1-SNAPSHOT'",
+      "    }",
+      "",
+      "    parameters ",
+      "        string(name: 'APP_VER', defaultValue: \"0.1.\\${BUILD_NUMBER}\", description: 'Please type version')$2",
+      "        // hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
+      "        // hidden defaultValue: 'https://_YOUR_HOME_/actuator/info', description: 'Go Management', name: 'manage.url'",
+      "        // hidden defaultValue: 'https://_YOUR_HOME_/swagger-ui/index.html', description: 'Go Swagger', name: 'swagger.url'",
+      "    }",
+      "",
+      "    stages {",
+      "        stage('Build') {",
+      "            steps {",
+      "                echo \"welcome to Build Job\"",
+      "            }",
+      "        }$3",
+      "    }",
+      "}",
+      ""
+    ],
+    "description": "Create Pipeline"
+  },
+  "options": {
+    "prefix": "opt",
+    "body": [
+      "options {",
+      "        timeout(time: 20, unit: 'MINUTES')",
+      "        buildDiscarder(logRotator(numToKeepStr: '15'))",
+      "}",
+      ""
+    ],
+    "description": "Environment"
+  },
+  "triggers": {
+    "prefix": [
+      "tri",
+      "trg"
+    ],
+    "body": [
+      "triggers {",
+      "    cron('$1')",
+      "}",
+      ""
+    ],
+    "description": "Pipeline Triggers"
+  },
+  "environment": {
+    "prefix": "env",
+    "body": [
+      "environment {",
+      "    $1",
+      "}",
+      ""
+    ],
+    "description": "Pipeline Environment"
+  },
+  "when": {
+    "prefix": "when",
+    "body": [
+      "when {",
+      "    expression { $1 == '$2' }",
+      "}",
+      ""
+    ],
+    "description": "When Expression"
+  },
+  "parameter": {
+    "prefix": [
+      "par",
+      "param"
+    ],
+    "body": [
+      "parameters {",
+      "    // hidden defaultValue: 'https://jenkinssuite.github.io/', description: 'Go Homepage', name: 'home.url'",
+      "    $1",
+      "}",
+      ""
+    ],
+    "description": "Pipeline Parameters"
+  },
+  "string parameter": {
+    "prefix": [
+      "past",
+      "stp"
+    ],
+    "body": [
+      "string(name: '$1', defaultValue: '$2', description: '$3')",
+      "$4"
+    ],
+    "description": "Parameter String"
+  },
+  "choice parameter": {
+    "prefix": [
+      "pach",
+      "chp"
+    ],
+    "body": [
+      "choice(",
+      "    name: '$1',",
+      "    choices: ['${2|yes,no,YES,NO,true,false|}', '${3|yes,no,YES,NO,true,false|}'],",
+      "    description: '$4'",
+      ")",
+      ""
+    ],
+    "description": "Parameter Choice"
+  },
+  "stage": {
+    "prefix": [
+      "sta",
+      "stg"
+    ],
+    "body": [
+      "stage('$1') {",
+      "    steps {",
+      "        $2",
+      "    }",
+      "}",
+      ""
+    ],
+    "description": "Stage"
+  },
+  "gitScm": {
+    "prefix": "git",
+    "body": [
+      "git branch: '${1|main,dev,stg|}', credentialsId: '$2-git', url: '$3'",
+      "$4"
+    ],
+    "description": "Git SCM"
+  },
+  "maven": {
+    "prefix": "mvn",
+    "body": [
+      "sh \"\"\"",
+      "    mvn clean ${1|package,compile,deploy|} -DskipTests $2",
+      "    $3",
+      "\"\"\"",
+      ""
+    ],
+    "description": "Maven Goal"
+  },
+  "buildDocker": {
+    "prefix": "buildEcr",
+    "body": [
+      "script {",
+      "    docker.withRegistry(\"\\${AWS_REGISTRY}\", \"ecr:ap-northeast-2:\\${AWS_CRED}\") {",
+      "    def dkrImage = docker.build(\"\\$FULL_APP_NAME:\\$IMAGE_TAG\")",
+      "    dkrImage.push()",
+      "}",
+      ""
+    ],
+    "description": "Maven Goal"
+  },
+  "post": {
+    "prefix": "post",
+    "body": [
+      "post {",
+      "    success {",
+      "        script {",
+      "            $1",
+      "        }",
+      "    }",
+      "    failure {",
+      "        script {",
+      "            ",
+      "        }",
+      "    }",
+      "}"
+    ],
+    "description": "Pipeline Post"
+  }
+}

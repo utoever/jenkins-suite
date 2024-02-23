@@ -1,17 +1,26 @@
 # Jenkins Suite
 
+[![Visual Studio Marketplace](https://img.shields.io/visual-studio-marketplace/v/utocode.jenkinssuite?style=for-the-badge&label=VS%20Marketplace&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=utocode.jenkinssuite)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/utocode.jenkinssuite?style=for-the-badge)](https://marketplace.visualstudio.com/items?itemName=utocode.jenkinssuite)
+[![License](https://img.shields.io/github/license/utocode/jenkins-suite?style=for-the-badge&logo=)](https://github.com/utocode/jenkins-suite/blob/master/LICENSE)
+
+이 확장 프로그램은 Jenkins를 VS Code 안에서 많은 작업을 빠르게 수행할 수 있도록 빌드되었습니다. Jenkins 에서 사용할 수 있는 뷰를 생성하거나 뷰의 이름을 변경할 수 있습니다. 또한 가장 중요한 작업을 생성, 수정 및 빌드할 수 있습니다. 가장 중요한 것 중 하나는 바로 가기로 대부분의 작업을 수행하여 시간을 절약하는 것입니다.
+
+For more information, please visit the following site.
+
+**[https://jenkinssuite.github.io/](https://jenkinssuite.github.io/)**
+
 VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발하였습니다.
 개발 / 스테이징 / 운영환경 처럼 분리된 서버를 전환하며 View >> Job (혹은 Folder) 를 쉽게 선택하며 빌드 / 로그를 쉽게 볼 수 있도록 하였습니다.
-주요한 단축키는 Alt+1 ~ Alt+6, Ctrl+Alt+Insert (Generate Job Code), Shift+Alt+Enter (Job 실행/업데이트) 를 사용하시면 편한 작업이 가능합니다.
+주요한 단축키는 Alt+1 ~ Alt+6, Ctrl+Alt+Insert (Generate Job Code) 를 사용하시면 작업을 편하게 하실 수 있습니다.
 
 ## Prerequisites
 
 * Install Jenkins
-* Install Jenkins Plugins [추천]
-  * JobDSL: <https://plugins.jenkins.io/job-dsl/>
-  * CategorizedView: <https://plugins.jenkins.io/categorized-view/>
-  * WsTalk: Jenkins Server에서 빌드된 정보를 알림 [Notify]
-    * Download: <https://github.com/utocode/wstalk/releases/>
+* Install Jenkins Plugins [Recommend]
+  * JobDSL: [https://plugins.jenkins.io/job-dsl/](https://plugins.jenkins.io/job-dsl/)
+  * CategorizedView: [https://plugins.jenkins.io/categorized-view/](https://plugins.jenkins.io/categorized-view/)
+  * WsTalk: Communicate build information from the jenkins server via websockets [https://github.com/utocode/wstalk/releases/](https://github.com/utocode/wstalk/releases/)
 * Make User of the Jenkins (Account & API Token)
 
 ## Features
@@ -49,13 +58,11 @@ VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발�
 
   ![Generate Code](images/guide/guide6.png)
 
-
-- Validate Jenkinsfiles (Ctrl+Alt+t)
+* Validate Jenkinsfiles (Ctrl+Alt+T)
 
   ![Validate](images/guide/guide7.png)
 
-
-# Getting Started
+## Getting Started
 
 * Jenkins 서버에서 API Token 생성
   * Jenkins 서버 로그인합니다.
@@ -75,7 +82,7 @@ VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발�
 
 ## Extension Settings
 
-+ Add Jenkins Server
+* Add Jenkins Server
 
 ```json
   "jenkinssuite.servers": {
@@ -89,7 +96,8 @@ VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발�
         "address": "192.168.0.1",
         "port": 22,
         "username": "root",
-        "externalPath": "putty.exe"
+        "externalPath": "putty.exe",
+        "externalArg": "-P"
       },
       "wstalk": {
         "enabled": false,
@@ -107,7 +115,8 @@ VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발�
         "address": "192.168.0.1",
         "port": 22,
         "username": "root",
-        "externalPath": "putty.exe"
+        "externalPath": "putty.exe",
+        "externalArg": "-P"
       },
       "wstalk": {
         "enabled": false,
@@ -116,6 +125,24 @@ VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발�
       }
     }
   }
+```
+
+## Jenkins Project Tree View of Explorer
+
+* You can run a job related to the folder of the current project inside Visual Studio Code.
+* Create a .jenkinsrc.json file in your project directory
+
+**.jenkinsrc.json** file
+
+```json
+{
+  "local": {
+    "applications": [
+      "job/demo1",
+      "job/demo2"
+    ]
+  }
+}
 ```
 
 ### Severs 정보 설명
@@ -146,8 +173,12 @@ VS Code에서 가능하면 마우스 없이 빠른 일을 하기 위해 개발�
 
 ## Issues
 
-Please let me know of any bugs via the issues page!
+Please let me know of any bugs via the issues page
 
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md)
+
+## License
+
+See [LICENSE](LICENSE) for more information.

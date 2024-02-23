@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ThemeIcon, Uri } from 'vscode';
+import { JenkinsServer } from '../config/settings';
 import { BallColor, Jobs, Result } from "./jenkins-types";
 
 export interface JenkinsInfo {
@@ -105,10 +105,23 @@ export enum JobModelType {
 
     freeStyleProject = 'hudson.model.FreeStyleProject',
     workflowJob = 'org.jenkinsci.plugins.workflow.job.WorkflowJob',
+    externalJob = 'hudson.model.ExternalJob',
     folder = 'com.cloudbees.hudson.plugins.folder.Folder',
-    workflowMultiBranchProject = 'org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject'
+    organizationFolder = 'jenkins.branch.OrganizationFolder',
+    workflowMultiBranchProject = 'org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject',
+    mavenModuleSet = 'hudson.maven.MavenModuleSet',
+    matrixProject = 'hudson.matrix.MatrixProject',
+    shortcutJob = 'com.legrig.jenkins.shortcut.ShortcutJob'
 
 }
+
+const buildJobModelType = [
+    JobModelType.freeStyleProject.toString(),
+    JobModelType.workflowJob.toString(),
+    JobModelType.mavenModuleSet.toString(),
+    JobModelType.matrixProject.toString(),
+    JobModelType.workflowMultiBranchProject.toString()
+];
 
 export interface BaseAction {
     _class: string
@@ -184,13 +197,11 @@ export interface BuildDetailStatus {
     culprits: any[]
 }
 
-
 export interface CrumbIssuer {
     _class: string
     crumb: string
     crumbRequestField: string
 }
-
 
 export interface Computers {
     _class: string
@@ -199,7 +210,6 @@ export interface Computers {
     displayName: string
     totalExecutors: number
 }
-
 
 export interface Computer {
     _class: string
@@ -245,3 +255,64 @@ export interface WsTalkMessage {
 export interface ModelQuickPick<T> extends vscode.QuickPickItem {
     model?: T
 }
+
+export interface IconQuickPickItem extends vscode.QuickPickItem {
+    icon: string;
+    func: () => void;
+}
+
+export type JenkinsUsers = {
+    [key: string]: JenkinsUser
+};
+
+export interface JenkinsUser {
+    name: string,
+    description: string,
+    delete: boolean
+}
+
+export type ProjectModels = {
+    [key: string]: ProjectModel
+};
+
+export interface ProjectModel {
+    name?: string
+    applications: string[]
+    buildProject?: string[]
+    server: JenkinsServer | undefined
+    description?: string
+    models?: {
+        [key: string]: JobsModel
+    }
+}
+
+export interface FeedEntry {
+    title: string;
+    link: {
+        rel: string;
+        type: string;
+        href: string;
+    };
+    id: string;
+    published: string;
+    updated: string;
+}
+
+export interface JenkinsFeed {
+    feed: {
+        title: string;
+        link: {
+            rel: string;
+            type: string;
+            href: string;
+        };
+        updated: string;
+        author: {
+            name: string;
+        };
+        id: string;
+        entry: FeedEntry[];
+    };
+}
+
+export default buildJobModelType;

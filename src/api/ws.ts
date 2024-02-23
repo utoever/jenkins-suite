@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import WebSocket from 'ws';
-import { BuildsProvider } from '../sidebar/builds-provider';
-import { NotifyProvider } from '../sidebar/notify-provider';
+import { BuildsProvider } from '../provider/builds-provider';
+import { NotifyProvider } from '../provider/notify-provider';
 import { Result } from '../types/jenkins-types';
 import { WsTalkMessage } from '../types/model';
 import { getLocalDate } from '../utils/datetime';
@@ -16,6 +16,8 @@ export class WebSocketClient {
     private pingInterval: number = 30000;
     private pingTimer: NodeJS.Timeout | undefined;
 
+    private countFailed = 0;
+
     constructor(private serverAddress: string, private readonly reconnectInterval: number, private readonly buildsProvider: BuildsProvider, private readonly notifyProvider: NotifyProvider) {
     }
 
@@ -24,20 +26,19 @@ export class WebSocketClient {
         console.log(`socket <${this.serverAddress}>`);
 
         this.socket.on('open', () => {
-            // vscode.window.showInformationMessage('WebSocket connection has been established successfully.');
             logger.info(`WebSocket connection has been established <${this.serverAddress}>`);
             this.startPingPong();
+            this.countFailed = 0;
         });
 
         this.socket.on('message', (data: WebSocket.Data) => {
             const message = data.toString();
-            logger.debug(`message <${message}>`);
-
+            // logger.debug(`message <${message}>`);
             this.handleMessage(message);
         });
 
         this.socket.on('close', (code: number, reason: string) => {
-            logger.warn(`WebSocket connection closed with code ${code} and reason: <${reason}>`);
+            logger.warn(`WebSocket connection closed with code <${code}> and reason <${reason}>`);
             this.setReconnectTimer();
         });
 
@@ -96,7 +97,7 @@ export class WebSocketClient {
                 this.buildsProvider.refresh();
             }
         } catch (error: any) {
-            logger.error(`Exception <${error.message}>`);
+            logger.error(`Error <${error.message}>`);
             vscode.window.showErrorMessage(error.message);
         }
     }

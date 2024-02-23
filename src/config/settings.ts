@@ -1,9 +1,8 @@
 import Ajv, * as ajv from 'ajv';
 import _ from 'lodash';
 import * as vscode from "vscode";
-import { EXTENSION_NAME } from '../constants';
+import { Constants } from '../svc/constants';
 import logger from '../utils/logger';
-
 
 export interface JenkinsProperty {
     url: string;
@@ -33,6 +32,10 @@ export interface WsTalk {
 
 export interface JenkinsServer extends JenkinsProperty {
     name: string;
+    admin?: boolean;
+    git?: string;
+    sonarqube?: string;
+    sparrow?: string;
 }
 
 export default class JenkinsConfiguration {
@@ -41,7 +44,7 @@ export default class JenkinsConfiguration {
 
     private static readonly compiledSchemas = new Map<string, ajv.ValidateFunction>();
 
-    private static readonly rootName = EXTENSION_NAME;
+    private static readonly rootName = 'jenkinssuite';
 
     private static config<T>(name: string): T | undefined {
         let settings = vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<T>(name);
@@ -108,6 +111,15 @@ export default class JenkinsConfiguration {
         vscode.workspace.getConfiguration().update(JenkinsConfiguration.rootName + '.' + primaryKey, name, vscode.ConfigurationTarget.Global);
     }
 
+    public static get batchJobNameSuffix(): string {
+        const key = 'batch.job-name.suffix';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<string>(key)
+            ??
+            vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<string>(key)?.defaultValue
+            ??
+            '_JKSSH';
+    }
+
     public static get categorizedEnabled(): boolean {
         const key = 'plugin.categorized.enabled';
         return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<boolean>(key)
@@ -135,6 +147,22 @@ export default class JenkinsConfiguration {
             'c_folder';
     }
 
+    public static get snippetCustomFilePath(): string {
+        const key = 'snippet.custom-file';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<string>(key)
+            ??
+            '';
+    }
+
+    public static get scriptNextWindowEnabled(): boolean {
+        const key = 'script.next-window.enabled';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<boolean>(key)
+            ??
+            vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<boolean>(key)?.defaultValue
+            ??
+            true;
+    }
+
     public static get buildDelay(): number {
         const key = 'build.delay';
         return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<number>(key)
@@ -142,6 +170,15 @@ export default class JenkinsConfiguration {
             vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<number>(key)?.defaultValue
             ??
             3;
+    }
+
+    public static get reservationDelaySeconds(): number {
+        const key = 'reservation.delay-seconds';
+        return vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).get<number>(key)
+            ??
+            vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<number>(key)?.defaultValue
+            ??
+            15;
     }
 
     public static get limitBuilds(): number {

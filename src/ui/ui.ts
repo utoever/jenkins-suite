@@ -1,4 +1,6 @@
-import { ProgressLocation, Uri, env, version, window } from 'vscode';
+import { ProgressLocation, Uri, commands, env, version, window } from 'vscode';
+import { Constants } from '../svc/constants';
+import { printEditor } from '../utils/editor';
 
 export function showInfoMessageWithTimeout(message: string, timeout: number = 3000) {
     const upTo = timeout / 10;
@@ -45,4 +47,26 @@ export function openLinkBrowser(url: string) {
     } catch (error) {
         console.error('Error opening browser: ', error);
     }
+}
+
+export async function notifyUIUserMessage(message: string = 'Processing', showEditor: boolean = true) {
+    try {
+        showInfoMessageWithTimeout(message, 1500);
+        if (showEditor) {
+            await printEditor('Waiting', true);
+            for (let i = 0; i < 3; i++) {
+                setTimeout(async () => {
+                    await printEditor('.', false);
+                }, 500);
+            }
+        }
+    } catch (error: any) {
+        // ignore
+    }
+}
+
+export async function refreshView(cmd: string, timeout: number = Constants.JENKINS_DEFAULT_GROOVY_DELAY) {
+    setTimeout(async () => {
+        await commands.executeCommand(cmd);
+    }, timeout);
 }

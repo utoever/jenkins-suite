@@ -3,6 +3,7 @@ import FormData from 'form-data';
 import { JenkinsServer } from '../config/settings';
 import { CrumbIssuer } from '../types/model';
 import { Response } from '../types/response';
+import logger from '../utils/logger';
 import { JenkinsAxiosInterface } from './interfaces';
 
 export class Jenkins {
@@ -26,9 +27,11 @@ export class Jenkins {
     }
 
     public async initialized() {
-        const crumbIssuer = await this.getCrumbIssuer();
-        // logger.debug(`crumbIssuer <${crumbIssuer.crumb}>`);
-        this._crumb = crumbIssuer.crumb;
+        if (!this._crumb) {
+            const crumbIssuer = await this.getCrumbIssuer();
+            logger.debug(`crumbIssuer <${crumbIssuer.crumb}>`);
+            this._crumb = crumbIssuer.crumb;
+        }
         return this._crumb ? true : false;
     }
 
@@ -52,10 +55,9 @@ export class Jenkins {
     }
 
     _get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
-        console.log(`url <${url}>`);
+        console.log(`_get:: url <${url}>`);
         const response = await this.client.get<Response<T>>(url, config);
-        console.log(`response <${response.data}>`);
-
+        // console.log(`response <${response.data}>`);
         return response.data;
     };
 
@@ -83,13 +85,13 @@ export class Jenkins {
             console.log(`response <${response}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            logger.error(`_post:: Error <${error.message}>`);
             return error.message;
         }
     };
 
     _postForm = async <T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> => {
-        console.log(`url <${url}>`);
+        console.log(`_postForm:: url <${url}>`);
         if (!config) {
             config = {
             };
@@ -107,13 +109,36 @@ export class Jenkins {
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            logger.error(`_postForm:: Error <${error.message}>`);
             return error.message;
         }
     };
 
-    _postJson = async <T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> => {
-        console.log(`url <${url}>`);
+    _postFormEncoded = async <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+        console.log(`_postFormEncoded:: url <${url}>`);
+        if (!config) {
+            config = {
+            };
+        }
+
+        const headers = new AxiosHeaders();
+        headers.set('jenkins-crumb', this._crumb);
+        headers.set('Content-Type', 'application/x-www-form-urlencoded');
+        config.headers = headers;
+        config.method = 'POST';
+
+        try {
+            const response = await this.client.postForm<Response<T>>(url, data, config);
+            console.log(`response <${response.data}>`);
+            return response.data;
+        } catch (error: any) {
+            logger.error(`_postFormEncoded:: Error <${error.message}>`);
+            return error.message;
+        }
+    };
+
+    _postJson = async <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+        console.log(`_postJson:: url <${url}>`);
         if (!config) {
             config = {
             };
@@ -126,12 +151,12 @@ export class Jenkins {
         config.method = 'POST';
 
         try {
-            const response = await this.client.postForm<Response<T>>(url, formData, config);
+            const response = await this.client.post<Response<T>>(url, data, config);
 
             console.log(`response <${response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            logger.error(`_postJson:: Error <${error.message}>`);
             return error.message;
         }
     };
@@ -171,7 +196,7 @@ export class Jenkins {
             console.log(`response <${response.headers ?? response.data}>`);
             return response.data;
         } catch (error: any) {
-            console.log(`  >> Error <${error.message}>`);
+            logger.error(`_create:: Error <${error.message}>`);
             return error.message;
         }
     };

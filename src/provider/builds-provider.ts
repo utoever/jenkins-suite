@@ -1,13 +1,12 @@
-import { resolve } from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { getResultColor } from '../types/jenkins-types';
-import { BuildDetailStatus, BuildStatus, CauseParameter, JobParameter, JobsModel } from '../types/model';
+import buildJobModelType, { BuildDetailStatus, BuildStatus, CauseParameter, JobModelType, JobParameter, JobsModel } from '../types/model';
 import { getCauseAction, getParameterAction } from '../types/model-util';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { formatDurationTime, getLocalDate } from '../utils/datetime';
-import { getSelectionText, printEditorWithNew } from '../utils/editor';
+import { printEditorWithNew } from '../utils/editor';
 
 export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
@@ -21,6 +20,9 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
     constructor(protected context: vscode.ExtensionContext) {
         context.subscriptions.push(
+            vscode.commands.registerCommand('utocode.builds.refresh', () => {
+                this.refresh();
+            }),
             vscode.commands.registerCommand('utocode.showBuilds', (job: JobsModel) => {
                 this.jobs = job;
             }),
@@ -41,6 +43,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
                 if (builds && builds.length > 0) {
                     await vscode.window.showQuickPick(builds.map<string>(v => v.number.toString()), {
+                        title: this.jobs?.name ?? 'Builds',
                         placeHolder: vscode.l10n.t("Select to view Job Log")
                     }).then(async (selectedItem) => {
                         if (selectedItem) {
@@ -65,7 +68,8 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
             history = await this.executor?.getBuild(this._jobs, element.number);
         }
         let treeItem: vscode.TreeItem = {
-            label: `#${element.number} (${formatDurationTime(history!.duration)})`,
+            label: `${history?.fullDisplayName ?? element.number}`,
+            description: (getLocalDate(history?.timestamp) ?? '') + ` (${formatDurationTime(history!.duration)})`,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: 'builds',
             iconPath: this.context.asAbsolutePath(`resources/job/${getResultColor(history?.result)}.png`),
@@ -76,13 +80,11 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
     getToolTip(buildDetails: BuildDetailStatus) {
         const text = new vscode.MarkdownString();
-        text.appendMarkdown(`### Job:\n`);
+        text.appendMarkdown(`### Job: __${buildDetails.fullDisplayName}__\n`);
         if (buildDetails.description) {
             text.appendMarkdown(`* ${buildDetails.description}\n`);
         }
-        text.appendMarkdown(`* name: ${buildDetails.fullDisplayName}\n`);
-        text.appendMarkdown(`* duration: ${buildDetails.duration}\n`);
-
+        text.appendMarkdown(`* duration: ${formatDurationTime(buildDetails.duration)}\n`);
         text.appendMarkdown('\n---\n');
 
         const actions = buildDetails.actions;
@@ -90,10 +92,10 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
         text.appendMarkdown(`### Parameters: \n`);
         if (paramAction && paramAction.length > 0) {
             for (let param of paramAction) {
-                text.appendMarkdown(`  * ${param.name} (${param.value}) \n`);
+                text.appendMarkdown(`* ${param.name} (${param.value}) \n`);
             }
         } else {
-            text.appendMarkdown(' * **None**\n');
+            text.appendMarkdown('* __None__\n');
         }
         text.appendMarkdown('\n---\n');
 
@@ -101,7 +103,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
         if (causeAction) {
             text.appendMarkdown(`### Causes: \n`);
             for (let param of causeAction) {
-                text.appendMarkdown(`  * ${param.shortDescription}\n`);
+                text.appendMarkdown(`* ${param.shortDescription}\n`);
             }
         }
         text.appendMarkdown('\n---\n');
@@ -125,6 +127,10 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
 
         if (Object.keys(this._jobs).length === 0) {
             showInfoMessageWithTimeout('Please select job first');
+            return [];
+        }
+
+        if (!(buildJobModelType.includes(this._jobs._class))) {
             return [];
         }
 

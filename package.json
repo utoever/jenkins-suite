@@ -1,11 +1,11 @@
 {
   "name": "jenkinssuite",
   "displayName": "Jenkins Suite",
-  "description": "Manage your Jenkins Job inside Visual Studio Code",
-  "version": "0.0.7",
+  "description": "This extension is built to make Jenkins fast to accomplish many tasks within VS Code. You can create a view that can be used in Jenkins, or you can change the name of the view. It also allows you to create, modify, and build the most important tasks. One of the most important things is to do most of the work with shortcuts to save time.",
+  "version": "0.5.7",
   "author": "utocode",
   "publisher": "utocode",
-  "icon": "images/logo.png",
+  "icon": "images/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/utocode/jenkins-suite"
@@ -17,8 +17,10 @@
   "categories": [
     "Debuggers",
     "Extension Packs",
+    "Formatters",
     "Linters",
     "Programming Languages",
+    "Snippets",
     "Visualization",
     "Other"
   ],
@@ -28,6 +30,7 @@
     "shortcut",
     "jenkins dashboard",
     "vscode",
+    "save time",
     "pipeline",
     "pipeline validation",
     "devops",
@@ -38,21 +41,16 @@
     "management"
   ],
   "capabilities": {
+    "codeLensProvider": {
+      "resolveProvider": "true"
+    },
     "virtualWorkspaces": true
   },
-  "activationEvents": [],
-  "extensionDependencies": [],
-  "files": [
-    "out/",
-    "l10n/",
-    "media/",
-    "images/",
-    "snippets/",
-    "syntaxes/",
-    "languages/",
-    "resources/"
+  "activationEvents": [
+    "onLanguage:jenkins"
   ],
-  "main": "./out/extension.js",
+  "extensionDependencies": [],
+  "main": "./dist/extension.js",
   "l10n": "./l10n",
   "contributes": {
     "viewsContainers": {
@@ -65,31 +63,45 @@
       ]
     },
     "views": {
+      "explorer": [
+        {
+          "id": "jenkinsProject",
+          "name": "Jenkins Project",
+          "visibility": "collapsed",
+          "when": "config.jenkinssuite.views.project.enabled"
+        }
+      ],
       "jenkins-explorer": [
         {
-          "id": "utocode.views.connection",
+          "id": "connectionView",
           "name": "%views.connection.title%"
         },
         {
-          "id": "utocode.views.views",
+          "id": "viewsView",
           "name": "%views.views.title%"
         },
         {
-          "id": "utocode.views.jobs",
+          "id": "jobsView",
           "name": "%views.jobs.title%"
         },
         {
-          "id": "utocode.views.builds",
+          "id": "buildsView",
           "name": "%views.builds.title%"
         },
         {
-          "id": "utocode.views.notify",
+          "id": "reservationView",
+          "name": "%views.reservation.title%",
+          "visibility": "collapsed",
+          "when": "config.jenkinssuite.views.reservation.enabled"
+        },
+        {
+          "id": "notifyView",
           "name": "%views.notify.title%",
           "visibility": "collapsed",
           "when": "config.jenkinssuite.views.notify.enabled"
         },
         {
-          "id": "utocode.views.snippets",
+          "id": "snippetsView",
           "name": "%views.snippets.title%",
           "visibility": "collapsed",
           "when": "config.jenkinssuite.views.snippet.enabled"
@@ -97,6 +109,36 @@
       ]
     },
     "commands": [
+      {
+        "command": "utocode.restart",
+        "title": "%restart.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.createUser",
+        "title": "%createUser.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.changeExecutor",
+        "title": "%changeExecutor.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.createCredential#SecretText",
+        "title": "%createSecretText.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.createCredential#CredentialUser",
+        "title": "%createCreditalUser.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.setSystemMessage",
+        "title": "%setSystemMessage.title%",
+        "category": "jenkinssuite"
+      },
       {
         "command": "utocode.switchConnection",
         "title": "%switchConnection.title%",
@@ -123,6 +165,30 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.runAddReservation",
+        "title": "%runAddReservation.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.runAddMultiReservation",
+        "title": "%runAddMultiReservation.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.addReservation",
+        "title": "%addReservation.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.cancelReservation",
+        "title": "%cancelReservation.title%",
+        "icon": {
+          "dark": "resources/dark/cancel.svg",
+          "light": "resources/light/cancel.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.createView",
         "title": "%createView.title%",
         "icon": {
@@ -135,8 +201,8 @@
         "command": "utocode.openLinkView",
         "title": "%openLinkView.title%",
         "icon": {
-          "dark": "resources/dark/console.svg",
-          "light": "resources/light/console.svg"
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
         },
         "category": "jenkinssuite"
       },
@@ -144,8 +210,8 @@
         "command": "utocode.openLinkJob",
         "title": "%openLinkJob.title%",
         "icon": {
-          "dark": "resources/dark/console.svg",
-          "light": "resources/light/console.svg"
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
         },
         "category": "jenkinssuite"
       },
@@ -168,8 +234,48 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.generateJobCodePick",
+        "title": "%generateJobCodePick.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.withView",
+        "title": "%withView.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.withJob",
+        "title": "%withJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.copyJob",
+        "title": "%copyJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.moveJob",
+        "title": "%moveJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.renameJob",
+        "title": "%renameJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.renameFolder",
+        "title": "%renameFolder.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.disabledJob",
         "title": "%disabledJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.deleteJobParam",
+        "title": "%deleteJobParam.title%",
         "category": "jenkinssuite"
       },
       {
@@ -180,6 +286,21 @@
       {
         "command": "utocode.getConfigView",
         "title": "%getConfigView.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.changePrimaryView",
+        "title": "%changePrimaryView.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.renameView",
+        "title": "%renameView.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.deleteView",
+        "title": "%deleteView.title%",
         "category": "jenkinssuite"
       },
       {
@@ -213,6 +334,21 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.copyUri",
+        "title": "%copyUri.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.copyScript",
+        "title": "%copyScript.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.copyWithNewEditor",
+        "title": "%copyWithNewEditor.title%",
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.openExternalBrowser",
         "title": "%openExternalBrowser.title%",
         "category": "jenkinssuite"
@@ -227,6 +363,33 @@
         "category": "jenkinssuite"
       },
       {
+        "command": "utocode.openLink#appHome",
+        "title": "%openLinkAppHome.title%",
+        "icon": {
+          "dark": "resources/dark/home.svg",
+          "light": "resources/light/home.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#swagger",
+        "title": "%openLinkSwagger.title%",
+        "icon": {
+          "dark": "resources/dark/swagger.svg",
+          "light": "resources/light/swagger.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#manage",
+        "title": "%openLinkManage.title%",
+        "icon": {
+          "dark": "resources/dark/info.svg",
+          "light": "resources/light/info.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
         "command": "utocode.getJobLogPick",
         "title": "%getJobLogPick.title%",
         "category": "jenkinssuite"
@@ -234,16 +397,28 @@
       {
         "command": "utocode.withJobLog",
         "title": "%withJobLog.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.getJobHistory",
-        "title": "%getJobHistory.title%",
+        "command": "utocode.viewJobConsole",
+        "title": "%viewJobConsole.title%",
+        "icon": {
+          "dark": "resources/dark/console.svg",
+          "light": "resources/light/console.svg"
+        },
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.withJobHistory",
-        "title": "%withJobHistory.title%",
+        "command": "utocode.openLinkNotifyJob",
+        "title": "%openLinkNotifyJob.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
         "category": "jenkinssuite"
       },
       {
@@ -257,11 +432,122 @@
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.goHome",
-        "title": "%goHome.title%",
+        "command": "utocode.deleteUser",
+        "title": "%deleteUser.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#user",
+        "title": "%openLinkUser.title%",
         "icon": {
-          "dark": "resources/dark/home.png",
-          "light": "resources/light/home.svg"
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#Home",
+        "title": "%openLinkHome.title%",
+        "icon": {
+          "dark": "resources/icons/jenkins.svg",
+          "light": "resources/icons/jenkins.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#git",
+        "title": "%openLinkGit.title%",
+        "icon": {
+          "dark": "resources/dark/git.svg",
+          "light": "resources/light/git.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#sqube",
+        "title": "%openLinkSqube.title%",
+        "icon": {
+          "dark": "resources/dark/sonarqube.svg",
+          "light": "resources/light/sonarqube.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#sparrow",
+        "title": "%openLinkSparrow.title%",
+        "icon": {
+          "dark": "resources/dark/sparrow.svg",
+          "light": "resources/light/sparrow.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.project.settings",
+        "title": "%project.settings.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/settings.svg",
+          "dark": "resources/dark/settings.svg"
+        }
+      },
+      {
+        "command": "utocode.project.refresh",
+        "title": "%project.refresh.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "utocode.connectProjectServer",
+        "title": "%connectProjectServer.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.disconnectProjectServer",
+        "title": "%disconnectProjectServer.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.buildProjectAll",
+        "title": "%buildProjectAll.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.buildProjectJob",
+        "title": "%buildProjectJob.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.getResources",
+        "title": "%getResources.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#projectServer",
+        "title": "%openLinkProjectServer.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#projectJob",
+        "title": "%openLinkProjectJob.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
+        },
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLink#projectBuild",
+        "title": "%openLinkProjectBuild.title%",
+        "icon": {
+          "dark": "resources/dark/link.svg",
+          "light": "resources/light/link.svg"
         },
         "category": "jenkinssuite"
       },
@@ -284,6 +570,29 @@
         "command": "utocode.disconnectServer",
         "title": "%disconnectServer.title%",
         "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.openLinkUserConfigure",
+        "title": "%openLinkUserConfigure.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.connections.settings",
+        "title": "%connections.settings.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/settings.svg",
+          "dark": "resources/dark/settings.svg"
+        }
+      },
+      {
+        "command": "utocode.connections.question",
+        "title": "%connections.question.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/question.svg",
+          "dark": "resources/dark/question.svg"
+        }
       },
       {
         "command": "utocode.connections.refresh",
@@ -322,6 +631,51 @@
         }
       },
       {
+        "command": "utocode.builds.refresh",
+        "title": "%builds.refresh.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "utocode.reservation.refresh",
+        "title": "%reservation.refresh.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "utocode.reservation.sort",
+        "title": "%reservation.sort.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/sort.svg",
+          "dark": "resources/dark/sort.svg"
+        }
+      },
+      {
+        "command": "utocode.reservation.info",
+        "title": "%reservation.info.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/info.svg",
+          "dark": "resources/dark/info.svg"
+        }
+      },
+      {
+        "command": "utocode.snippets.settings",
+        "title": "%snippets.settings.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/settings.svg",
+          "dark": "resources/dark/settings.svg"
+        }
+      },
+      {
         "command": "utocode.snippets.refresh",
         "title": "%snippets.refresh.title%",
         "category": "jenkinssuite",
@@ -333,6 +687,25 @@
       {
         "command": "utocode.generateCode",
         "title": "%generateCode.title%",
+        "category": "jenkinssuite",
+        "icon": {
+          "light": "resources/light/task.svg",
+          "dark": "resources/dark/task.svg"
+        }
+      },
+      {
+        "command": "utocode.executeScript",
+        "title": "%executeScript.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.executeQuick",
+        "title": "%executeQuick.title%",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.convertJksshAsJob",
+        "title": "%convertJksshAsJob.title%",
         "category": "jenkinssuite"
       },
       {
@@ -344,95 +717,239 @@
         "command": "utocode.welcome",
         "title": "%welcome.title%",
         "category": "jenkinssuite"
-      },
-      {
-        "command": "utocode.helloWorld",
-        "title": "Hello World",
-        "category": "jenkinssuite"
       }
     ],
     "menus": {
-      "commandPalette": [
-        {
-          "command": "utocode.helloWorld",
-          "when": "true"
-        }
-      ],
       "view/item/context": [
         {
-          "when": "viewItem == 'connection'",
-          "command": "utocode.goHome",
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv.*/ && !(viewItem =~ /^.*project_srv_conn/)",
+          "command": "utocode.connectProjectServer",
+          "group": "1_jenkinssuite_actions@10"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv_conn.*/ && viewItem =~ /^.*_batch.*/",
+          "command": "utocode.buildProjectAll",
+          "group": "1_jenkinssuite_actions@20"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv_conn.*/",
+          "command": "utocode.disconnectProjectServer",
+          "group": "1_jenkinssuite_actions@90"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job.*/",
+          "command": "utocode.buildProjectJob",
+          "group": "1_jenkinssuite_actions@10"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_srv/",
+          "command": "utocode.openLink#projectServer",
+          "group": "inline@90"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_job.*/",
+          "command": "utocode.openLink#projectJob",
+          "group": "inline@90"
+        },
+        {
+          "when": "view == 'jenkinsProject' && viewItem =~ /^.*project_build.*/",
+          "command": "utocode.openLink#projectBuild",
+          "group": "inline@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*sparrow.*/",
+          "command": "utocode.openLink#sparrow",
+          "group": "inline@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*_sqube.*/",
+          "command": "utocode.openLink#sqube",
+          "group": "inline@30"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*_git.*/",
+          "command": "utocode.openLink#git",
+          "group": "inline@50"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
+          "command": "utocode.openLink#Home",
+          "group": "inline@70"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/ && !(viewItem =~ /^.*_conn/)",
+          "command": "utocode.connectServer",
+          "group": "1_jenkinssuite_actions@10"
+        },
+        {
+          "when": "view == 'connectionView' && (viewItem =~ /^.*_conn/)",
+          "command": "utocode.disconnectServer",
+          "group": "1_jenkinssuite_actions@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
+          "command": "utocode.openLinkUserConfigure",
+          "group": "1_jenkinssuite_actions@90"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
+          "command": "utocode.connectSSH",
+          "group": "1_run@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/",
+          "command": "utocode.connectSSHExternal",
+          "group": "1_run@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
+          "command": "utocode.createUser",
+          "group": "2_configure@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
+          "command": "utocode.createCredential#SecretText",
+          "group": "2_configure@20"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
+          "command": "utocode.createCredential#CredentialUser",
+          "group": "2_configure@20"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^connection.*/ && viewItem =~ /^.*_not.*/",
+          "command": "utocode.setPrimaryServer",
+          "group": "3_manage@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
+          "command": "utocode.changeExecutor",
+          "group": "3_manage@20"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^.*_admin.*/",
+          "command": "utocode.setSystemMessage",
+          "group": "3_manage@99"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^user.*/ && viewItem != 'user_not'",
+          "command": "utocode.deleteUser",
+          "group": "1_run@10"
+        },
+        {
+          "when": "view == 'connectionView' && viewItem =~ /^user.*/",
+          "command": "utocode.openLink#user",
           "group": "inline"
         },
         {
-          "when": "viewItem == 'connection'",
-          "command": "utocode.connectServer",
-          "group": "1_jenkinssuite_actions@1"
-        },
-        {
-          "when": "viewItem == 'connection'",
-          "command": "utocode.disconnectServer",
-          "group": "1_jenkinssuite_actions@1"
-        },
-        {
-          "when": "viewItem == 'connection'",
-          "command": "utocode.connectSSH",
-          "group": "1_run@1"
-        },
-        {
-          "when": "viewItem == 'connection'",
-          "command": "utocode.connectSSHExternal",
-          "group": "1_run@1"
-        },
-        {
-          "when": "viewItem == 'connection'",
-          "command": "utocode.setPrimaryServer",
-          "group": "2_configure@1"
-        },
-        {
-          "when": "viewItem == 'views'",
+          "when": "view == 'viewsView'",
           "command": "utocode.getConfigView",
-          "group": "1_jenkinssuite_actions@2"
+          "group": "1_jenkinssuite_actions@20"
         },
         {
-          "when": "viewItem == 'views'",
+          "when": "view == 'viewsView' && viewItem =~ /^.*_enabled.*/",
+          "command": "utocode.renameView",
+          "group": "1_jenkinssuite_actions@20"
+        },
+        {
+          "when": "view == 'viewsView' && viewItem =~ /^.*_enabled.*/",
+          "command": "utocode.changePrimaryView",
+          "group": "1_jenkinssuite_actions@50"
+        },
+        {
+          "when": "view == 'viewsView' && viewItem =~ /^.*_enabled.*/",
+          "command": "utocode.deleteView",
+          "group": "1_jenkinssuite_actions@90"
+        },
+        {
+          "when": "view == 'viewsView'",
           "command": "utocode.openLinkView",
           "group": "inline"
         },
         {
-          "when": "viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.openLinkJob",
-          "group": "inline"
+          "group": "inline@90"
         },
         {
-          "when": "viewItem == 'jobs_disabled'",
-          "command": "utocode.enabledJob",
-          "group": "2_configure@1"
+          "when": "view == 'jobsView' && viewItem =~ /^.*_home.*/",
+          "command": "utocode.openLink#appHome",
+          "group": "inline@70"
         },
         {
-          "when": "viewItem == 'jobs' && viewItem != 'jobs_disabled'",
-          "command": "utocode.disabledJob",
-          "group": "2_configure@1"
+          "when": "view == 'jobsView' && viewItem =~ /^.*_manage.*/",
+          "command": "utocode.openLink#manage",
+          "group": "inline@30"
         },
         {
-          "when": "viewItem =~ /^jobs.*/",
-          "command": "utocode.getConfigJob",
-          "group": "1_jenkinssuite_actions@3"
+          "when": "view == 'jobsView' && viewItem =~ /^.*_swagger.*/",
+          "command": "utocode.openLink#swagger",
+          "group": "inline@10"
         },
         {
-          "when": "viewItem == 'jobs'",
+          "when": "view == 'jobsView' && viewItem != 'jobs_folder' && (!(viewItem =~ /nothing.*/)) && (!(viewItem =~ /.*_disabled.*/))",
           "command": "utocode.buildJob",
-          "group": "1_jenkinssuite_actions@3"
+          "group": "1_jenkinssuite_actions@10"
         },
         {
-          "when": "viewItem =~ /^jobs.*/",
-          "command": "utocode.deleteJob",
-          "group": "1_jenkinssuite_actions@3"
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
+          "command": "utocode.getConfigJob",
+          "group": "1_jenkinssuite_actions@30"
         },
         {
-          "when": "viewItem =~ /^jobs.*/",
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
           "command": "utocode.openExternalBrowser",
-          "group": "1_jenkinssuite_actions@3"
+          "group": "1_jenkinssuite_actions@50"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem != 'jobs_folder' && (!(viewItem =~ /nothing.*/)) && !(viewItem =~ /^.*_disabled.*/)",
+          "command": "utocode.addReservation",
+          "group": "1_run@10"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem != 'jobs_folder' && viewItem =~ /^jobs.*/",
+          "command": "utocode.renameJob",
+          "group": "2_configure@10"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem =~ /^jobs_folder/",
+          "command": "utocode.renameFolder",
+          "group": "2_configure@10"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
+          "command": "utocode.copyJob",
+          "group": "2_configure@30"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
+          "command": "utocode.moveJob",
+          "group": "2_configure@50"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
+          "command": "utocode.deleteJob",
+          "group": "2_configure@70"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem =~ /^jobs.*/",
+          "command": "utocode.copyUri",
+          "group": "2_configure@80"
+        },
+        {
+          "when": "view == 'jobsView' && viewItem =~ /^.*_disabled.*/",
+          "command": "utocode.enabledJob",
+          "group": "3_manage@10"
+        },
+        {
+          "when": "view == 'jobsView' && (!(viewItem =~ /nothing.*/)) && !(viewItem =~ /^.*_disabled.*/)",
+          "command": "utocode.disabledJob",
+          "group": "3_manage@10"
+        },
+        {
+          "when": "view == 'jobsView' && (viewItem == 'nothing')",
+          "command": "utocode.deleteJobParam",
+          "group": "1_run@10"
         },
         {
           "when": "viewItem == 'builds'",
@@ -442,59 +959,109 @@
         {
           "when": "viewItem == 'builds'",
           "command": "utocode.withJobLog",
-          "group": "1_jenkinssuite_actions@4"
+          "group": "inline"
+        },
+        {
+          "when": "viewItem == 'reservation'",
+          "command": "utocode.cancelReservation",
+          "group": "inline"
         },
         {
           "when": "viewItem == 'notify'",
-          "command": "utocode.getJobHistory",
-          "group": "1_jenkinssuite_actions@5"
+          "command": "utocode.viewJobConsole",
+          "group": "inline"
         },
         {
           "when": "viewItem == 'notify'",
-          "command": "utocode.withJobHistory",
-          "group": "1_jenkinssuite_actions@5"
+          "command": "utocode.openLinkNotifyJob",
+          "group": "inline"
         },
         {
           "when": "viewItem == 'snippet'",
           "command": "utocode.generateCode",
-          "group": "1_jenkinssuite_actions@6"
+          "group": "inline"
         }
       ],
       "view/title": [
         {
+          "command": "utocode.project.settings",
+          "when": "view == 'jenkinsProject'",
+          "group": "navigation@99"
+        },
+        {
+          "command": "utocode.project.refresh",
+          "when": "view == 'jenkinsProject'",
+          "group": "navigation@99"
+        },
+        {
+          "command": "utocode.connections.settings",
+          "when": "view == connectionView",
+          "group": "navigation@10"
+        },
+        {
+          "command": "utocode.connections.question",
+          "when": "view == connectionView",
+          "group": "navigation@90"
+        },
+        {
           "command": "utocode.connections.refresh",
-          "when": "view == utocode.views.connection",
-          "group": "navigation@1"
+          "when": "view == connectionView",
+          "group": "navigation@99"
         },
         {
           "command": "utocode.createView",
-          "when": "view == utocode.views.views",
-          "group": "navigation@1"
+          "when": "view == viewsView",
+          "group": "navigation@10"
         },
         {
           "command": "utocode.views.refresh",
-          "when": "view == utocode.views.views",
-          "group": "navigation@1"
+          "when": "view == viewsView",
+          "group": "navigation@99"
         },
         {
           "command": "utocode.generateJobCode",
-          "when": "view == utocode.views.jobs",
-          "group": "navigation@1"
+          "when": "view == jobsView",
+          "group": "navigation@10"
         },
         {
           "command": "utocode.createFolder",
-          "when": "view == utocode.views.jobs",
-          "group": "navigation@2"
+          "when": "view == jobsView",
+          "group": "navigation@20"
         },
         {
           "command": "utocode.jobs.refresh",
-          "when": "view == utocode.views.jobs",
-          "group": "navigation@3"
+          "when": "view == jobsView",
+          "group": "navigation@99"
+        },
+        {
+          "command": "utocode.builds.refresh",
+          "when": "view == buildsView",
+          "group": "navigation@99"
+        },
+        {
+          "command": "utocode.reservation.info",
+          "when": "view == reservationView",
+          "group": "navigation@10"
+        },
+        {
+          "command": "utocode.reservation.sort",
+          "when": "view == reservationView",
+          "group": "navigation@30"
+        },
+        {
+          "command": "utocode.reservation.refresh",
+          "when": "view == reservationView",
+          "group": "navigation@99"
+        },
+        {
+          "command": "utocode.snippets.settings",
+          "when": "view == snippetsView",
+          "group": "navigation@90"
         },
         {
           "command": "utocode.snippets.refresh",
-          "when": "view == utocode.views.snippets",
-          "group": "navigation@1"
+          "when": "view == snippetsView",
+          "group": "navigation@99"
         }
       ]
     },
@@ -507,10 +1074,20 @@
           "default": true,
           "description": "%views.notify.enabled.description%"
         },
+        "jenkinssuite.views.reservation.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%views.reservation.enabled.description%"
+        },
         "jenkinssuite.views.snippet.enabled": {
           "type": "boolean",
           "default": true,
           "description": "%views.snippet.enabled.description%"
+        },
+        "jenkinssuite.views.project.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%views.project.enabled.description%"
         },
         "jenkinssuite.server.primary": {
           "type": "string",
@@ -527,6 +1104,16 @@
           "default": "false",
           "description": "%plugin.categorized.enabled.description%"
         },
+        "jenkinssuite.batch.job-name.suffix": {
+          "type": "string",
+          "default": "_JKSSH",
+          "description": "%batch.job-name.suffix.description%"
+        },
+        "jenkinssuite.snippet.custom-file": {
+          "type": "string",
+          "default": "",
+          "description": "%snippet.custom-file.description%"
+        },
         "jenkinssuite.snippet.create-view": {
           "type": "string",
           "default": "c_view_cateview",
@@ -537,10 +1124,20 @@
           "default": "c_folder",
           "description": "%snippet.create-folder.description%"
         },
+        "jenkinssuite.script.next-window.enabled": {
+          "type": "boolean",
+          "default": "false",
+          "description": "%script.next-window.enabled.description%"
+        },
         "jenkinssuite.build.delay": {
           "type": "number",
           "default": 3,
           "description": "%build.delay.description%"
+        },
+        "jenkinssuite.reservation.delay-seconds": {
+          "type": "number",
+          "default": 15,
+          "description": "%reservation.delay-seconds.description%"
         },
         "jenkinssuite.limit.builds": {
           "type": "number",
@@ -641,6 +1238,18 @@
                 "wstalk.description": {
                   "description": "Wstalk to Jenkins Wstalk description",
                   "type": "string"
+                },
+                "git": {
+                  "description": "Git URL",
+                  "type": "string"
+                },
+                "sonarqube": {
+                  "description": "Sonarqube URL",
+                  "type": "string"
+                },
+                "sparrow": {
+                  "description": "Sparrow URL",
+                  "type": "string"
                 }
               }
             }
@@ -699,35 +1308,59 @@
             "title": "%walkthroughs.step1.title%",
             "description": "%walkthroughs.step1.description%",
             "media": {
-              "image": "media/image1.png",
+              "image": "images/guide/guide1.png",
               "altText": "Empty image"
             },
             "completionEvents": [
-              "onCommand:utocode.jenkins"
+              "onCommand:utocode.switchConnection"
             ]
           },
           {
-            "id": "utocode.switchConnection",
+            "id": "utocode.runSwitchConnection",
             "title": "%walkthroughs.step2.title%",
             "description": "%walkthroughs.step2.description%",
             "media": {
-              "image": "media/image2.png",
+              "image": "images/guide/guide2.png",
               "altText": "Empty image"
             },
             "completionEvents": [
-              "onCommand:openSettings"
+              "onCommand:utocode.switchView"
             ]
           },
           {
-            "id": "utocode.runSwitchView",
+            "id": "utocode.runJobView",
             "title": "%walkthroughs.step3.title%",
             "description": "%walkthroughs.step3.description%",
             "media": {
-              "image": "media/image3.png",
+              "image": "images/guide/guide3.png",
               "altText": "Empty image"
             },
             "completionEvents": [
-              "onCommand:utocode.jenkins-explorer"
+              "onCommand:utocode.runJob"
+            ]
+          },
+          {
+            "id": "utocode.runGenerateJobCode",
+            "title": "%walkthroughs.step4.title%",
+            "description": "%walkthroughs.step4.description%",
+            "media": {
+              "image": "images/guide/guide5.png",
+              "altText": "Empty image"
+            },
+            "completionEvents": [
+              "onCommand:utocode.generateJobCode"
+            ]
+          },
+          {
+            "id": "utocode.runValidateJenkins",
+            "title": "%walkthroughs.step5.title%",
+            "description": "%walkthroughs.step5.description%",
+            "media": {
+              "image": "images/guide/guide7.png",
+              "altText": "Empty image"
+            },
+            "completionEvents": [
+              "onCommand:utocode.validateJenkins"
             ]
           }
         ]
@@ -752,37 +1385,95 @@
       {
         "command": "utocode.switchConnection",
         "key": "alt+1",
-        "mac": "option+1"
+        "mac": "cmd+1"
       },
       {
         "command": "utocode.switchView",
         "key": "alt+2",
-        "mac": "option+2"
+        "mac": "cmd+2"
       },
       {
         "command": "utocode.switchJob",
         "key": "alt+3",
-        "mac": "option+3"
+        "mac": "cmd+3"
       },
       {
         "command": "utocode.runJob",
         "key": "alt+4",
-        "mac": "option+4"
+        "mac": "cmd+4"
       },
       {
         "command": "utocode.runFolderJob",
         "key": "alt+6",
-        "mac": "option+6"
+        "mac": "cmd+6"
       },
       {
         "command": "utocode.switchBuild",
         "key": "alt+5",
-        "mac": "option+5"
+        "mac": "cmd+5"
+      },
+      {
+        "command": "utocode.runAddReservation",
+        "key": "alt+7",
+        "mac": "cmd+7"
+      },
+      {
+        "command": "utocode.runAddMultiReservation",
+        "key": "alt+8",
+        "mac": "cmd+8"
+      },
+      {
+        "command": "utocode.buildJob",
+        "key": "ctrl+w",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.getConfigJob",
+        "key": "ctrl+e",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.copyJob",
+        "key": "ctrl+c",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.copyUri",
+        "key": "ctrl+shift+c",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.renameJob",
+        "key": "f2",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.renameFolder",
+        "key": "shift+f2",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.moveJob",
+        "key": "ctrl+m",
+        "mac": "cmd+m",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.deleteJob",
+        "key": "delete",
+        "mac": "cmd+d",
+        "when": "jobsView"
+      },
+      {
+        "command": "utocode.addReservation",
+        "key": "ctrl+alt+v",
+        "when": "jobsView"
       },
       {
         "command": "utocode.validateJenkins",
         "key": "ctrl+alt+t",
-        "mac": "cmd+option+t"
+        "mac": "cmd+option+t",
+        "when": "editorTextFocus && (editorLangId == jenkins || editorLangId == xml)"
       },
       {
         "command": "utocode.showJobs",
@@ -802,30 +1493,91 @@
       {
         "command": "utocode.generateJobCode",
         "key": "ctrl+alt+insert",
-        "mac": "cmd+options+f12",
-        "when": "editorTextFocus",
+        "mac": "ctrl+shift+f12",
         "category": "jenkinssuite"
       },
       {
-        "command": "utocode.withJob",
+        "command": "utocode.generateJobCodePick",
+        "key": "ctrl+shift+insert",
+        "mac": "ctrl+shift+f11",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.executeQuick",
+        "key": "ctrl+shift+enter",
+        "mac": "ctrl+shift+enter",
+        "when": "editorTextFocus && (editorLangId == jkssh || editorLangId == jenkins)",
+        "category": "jenkinssuite"
+      },
+      {
+        "command": "utocode.executeQuick",
         "key": "shift+alt+enter",
-        "mac": "shift+options+enter",
-        "when": "editorTextFocus",
+        "mac": "shift+option+enter",
+        "when": "editorTextFocus && editorLangId == jenkins",
         "category": "jenkinssuite"
       }
     ],
+    "hoverProvider": {
+      "languageIds": [
+        "jkssh",
+        "jenkins"
+      ],
+      "documentSelector": [
+        {
+          "language": "jkssh",
+          "scheme": "file"
+        },
+        {
+          "language": "jenkins",
+          "scheme": "file"
+        },
+        {
+          "language": "jkssh",
+          "scheme": "jkssh"
+        },
+        {
+          "language": "jenkins",
+          "scheme": "jkssh"
+        }
+      ],
+      "priority": 1
+    },
     "languages": [
       {
         "id": "jenkins",
         "extensions": [
-          ".groovy",
-          ".jenkins",
           "Jenkinsfile"
         ],
         "aliases": [
           "Jenkins"
         ],
-        "configuration": "./languages/jenkins-language-configuration.json"
+        "icon": {
+          "light": "./resources/icons/jenkins.svg",
+          "dark": "./resources/icons/jenkins.svg"
+        },
+        "configuration": "./languages/jenkins-language-configuration.json",
+        "schemes": [
+          "jkssh"
+        ]
+      },
+      {
+        "id": "jkssh",
+        "aliases": [
+          "Jenkins Shell",
+          "JKSSH"
+        ],
+        "extensions": [
+          ".jkssh",
+          ".jenkins"
+        ],
+        "icon": {
+          "light": "./resources/icons/jenkins.svg",
+          "dark": "./resources/icons/jenkins.svg"
+        },
+        "configuration": "./languages/jks-language-configuration.json",
+        "schemes": [
+          "jkssh"
+        ]
       }
     ],
     "grammars": [
@@ -833,21 +1585,33 @@
         "language": "jenkins",
         "scopeName": "source.jenkins",
         "path": "./syntaxes/jenkins.tmGrammar.json"
+      },
+      {
+        "language": "jkssh",
+        "scopeName": "source.jkssh",
+        "path": "./syntaxes/jkssh.tmGrammar.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "jenkins",
+        "path": "./snippets/jenkins.json"
+      },
+      {
+        "language": "jkssh",
+        "path": "./snippets/jkssh.json"
       }
     ]
   },
   "scripts": {
-    "minify": "node minify.js",
-    "vscode:prepublish1": "npm run compile && npm run minify",
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
+    "vscode:prepublish": "webpack --mode production",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0",
     "@types/lodash": "^4.14.195",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.3.1",
@@ -855,17 +1619,23 @@
     "@types/ws": "^8.5.5",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.1",
-    "eslint": "^8.39.0",
-    "glob": "^8.1.0",
+    "@vscode/l10n-dev": "0.0.26",
+    "eslint": "^8.45.0",
+    "glob": "^10.3.2",
     "mocha": "^10.2.0",
-    "typescript": "^5.1.3"
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-loader": "^9.4.4",
+    "tslint": "^6.1.3",
+    "typescript": "^5.1.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "ajv": "^8.12.0",
-    "axios": "^1.4.0",
+    "axios": "^1.5.0",
     "dayjs": "^1.11.8",
     "formdata-node": "^5.0.1",
-    "html-entities": "^2.3.6",
+    "html-entities": "^2.4.0",
     "lodash": "^4.17.21",
     "ws": "^8.13.0",
     "xml-js": "^1.6.11"
